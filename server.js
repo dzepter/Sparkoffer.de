@@ -1,14 +1,15 @@
-/* Sparkoffer Link-Roboter  (v11 – frame-fähig + DOM-Kartenerkennung)
-   Der Pauschalreise-Rechner steckt auf check24.net in einem eingebetteten
-   Frame (iframe). v10 sucht Eingabefeld, Suchknopf und Ergebniskarten
-   deshalb in ALLEN Frames der Seite – das behebt den Fehler
-   „deals-lesen: Keine Ergebniskarten gefunden".
+/* Sparkoffer Link-Roboter  (v12)
+   Neu gegenüber v11:
+   – Kartenerkennung über Playwright-Selektoren, die auch in Shadow-DOM /
+     Webkomponenten hineinschauen (evaluate/querySelectorAll kann das nicht –
+     sehr wahrscheinlich der Grund für „Keine Ergebniskarten gefunden").
+   – /version       → zeigt, welche Version wirklich deployed ist
+   – /debug-suche   → führt eine Suche aus und zeigt, was der Roboter auf der
+                      Ergebnisseite sieht (Frames, Textanfang, Kartenanzahl)
 
-   /deal-link  – holt die Hotel-URL für einen bekannten Deal
-   /live-deal  – sucht LIVE den besten Deal EINES Ziels
-   /best-deal  – vergleicht MEHRERE Ziele, wählt den stärksten Deal,
-                 liest Details (Sterne, Bewertung, Verpflegung, Zimmer …) mit aus */
+   Endpoints: /deal-link, /live-deal, /best-deal, /debug-suche, /version */
 
+const VERSION = 'v12';
 const express = require('express');
 const { chromium } = require('playwright');
 const path = require('path');
@@ -17,10 +18,12 @@ const fs = require('fs');
 const app = express();
 app.use((req, res, next) => { res.set('Access-Control-Allow-Origin', '*'); next(); });
 
+app.get('/version', (_q, r) => r.json({ ok:true, version: VERSION }));
+
 app.get(['/','/app'], (_q, r) => {
   const f = path.join(__dirname, 'sparkoffer-app.html');
   if (fs.existsSync(f)) return r.sendFile(f);
-  r.send('Sparkoffer Link-Roboter v11 läuft ✅ – Endpoints: /deal-link, /live-deal, /best-deal');
+  r.send('Sparkoffer Link-Roboter '+VERSION+' läuft ✅ – Endpoints: /deal-link, /live-deal, /best-deal, /debug-suche, /version');
 });
 
 /* ---------------- Helfer ---------------- */
@@ -37,14 +40,17 @@ function budget(t0, schritt, limit){
   if (Date.now() - t0 > (limit||140000)) throw new Error('Zeitbudget überschritten bei „'+schritt+'" – bitte nochmal versuchen (Server war vermutlich kalt).');
 }
 
-/* Alle Frames der Seite (Haupt-Frame zuerst) */
 function alleFrames(page){
-  const fs = page.frames();
+  const fr = page.frames();
   const main = page.mainFrame();
-  return [main, ...fs.filter(f => f !== main)];
+  return [main, ...fr.filter(f => f !== main)];
 }
-
-/* Ersten Frame finden, der den Selektor enthält */
+function frameListe(page){
+  return alleFrames(page).map(x=>x.url().replace(/^https?:\/\//,'').slice(0,70)).join(' | ');
+}
+function rechnerFrame(page){
+  return alleFrames(page).find(x => /urlaub\.check24/i.test(x.url())) || null;
+}
 async function frameMit(page, selector, timeoutMs){
   const ende = Date.now() + (timeoutMs || 15000);
   while (Date.now() < ende) {
@@ -54,22 +60,6 @@ async function frameMit(page, selector, timeoutMs){
     await page.waitForTimeout(700);
   }
   return null;
-}
-
-/* Frame mit den Suchergebnissen finden (urlaub.check24 oder viele €-Karten) */
-async function ergebnisFrame(page, timeoutMs){
-  const ende = Date.now() + (timeoutMs || 25000);
-  while (Date.now() < ende) {
-    for (const f of alleFrames(page)) {
-      try { if (/urlaub\.check24|\/suche/i.test(f.url()) &&
-                 await f.locator('a,article').filter({ hasText:/€/ }).count() > 2) return f; } catch(_){}
-    }
-    for (const f of alleFrames(page)) {
-      try { if (await f.locator('a,article').filter({ hasText:/€/ }).count() > 4) return f; } catch(_){}
-    }
-    await page.waitForTimeout(900);
-  }
-  return page.mainFrame();
 }
 
 async function killConsent(page){
@@ -116,10 +106,8 @@ async function suchmaskeOeffnen(page, { von, bis, nights, airport, erwachsene, k
 const DEST_SEL = '#destination-element, input.c24package-location, input[placeholder*="Reiseziele" i], input[placeholder*="Reiseziel" i], input[placeholder*="Hotel" i]';
 
 async function zielEintippen(page, text){
-  /* Das Eingabefeld kann im Haupt-Frame ODER im Rechner-iframe liegen */
   const f = await frameMit(page, DEST_SEL, 20000);
-  if (!f) throw new Error('Reiseziel-Eingabefeld in keinem Frame gefunden (Frames: '+
-    alleFrames(page).map(x=>x.url().replace(/^https?:\/\//,'').slice(0,60)).join(' | ')+')');
+  if (!f) throw new Error('Reiseziel-Eingabefeld in keinem Frame gefunden (Frames: '+frameListe(page)+')');
 
   const dest = f.locator(DEST_SEL).first();
   const attrappe = f.getByText(/Alle Reiseziele zum Entdecken/i).first();
@@ -175,7 +163,6 @@ async function sucheStarten(page, formFrame){
   }
   if (!geklickt) await page.keyboard.press('Enter');
 
-  /* Warten, bis IRGENDEIN Frame die Suchergebnisse zeigt (URL /suche oder €-Karten) */
   const ende = Date.now() + 45000;
   while (Date.now() < ende) {
     await page.waitForTimeout(1500);
@@ -183,65 +170,35 @@ async function sucheStarten(page, formFrame){
     for (const f of alleFrames(page)) {
       try {
         if (/urlaub\.check24\.net\/suche|#\/suche/i.test(f.url())) return;
-        if (await f.locator('a,article').filter({ hasText:/€/ }).count() > 4 &&
-            /Nächte|p\.P\.|pro Person/i.test(await f.evaluate(()=>document.body.innerText.slice(0,4000)).catch(()=>''))) return;
+        if (await f.locator('a,article').filter({ hasText:/€/ }).count() > 4) return;
       } catch(_){}
     }
   }
-  throw new Error('Nach dem Suchklick keine Ergebnisseite erkannt (Frames: '+
-    alleFrames(page).map(x=>x.url().replace(/^https?:\/\//,'').slice(0,60)).join(' | ')+')');
+  throw new Error('Nach dem Suchklick keine Ergebnisseite erkannt (Frames: '+frameListe(page)+')');
 }
 
-/* --- Ergebniskarten per DOM-Analyse einsammeln (v11) ---
-   check24 baut die Karten nicht immer als <a>-Links. Wir suchen deshalb
-   ALLE Elemente, deren Text nach einer Deal-Karte aussieht (€ + Nächte/p.P.),
-   nehmen jeweils das innerste passende Element und markieren es zum Klicken. */
+/* --- Kartenerkennung (v12): Playwright-Selektoren durchdringen Shadow-DOM --- */
+function kartenLocator(frame){
+  return frame.locator('a, article, li, section, div')
+    .filter({ hasText: /€/ })
+    .filter({ hasText: /Nächte|p\.P\.?|pro Person|Übernacht/i });
+}
+
 async function kartenSammeln(frame){
-  return await frame.evaluate(() => {
-    const alle = [...document.querySelectorAll('a,article,li,section,div')];
-    const passt = el => {
-      const t = el.innerText || '';
-      return /€/.test(t) && /Nächte|p\.P\.?|pro Person|Übernacht/i.test(t)
-        && t.length > 60 && t.length < 1600;
-    };
-    const treffer = alle.filter(passt);
-    /* nur die innersten Karten behalten (keine Container, die andere Karten enthalten) */
-    const karten = treffer.filter(el => !treffer.some(o => o !== el && el.contains(o)));
-    document.querySelectorAll('[data-sk-karte]').forEach(e => e.removeAttribute('data-sk-karte'));
-    karten.slice(0, 20).forEach((el, i) => el.setAttribute('data-sk-karte', String(i)));
-    return karten.slice(0, 20).map((el, i) => ({ i, text: el.innerText }));
-  });
-}
-
-function rechnerFrame(page){
-  return alleFrames(page).find(x => /urlaub\.check24/i.test(x.url())) || null;
-}
-
-async function karteKlicken(page, frame, i){
-  const el = frame.locator('[data-sk-karte="'+i+'"]').first();
-  await el.scrollIntoViewIfNeeded().catch(()=>{});
-  const link = el.locator('a').first();
-  const ctx = page.context();
-  const [neuerTab] = await Promise.all([
-    ctx.waitForEvent('page', { timeout: 8000 }).catch(()=>null),
-    (async () => {
-      if (await link.count().catch(()=>0)) await link.click({ force:true }).catch(()=>el.click({ force:true }));
-      else await el.click({ force:true });
-    })()
-  ]);
-  const ziel = neuerTab || page;
-  await ziel.waitForTimeout(3000);
-  await ziel.waitForLoadState('networkidle', { timeout: 25000 }).catch(()=>{});
-  await killConsent(ziel);
-  let url = ziel.url();
-  if (!/urlaub\.check24|hotel|angebot|suche/i.test(url)) {
-    const f = rechnerFrame(ziel);
-    if (f) url = f.url();
-  } else {
-    const f = rechnerFrame(ziel);
-    if (f && /hotel|angebot|hotelId/i.test(f.url())) url = f.url();
+  const loc = kartenLocator(frame);
+  const n = Math.min(await loc.count().catch(()=>0), 250);
+  const roh = [];
+  for (let i = 0; i < n; i++) {
+    let t = (await loc.nth(i).innerText().catch(()=> '')) || '';
+    if (!t) t = (await loc.nth(i).textContent().catch(()=> '')) || '';
+    t = t.trim();
+    if (t.length > 60 && t.length < 1600) roh.push({ i, text: t });
   }
-  return { ziel, url };
+  /* Verschachtelte Container derselben Karte haben (fast) identischen Text →
+     pro Text nur den letzten (innersten) Treffer behalten */
+  const map = new Map();
+  for (const r of roh) map.set(r.text.replace(/\s+/g,' ').slice(0, 280), r);
+  return { loc, karten: [...map.values()].slice(0, 20) };
 }
 
 function karteParsen(text, i){
@@ -266,29 +223,47 @@ function score(k){
 }
 
 async function besteKarteFinden(page, maxKarten){
-  /* Frame mit dem Rechner bevorzugen, sonst suchen */
-  let f = rechnerFrame(page) || await ergebnisFrame(page, 15000);
-  const ende = Date.now() + 45000;      /* Ergebnisse laden oft 10–30 s nach */
-  let liste = [];
+  let f = rechnerFrame(page) || page.mainFrame();
+  const ende = Date.now() + 50000;          /* Ergebnisse laden oft 10–30 s nach */
+  let loc = null, karten = [];
   while (Date.now() < ende) {
-    liste = await kartenSammeln(f).catch(()=>[]);
-    if (liste.length) break;
+    f = rechnerFrame(page) || f;
+    const res = await kartenSammeln(f).catch(()=>({ loc:null, karten:[] }));
+    loc = res.loc; karten = res.karten;
+    if (karten.length) break;
     await f.evaluate(()=>window.scrollBy(0,800)).catch(()=>{});
     await page.waitForTimeout(2500);
     await killConsent(page);
-    f = rechnerFrame(page) || f;        /* falls der Frame neu geladen wurde */
   }
-  const kandidaten = liste.map(k => karteParsen(k.text, k.i)).filter(Boolean)
-                          .slice(0, maxKarten || 15);
+  const kandidaten = karten.map(k => karteParsen(k.text, k.i)).filter(Boolean)
+                           .slice(0, maxKarten || 15);
   kandidaten.sort((a,b)=>score(b)-score(a));
-  return { frame:f, kandidaten };
+  return { frame:f, loc, kandidaten };
 }
 
-/* --- Detailseite auslesen (alle Frames zusammen) --- */
+async function karteKlicken(page, loc, i){
+  const el = loc.nth(i);
+  await el.scrollIntoViewIfNeeded().catch(()=>{});
+  const ctx = page.context();
+  const [neuerTab] = await Promise.all([
+    ctx.waitForEvent('page', { timeout: 8000 }).catch(()=>null),
+    el.click({ force:true }).catch(async ()=>{ await el.locator('a').first().click({ force:true }).catch(()=>{}); })
+  ]);
+  const ziel = neuerTab || page;
+  await ziel.waitForTimeout(3000);
+  await ziel.waitForLoadState('networkidle', { timeout: 25000 }).catch(()=>{});
+  await killConsent(ziel);
+  let url = ziel.url();
+  const f = rechnerFrame(ziel);
+  if (f && (!/urlaub\.check24/i.test(url) || /hotel|angebot|hotelId/i.test(f.url()))) url = f.url();
+  return { ziel, url };
+}
+
+/* --- Detailseite auslesen (alle Frames, Shadow-DOM-fest über Locator-Text) --- */
 async function detailsLesen(ziel){
   let text = '';
   for (const f of alleFrames(ziel)) {
-    text += '\n' + ((await f.evaluate(()=>document.body.innerText).catch(()=> '')) || '');
+    text += '\n' + ((await f.locator('body').innerText({ timeout:5000 }).catch(()=> '')) || '');
   }
   const d = {};
   let m = text.match(/All[- ]?Inclusive(?:\s*Plus)?|Halbpension\s*Plus|Halbpension|Vollpension|Frühstück|Nur Übernachtung/i);
@@ -317,6 +292,43 @@ async function detailsLesen(ziel){
   return d;
 }
 
+/* ============ /debug-suche: zeigt, was der Roboter sieht ============ */
+app.get('/debug-suche', async (req, res) => {
+  const ziel    = (req.query.ziel || 'Türkei').trim();
+  const airport = req.query.airport || 'Frankfurt';
+  const von = req.query.von || addDays(null, 21);
+  const bis = req.query.bis || addDays(null, 49);
+  let browser, page, step='start';
+  try {
+    ({ browser, page } = await neuerBrowser());
+    step='suchmaske';
+    await suchmaskeOeffnen(page, { von, bis, nights:'7', airport });
+    step='reiseziel';
+    const formFrame = await zielEintippen(page, ziel);
+    step='suchen';
+    await sucheStarten(page, formFrame);
+    step='analyse';
+    await page.waitForTimeout(8000);
+    const f = rechnerFrame(page) || page.mainFrame();
+    const bodyText = (await f.locator('body').innerText({ timeout:8000 }).catch(()=> '')) || '';
+    const euroZahl = (bodyText.match(/€/g)||[]).length;
+    const { karten } = await kartenSammeln(f);
+    await browser.close();
+    return res.json({ ok:true, version:VERSION,
+      frames: frameListe(page).split(' | '),
+      ergebnisFrame: f.url().slice(0,120),
+      textAnfang: bodyText.replace(/\s+/g,' ').slice(0,500),
+      euroZeichenImText: euroZahl,
+      kartenGefunden: karten.length,
+      kartenBeispiele: karten.slice(0,3).map(k => k.text.replace(/\s+/g,' ').slice(0,220))
+    });
+  } catch (e) {
+    let frames=''; try{ frames=page?frameListe(page):''; }catch(_){}
+    if (browser) await browser.close().catch(()=>{});
+    return res.status(500).json({ ok:false, version:VERSION, step, frames, error:String(e.message||e).slice(0,400) });
+  }
+});
+
 /* ============ /deal-link ============ */
 app.get('/deal-link', async (req, res) => {
   const { hotel, von, bis, nights, airport } = req.query;
@@ -336,12 +348,11 @@ app.get('/deal-link', async (req, res) => {
     const rf = rechnerFrame(page);
     if (rf && /hoteldetail|hotelId=/i.test(rf.url())) url = rf.url();
     else {
-      const { frame, kandidaten } = await besteKarteFinden(page, 12);
-      if (!kandidaten.length) throw new Error('Keine Ergebniskarten gefunden. Frames: '+
-        alleFrames(page).map(x=>x.url().replace(/^https?:\/\//,'').slice(0,60)).join(' | '));
+      const { loc, kandidaten } = await besteKarteFinden(page, 12);
+      if (!kandidaten.length) throw new Error('Keine Ergebniskarten gefunden ['+VERSION+']. Frames: '+frameListe(page));
       const wort = hotel.split(' ')[0];
       const passend = kandidaten.find(k => new RegExp(wort,'i').test(k.name)) || kandidaten[0];
-      const off = await karteKlicken(page, frame, passend.i);
+      const off = await karteKlicken(page, loc, passend.i);
       url = off.url;
     }
     const hotelId = (url.match(/[?&#]hotelId=(\d+)/i)||[])[1]||null;
@@ -373,15 +384,12 @@ app.get('/live-deal', async (req, res) => {
     await sucheStarten(page, formFrame);
 
     step='deals-lesen'; budget(t0,step);
-    const { frame, kandidaten } = await besteKarteFinden(page, 15);
-    if (!kandidaten.length) {
-      const info = alleFrames(page).map(f=>f.url().replace(/^https?:\/\//,'').slice(0,60)).join(' | ');
-      throw new Error('Keine Ergebniskarten gefunden. Frames: '+info);
-    }
+    const { loc, kandidaten } = await besteKarteFinden(page, 15);
+    if (!kandidaten.length) throw new Error('Keine Ergebniskarten gefunden ['+VERSION+']. Frames: '+frameListe(page));
     const best = kandidaten[0];
 
     step='deal-oeffnen'; budget(t0,step);
-    const { ziel:zielSeite, url } = await karteKlicken(page, frame, best.i);
+    const { ziel:zielSeite, url } = await karteKlicken(page, loc, best.i);
     const hotelId = (url.match(/[?&#]hotelId=(\d+)/i)||[])[1]||null;
     const det = await detailsLesen(zielSeite);
     await browser.close();
@@ -426,7 +434,7 @@ app.get('/best-deal', async (req, res) => {
         step = 'suchen ('+zielName+')'; budget(t0, step, LIMIT);
         await sucheStarten(page, formFrame);
         step = 'deals-lesen ('+zielName+')'; budget(t0, step, LIMIT);
-        const { frame, kandidaten } = await besteKarteFinden(page, 12);
+        const { loc, kandidaten } = await besteKarteFinden(page, 12);
         protokoll.push(zielName+': '+kandidaten.length+' Deals, Top-Rabatt '+(kandidaten[0]?kandidaten[0].rabatt+'%':'–'));
         if (!kandidaten.length) continue;
         const top = kandidaten[0];
@@ -435,24 +443,24 @@ app.get('/best-deal', async (req, res) => {
 
         if (top.rabatt >= minRabatt) {
           step = 'deal-oeffnen ('+zielName+')'; budget(t0, step, LIMIT);
-          const off = await karteKlicken(page, frame, top.i);
+          const off = await karteKlicken(page, loc, top.i);
           return await antwort(res, browser, off.ziel, off.url, zielName, top, { von, bis, nights, airport, protokoll });
         }
       } catch (e) { protokoll.push(zielName+': Fehler – '+String(e.message||e).slice(0,120)); }
     }
 
-    if (!bestGlobal) throw new Error('In keinem Ziel Deals gefunden. Protokoll: '+protokoll.join(' | '));
+    if (!bestGlobal) throw new Error('In keinem Ziel Deals gefunden ['+VERSION+']. Protokoll: '+protokoll.join(' | '));
 
     const { ziel: zielName, kandidat } = bestGlobal;
     step = 'bester-nochmal ('+zielName+')'; budget(t0, step, LIMIT);
     await suchmaskeOeffnen(page, { von, bis, nights, airport });
     const formFrame = await zielEintippen(page, zielName);
     await sucheStarten(page, formFrame);
-    const { frame, kandidaten } = await besteKarteFinden(page, 12);
+    const { loc, kandidaten } = await besteKarteFinden(page, 12);
     const wieder = kandidaten.find(k => k.name === kandidat.name) || kandidaten[0];
     if (!wieder) throw new Error('Deal beim zweiten Anlauf nicht wiedergefunden. Protokoll: '+protokoll.join(' | '));
     step = 'deal-oeffnen ('+zielName+')'; budget(t0, step, LIMIT);
-    const off = await karteKlicken(page, frame, wieder.i);
+    const off = await karteKlicken(page, loc, wieder.i);
     return await antwort(res, browser, off.ziel, off.url, zielName, wieder, { von, bis, nights, airport, protokoll });
 
   } catch (e) {
@@ -475,4 +483,4 @@ app.get('/best-deal', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Link-Roboter v11 läuft auf Port', PORT));
+app.listen(PORT, () => console.log('Link-Roboter '+VERSION+' läuft auf Port', PORT));

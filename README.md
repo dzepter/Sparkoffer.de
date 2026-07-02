@@ -33,6 +33,22 @@ https://DEINE-ADRESSE.onrender.com/deal-link?hotel=Yalihan+Aspendos&von=2026-07-
 ```
 Antwort sollte `"ok": true` und eine `urlaub.check24.net`-URL enthalten.
 
+## NEU in v9: /best-deal (der Tagesdeal)
+Vergleicht bis zu 3 Ziele in einem Durchlauf, wählt den stärksten Deal
+(Rabatt + Bewertung), öffnet die Angebotsseite und liest Sterne, Bewertung,
+Verpflegung, Zimmer, Reisedaten und Extras gleich mit aus:
+```
+https://DEINE-ADRESSE.onrender.com/best-deal?ziele=Türkei,Ägypten,Mallorca&airport=Frankfurt&minRabatt=40
+```
+Ab `minRabatt` (Standard 40 %) greift er sofort zu; sonst nimmt er am Ende
+den besten gefundenen Deal. Die Antwort enthält ein `protokoll` mit dem, was
+er pro Ziel gefunden hat.
+
+## Update einspielen (wenn du schon deployed hast)
+GitHub → dein Repository → `server.js` anklicken → Stift-Symbol (Edit) →
+kompletten Inhalt durch die neue Datei ersetzen → **Commit changes**.
+Render baut automatisch neu (ca. 5 Min.), fertig.
+
 ## Wichtige Hinweise
 - **Gratis-Tarif schläft ein:** Nach 15 Min. ohne Nutzung schläft der Dienst;
   der erste Aufruf danach dauert ~1 Min. (die App wartet automatisch).

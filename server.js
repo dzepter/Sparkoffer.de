@@ -1,4 +1,4 @@
-/* Sparkoffer Link-Roboter  (v3)
+/* Sparkoffer Link-Roboter  (v4)
    Strategie: Reisesuche mit vorbefüllten Daten öffnen (Zeitraum, Flughafen,
    2 Erwachsene) – dann nur noch Hotelname eintippen, Vorschlag wählen,
    Suche starten, Hotel anklicken, URL zurückgeben.
@@ -86,38 +86,37 @@ app.get('/deal-link', async (req, res) => {
     await page.waitForLoadState('networkidle', { timeout:20000 }).catch(()=>{});
     await killConsent(page);
 
-    /* 2) Reiseziel-Feld: sichtbares Ziel-Element anklicken, dann ins fokussierte Feld tippen */
+    /* 2) Reiseziel: das bekannte Feld #destination-element gezielt ansteuern.
+       Check24 versteckt das echte Eingabefeld hinter einer Design-Attrappe –
+       also: Attrappe anklicken, Feld notfalls sichtbar machen, per Tastatur tippen. */
     step = 'reiseziel';
-    let zielInput = null;
-    const direkt = page.getByPlaceholder(/Reiseziel|Wohin|Ziel|Hotel|Region/i).first();
-    if (await direkt.isVisible().catch(()=>false)) {
-      zielInput = direkt;
-      await zielInput.click();
+    const dest = page.locator('#destination-element, input.c24package-location, input[placeholder*="Reiseziele" i]').first();
+    await dest.waitFor({ state:'attached', timeout:15000 });
+
+    const attrappe = page.getByText(/Alle Reiseziele zum Entdecken|Reiseziel/i).first();
+    if (await attrappe.isVisible().catch(()=>false)) await attrappe.click({ force:true }).catch(()=>{});
+    await page.waitForTimeout(500);
+
+    if (!(await dest.isVisible().catch(()=>false))) {
+      await dest.evaluate(el => {
+        el.style.display='block'; el.style.visibility='visible'; el.style.opacity='1';
+        el.removeAttribute('readonly'); el.focus();
+      }).catch(()=>{});
     } else {
-      /* SPA-Maske: erste Zeile der Suchbox anklicken, dann erscheint ein Eingabefeld */
-      const zeile = page.locator('form, [class*="search" i]').locator('div,button,span')
-        .filter({ hasText: /Reiseziel|Wohin|Ziel|Hotel|beliebig/i }).first();
-      if (await zeile.isVisible().catch(()=>false)) await zeile.click().catch(()=>{});
-      else {
-        const irgendeinInput = page.locator('input[type="text"]:not([name="q"]):not([class*="headertop" i])').first();
-        await irgendeinInput.click();
-      }
-      await page.waitForTimeout(600);
-      zielInput = page.locator('input:focus').first();
-      if (!(await zielInput.isVisible().catch(()=>false)))
-        zielInput = page.locator('input[type="text"]:visible:not([name="q"]):not([class*="headertop" i])').first();
+      await dest.click().catch(()=>{});
     }
-    await zielInput.fill('');
-    await zielInput.type(hotel, { delay: 60 });
+    await dest.evaluate(el => { el.value=''; el.focus(); }).catch(()=>{});
+    await page.keyboard.type(hotel, { delay: 80 });
     await page.waitForTimeout(2500);            /* Vorschläge laden lassen */
 
-    /* 3) Vorschlag wählen */
+    /* 3) Vorschlag wählen (jQuery-UI-Autocomplete: ul.ui-autocomplete) */
     step = 'vorschlag';
     const wort = hotel.split(' ')[0];
-    const sugg = page.locator('li:visible,[role="option"]:visible,[class*="suggest" i] :visible,[class*="autocomplete" i] :visible')
+    await page.waitForSelector('ul.ui-autocomplete li, li.ui-menu-item', { timeout:8000 }).catch(()=>{});
+    const item = page.locator('ul.ui-autocomplete li, li.ui-menu-item')
                      .filter({ hasText: new RegExp(wort, 'i') }).first();
-    if (await sugg.isVisible().catch(()=>false)) await sugg.click();
-    else { await zielInput.press('ArrowDown'); await zielInput.press('Enter'); }
+    if (await item.isVisible().catch(()=>false)) await item.click();
+    else { await page.keyboard.press('ArrowDown'); await page.keyboard.press('Enter'); }
     await page.waitForTimeout(800);
 
     /* 4) Suche starten */

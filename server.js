@@ -1,4 +1,4 @@
-/* Sparkoffer Link-Roboter  (v4)
+/* Sparkoffer Link-Roboter  (v5)
    Strategie: Reisesuche mit vorbefüllten Daten öffnen (Zeitraum, Flughafen,
    2 Erwachsene) – dann nur noch Hotelname eintippen, Vorschlag wählen,
    Suche starten, Hotel anklicken, URL zurückgeben.
@@ -122,14 +122,18 @@ app.get('/deal-link', async (req, res) => {
     /* 4) Suche starten */
     step = 'suchen';
     await killConsent(page);
-    const suchBtn = page.getByRole('button', { name:/^Suche$|Reise finden|Suchen/i }).first();
+    const zielWert = await dest.evaluate(el => el.value).catch(()=> '');
+    if (!zielWert) throw new Error('Reiseziel-Feld ist leer geblieben – Vorschlag wurde nicht übernommen.');
+    const suchBtn = page.getByRole('button', { name:/Reise finden|^Suche$|Suchen/i }).first();
     if (await suchBtn.isVisible().catch(()=>false)) await suchBtn.click();
     else await page.keyboard.press('Enter');
 
-    /* 5) Ergebnis abwarten */
+    /* 5) Ergebnis abwarten – check24.net nutzt Hash-Navigation (#/suche/…),
+       die Seite wechselt also NICHT die Domain! */
     step = 'ergebnisliste';
-    await page.waitForURL(/urlaub\.check24\.net\/suche/i, { timeout:45000 });
+    await page.waitForURL(u => /urlaub\.check24\.net\/suche|#\/suche/i.test(u.href), { timeout:45000 });
     await page.waitForLoadState('networkidle', { timeout:40000 }).catch(()=>{});
+    await page.waitForTimeout(2000);
     await killConsent(page);
 
     /* 6) Hotel öffnen (falls nicht schon auf der Hotelseite) – neue Tabs abfangen */

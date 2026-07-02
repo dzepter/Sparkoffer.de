@@ -1,4 +1,4 @@
-/* Sparkoffer Link-Roboter  (v10 – frame-fähig)
+/* Sparkoffer Link-Roboter  (v11 – frame-fähig + DOM-Kartenerkennung)
    Der Pauschalreise-Rechner steckt auf check24.net in einem eingebetteten
    Frame (iframe). v10 sucht Eingabefeld, Suchknopf und Ergebniskarten
    deshalb in ALLEN Frames der Seite – das behebt den Fehler
@@ -20,7 +20,7 @@ app.use((req, res, next) => { res.set('Access-Control-Allow-Origin', '*'); next(
 app.get(['/','/app'], (_q, r) => {
   const f = path.join(__dirname, 'sparkoffer-app.html');
   if (fs.existsSync(f)) return r.sendFile(f);
-  r.send('Sparkoffer Link-Roboter v10 läuft ✅ – Endpoints: /deal-link, /live-deal, /best-deal');
+  r.send('Sparkoffer Link-Roboter v11 läuft ✅ – Endpoints: /deal-link, /live-deal, /best-deal');
 });
 
 /* ---------------- Helfer ---------------- */
@@ -192,16 +192,56 @@ async function sucheStarten(page, formFrame){
     alleFrames(page).map(x=>x.url().replace(/^https?:\/\//,'').slice(0,60)).join(' | ')+')');
 }
 
-/* --- Ergebniskarten des richtigen Frames einsammeln und bewerten --- */
-async function karteLocator(page){
-  const f = await ergebnisFrame(page, 25000);
-  await page.waitForTimeout(2000);
-  await f.evaluate(()=>window.scrollBy(0,900)).catch(()=>{});
-  await page.waitForTimeout(2200);
-  let karten = f.locator('a[href*="hoteldetail" i], a[href*="angebot" i], a[href*="#/suche" i]').filter({ hasText:/€/ });
-  if (!(await karten.count())) karten = f.locator('a').filter({ hasText:/€/ });
-  if (!(await karten.count())) karten = f.locator('article, [class*="result" i], [class*="offer" i], [class*="hotel" i]').filter({ hasText:/€/ });
-  return { frame:f, karten };
+/* --- Ergebniskarten per DOM-Analyse einsammeln (v11) ---
+   check24 baut die Karten nicht immer als <a>-Links. Wir suchen deshalb
+   ALLE Elemente, deren Text nach einer Deal-Karte aussieht (€ + Nächte/p.P.),
+   nehmen jeweils das innerste passende Element und markieren es zum Klicken. */
+async function kartenSammeln(frame){
+  return await frame.evaluate(() => {
+    const alle = [...document.querySelectorAll('a,article,li,section,div')];
+    const passt = el => {
+      const t = el.innerText || '';
+      return /€/.test(t) && /Nächte|p\.P\.?|pro Person|Übernacht/i.test(t)
+        && t.length > 60 && t.length < 1600;
+    };
+    const treffer = alle.filter(passt);
+    /* nur die innersten Karten behalten (keine Container, die andere Karten enthalten) */
+    const karten = treffer.filter(el => !treffer.some(o => o !== el && el.contains(o)));
+    document.querySelectorAll('[data-sk-karte]').forEach(e => e.removeAttribute('data-sk-karte'));
+    karten.slice(0, 20).forEach((el, i) => el.setAttribute('data-sk-karte', String(i)));
+    return karten.slice(0, 20).map((el, i) => ({ i, text: el.innerText }));
+  });
+}
+
+function rechnerFrame(page){
+  return alleFrames(page).find(x => /urlaub\.check24/i.test(x.url())) || null;
+}
+
+async function karteKlicken(page, frame, i){
+  const el = frame.locator('[data-sk-karte="'+i+'"]').first();
+  await el.scrollIntoViewIfNeeded().catch(()=>{});
+  const link = el.locator('a').first();
+  const ctx = page.context();
+  const [neuerTab] = await Promise.all([
+    ctx.waitForEvent('page', { timeout: 8000 }).catch(()=>null),
+    (async () => {
+      if (await link.count().catch(()=>0)) await link.click({ force:true }).catch(()=>el.click({ force:true }));
+      else await el.click({ force:true });
+    })()
+  ]);
+  const ziel = neuerTab || page;
+  await ziel.waitForTimeout(3000);
+  await ziel.waitForLoadState('networkidle', { timeout: 25000 }).catch(()=>{});
+  await killConsent(ziel);
+  let url = ziel.url();
+  if (!/urlaub\.check24|hotel|angebot|suche/i.test(url)) {
+    const f = rechnerFrame(ziel);
+    if (f) url = f.url();
+  } else {
+    const f = rechnerFrame(ziel);
+    if (f && /hotel|angebot|hotelId/i.test(f.url())) url = f.url();
+  }
+  return { ziel, url };
 }
 
 function karteParsen(text, i){
@@ -226,38 +266,22 @@ function score(k){
 }
 
 async function besteKarteFinden(page, maxKarten){
-  const { frame, karten } = await karteLocator(page);
-  const anzahl = Math.min(await karten.count(), maxKarten||15);
-  const kandidaten = [];
-  for (let i = 0; i < anzahl; i++) {
-    const text = (await karten.nth(i).innerText().catch(()=> '')) || '';
-    const k = karteParsen(text, i);
-    if (k) kandidaten.push(k);
+  /* Frame mit dem Rechner bevorzugen, sonst suchen */
+  let f = rechnerFrame(page) || await ergebnisFrame(page, 15000);
+  const ende = Date.now() + 45000;      /* Ergebnisse laden oft 10–30 s nach */
+  let liste = [];
+  while (Date.now() < ende) {
+    liste = await kartenSammeln(f).catch(()=>[]);
+    if (liste.length) break;
+    await f.evaluate(()=>window.scrollBy(0,800)).catch(()=>{});
+    await page.waitForTimeout(2500);
+    await killConsent(page);
+    f = rechnerFrame(page) || f;        /* falls der Frame neu geladen wurde */
   }
+  const kandidaten = liste.map(k => karteParsen(k.text, k.i)).filter(Boolean)
+                          .slice(0, maxKarten || 15);
   kandidaten.sort((a,b)=>score(b)-score(a));
-  return { frame, karten, kandidaten };
-}
-
-/* Nach dem Klick: URL des Angebots ermitteln – öffnet der Klick einen neuen Tab,
-   nehmen wir dessen URL; sonst Frame-URL bzw. Seiten-URL. */
-async function angebotOeffnen(page, karten, index){
-  const ctx = page.context();
-  const [neuerTab] = await Promise.all([
-    ctx.waitForEvent('page', { timeout:8000 }).catch(()=>null),
-    karten.nth(index).click()
-  ]);
-  const ziel = neuerTab || page;
-  await ziel.waitForTimeout(3000);
-  await ziel.waitForLoadState('networkidle', { timeout:25000 }).catch(()=>{});
-  await killConsent(ziel);
-  /* Beste URL wählen: neuer Tab > Frame mit urlaub.check24 > Haupt-URL */
-  let url = ziel.url();
-  if (!/urlaub\.check24|hotel|angebot|suche/i.test(url)) {
-    for (const f of alleFrames(ziel)) {
-      if (/urlaub\.check24/i.test(f.url())) { url = f.url(); break; }
-    }
-  }
-  return { ziel, url };
+  return { frame:f, kandidaten };
 }
 
 /* --- Detailseite auslesen (alle Frames zusammen) --- */
@@ -308,21 +332,16 @@ app.get('/deal-link', async (req, res) => {
     step='suchen'; budget(t0,step);
     await sucheStarten(page, formFrame);
     step='hotel-oeffnen'; budget(t0,step);
-    const { frame, karten } = await karteLocator(page);
     let url = '';
-    if (/hoteldetail|hotelId=/i.test(frame.url())) url = frame.url();
+    const rf = rechnerFrame(page);
+    if (rf && /hoteldetail|hotelId=/i.test(rf.url())) url = rf.url();
     else {
-      const treffer = frame.getByText(new RegExp(hotel.split(' ').slice(0,2).join('.{0,3}'),'i')).first();
-      let idx = 0;
-      if (await treffer.isVisible().catch(()=>false)) {
-        /* Karte mit passendem Hotelnamen bevorzugen */
-        const n = Math.min(await karten.count(), 12);
-        for (let i=0;i<n;i++){
-          const t=(await karten.nth(i).innerText().catch(()=> ''))||'';
-          if (new RegExp(hotel.split(' ')[0],'i').test(t)) { idx=i; break; }
-        }
-      }
-      const off = await angebotOeffnen(page, karten, idx);
+      const { frame, kandidaten } = await besteKarteFinden(page, 12);
+      if (!kandidaten.length) throw new Error('Keine Ergebniskarten gefunden. Frames: '+
+        alleFrames(page).map(x=>x.url().replace(/^https?:\/\//,'').slice(0,60)).join(' | '));
+      const wort = hotel.split(' ')[0];
+      const passend = kandidaten.find(k => new RegExp(wort,'i').test(k.name)) || kandidaten[0];
+      const off = await karteKlicken(page, frame, passend.i);
       url = off.url;
     }
     const hotelId = (url.match(/[?&#]hotelId=(\d+)/i)||[])[1]||null;
@@ -354,7 +373,7 @@ app.get('/live-deal', async (req, res) => {
     await sucheStarten(page, formFrame);
 
     step='deals-lesen'; budget(t0,step);
-    const { karten, kandidaten } = await besteKarteFinden(page, 15);
+    const { frame, kandidaten } = await besteKarteFinden(page, 15);
     if (!kandidaten.length) {
       const info = alleFrames(page).map(f=>f.url().replace(/^https?:\/\//,'').slice(0,60)).join(' | ');
       throw new Error('Keine Ergebniskarten gefunden. Frames: '+info);
@@ -362,7 +381,7 @@ app.get('/live-deal', async (req, res) => {
     const best = kandidaten[0];
 
     step='deal-oeffnen'; budget(t0,step);
-    const { ziel:zielSeite, url } = await angebotOeffnen(page, karten, best.i);
+    const { ziel:zielSeite, url } = await karteKlicken(page, frame, best.i);
     const hotelId = (url.match(/[?&#]hotelId=(\d+)/i)||[])[1]||null;
     const det = await detailsLesen(zielSeite);
     await browser.close();
@@ -407,7 +426,7 @@ app.get('/best-deal', async (req, res) => {
         step = 'suchen ('+zielName+')'; budget(t0, step, LIMIT);
         await sucheStarten(page, formFrame);
         step = 'deals-lesen ('+zielName+')'; budget(t0, step, LIMIT);
-        const { karten, kandidaten } = await besteKarteFinden(page, 12);
+        const { frame, kandidaten } = await besteKarteFinden(page, 12);
         protokoll.push(zielName+': '+kandidaten.length+' Deals, Top-Rabatt '+(kandidaten[0]?kandidaten[0].rabatt+'%':'–'));
         if (!kandidaten.length) continue;
         const top = kandidaten[0];
@@ -416,7 +435,7 @@ app.get('/best-deal', async (req, res) => {
 
         if (top.rabatt >= minRabatt) {
           step = 'deal-oeffnen ('+zielName+')'; budget(t0, step, LIMIT);
-          const off = await angebotOeffnen(page, karten, top.i);
+          const off = await karteKlicken(page, frame, top.i);
           return await antwort(res, browser, off.ziel, off.url, zielName, top, { von, bis, nights, airport, protokoll });
         }
       } catch (e) { protokoll.push(zielName+': Fehler – '+String(e.message||e).slice(0,120)); }
@@ -429,11 +448,11 @@ app.get('/best-deal', async (req, res) => {
     await suchmaskeOeffnen(page, { von, bis, nights, airport });
     const formFrame = await zielEintippen(page, zielName);
     await sucheStarten(page, formFrame);
-    const { karten, kandidaten } = await besteKarteFinden(page, 12);
+    const { frame, kandidaten } = await besteKarteFinden(page, 12);
     const wieder = kandidaten.find(k => k.name === kandidat.name) || kandidaten[0];
     if (!wieder) throw new Error('Deal beim zweiten Anlauf nicht wiedergefunden. Protokoll: '+protokoll.join(' | '));
     step = 'deal-oeffnen ('+zielName+')'; budget(t0, step, LIMIT);
-    const off = await angebotOeffnen(page, karten, wieder.i);
+    const off = await karteKlicken(page, frame, wieder.i);
     return await antwort(res, browser, off.ziel, off.url, zielName, wieder, { von, bis, nights, airport, protokoll });
 
   } catch (e) {
@@ -456,4 +475,4 @@ app.get('/best-deal', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Link-Roboter v10 läuft auf Port', PORT));
+app.listen(PORT, () => console.log('Link-Roboter v11 läuft auf Port', PORT));

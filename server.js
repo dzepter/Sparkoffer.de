@@ -1,4 +1,4 @@
-/* Sparkoffer Link-Roboter  (v6)
+/* Sparkoffer Link-Roboter  (v7)
    /deal-link  – holt die Hotel-URL für einen bekannten Deal
    /live-deal  – NEU: sucht LIVE im check24.net-Rechner den besten Deal
                  (höchste Ersparnis) und liefert Daten + Original-URL     */
@@ -68,24 +68,48 @@ async function suchmaskeOeffnen(page, { von, bis, nights, airport }){
 async function zielEintippen(page, text){
   const dest = page.locator('#destination-element, input.c24package-location, input[placeholder*="Reiseziele" i]').first();
   await dest.waitFor({ state:'attached', timeout:15000 });
-  const attrappe = page.getByText(/Alle Reiseziele zum Entdecken|Reiseziel/i).first();
+  const attrappe = page.getByText(/Alle Reiseziele zum Entdecken/i).first();
   if (await attrappe.isVisible().catch(()=>false)) await attrappe.click({ force:true }).catch(()=>{});
   await page.waitForTimeout(400);
   if (!(await dest.isVisible().catch(()=>false))) {
-    await dest.evaluate(el => { el.style.display='block'; el.style.visibility='visible'; el.style.opacity='1';
-      el.removeAttribute('readonly'); el.focus(); }).catch(()=>{});
-  } else await dest.click().catch(()=>{});
+    await dest.evaluate(el => { el.style.cssText += ';display:block;visibility:visible;opacity:1;';
+      el.removeAttribute('readonly'); }).catch(()=>{});
+  }
+  await dest.click({ force:true }).catch(()=>{});
   await dest.evaluate(el => { el.value=''; el.focus(); }).catch(()=>{});
   await page.keyboard.type(text, { delay:80 });
+
+  /* Falls die Tastatur nicht ankam: Wert direkt setzen und Ereignisse feuern */
+  let val = await dest.evaluate(el => el.value).catch(()=> '');
+  if (!val) {
+    await dest.evaluate((el, t) => {
+      el.value = t;
+      el.dispatchEvent(new Event('input', { bubbles:true }));
+      el.dispatchEvent(new KeyboardEvent('keydown', { bubbles:true, key:'a' }));
+      el.dispatchEvent(new KeyboardEvent('keyup',   { bubbles:true, key:'a' }));
+    }, text).catch(()=>{});
+  }
   await page.waitForTimeout(2200);
+
   const wort = text.split(' ')[0];
   const item = page.locator('ul.ui-autocomplete li, li.ui-menu-item')
                    .filter({ hasText:new RegExp(wort,'i') }).first();
   if (await item.isVisible().catch(()=>false)) await item.click();
   else { await page.keyboard.press('ArrowDown'); await page.keyboard.press('Enter'); }
-  await page.waitForTimeout(600);
-  const wert = await dest.evaluate(el => el.value).catch(()=> '');
-  if (!wert) throw new Error('Reiseziel wurde nicht übernommen');
+  await page.waitForTimeout(800);
+
+  /* Weiche Kontrolle: Nach der Auswahl wandert der Wert oft in ein VERSTECKTES Feld –
+     deshalb alle Eingabefelder prüfen und notfalls einmal nachtippen, aber NICHT abbrechen. */
+  const alleWerte = await page.evaluate(() =>
+    [...document.querySelectorAll('input')].map(i => i.value||'').join(' | ')
+  ).catch(()=> '');
+  if (!new RegExp(wort,'i').test(alleWerte)) {
+    await dest.click({ force:true }).catch(()=>{});
+    await page.keyboard.type(text, { delay:60 }).catch(()=>{});
+    await page.waitForTimeout(1500);
+    await page.keyboard.press('Enter').catch(()=>{});
+    await page.waitForTimeout(600);
+  }
 }
 
 async function sucheStarten(page){

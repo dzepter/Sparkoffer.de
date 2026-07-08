@@ -7,9 +7,9 @@
    – /debug-suche   → führt eine Suche aus und zeigt, was der Roboter auf der
                       Ergebnisseite sieht (Frames, Textanfang, Kartenanzahl)
 
-   Endpoints: /deal-link, /live-deal, /best-deal, /debug-suche, /version */
+   Endpoints: /link-info, /deal-link, /live-deal, /best-deal, /debug-suche, /version */
 
-const VERSION = 'v12';
+const VERSION = 'v13';
 const express = require('express');
 const { chromium } = require('playwright');
 const path = require('path');
@@ -23,7 +23,7 @@ app.get('/version', (_q, r) => r.json({ ok:true, version: VERSION }));
 app.get(['/','/app'], (_q, r) => {
   const f = path.join(__dirname, 'sparkoffer-app.html');
   if (fs.existsSync(f)) return r.sendFile(f);
-  r.send('Sparkoffer Link-Roboter '+VERSION+' läuft ✅ – Endpoints: /deal-link, /live-deal, /best-deal, /debug-suche, /version');
+  r.send('Sparkoffer Link-Roboter '+VERSION+' läuft ✅ – Endpoints: /link-info, /deal-link, /live-deal, /best-deal, /debug-suche, /version');
 });
 
 /* ---------------- Helfer ---------------- */
@@ -326,6 +326,119 @@ app.get('/debug-suche', async (req, res) => {
     let frames=''; try{ frames=page?frameListe(page):''; }catch(_){}
     if (browser) await browser.close().catch(()=>{});
     return res.status(500).json({ ok:false, version:VERSION, step, frames, error:String(e.message||e).slice(0,400) });
+  }
+});
+
+/* ============ /link-info: DU bringst den Link – der Roboter liest die Daten ============
+   ?url=<Angebots-Link>  (check24-Angebotsseite oder c24n.de-Kurzlink)
+   Öffnet die Seite, folgt Weiterleitungen, liest Hotel, Preise, Bewertung,
+   Sterne, Verpflegung, Zimmer, Reisedaten, Nächte, Abflughafen und Extras. */
+app.get('/link-info', async (req, res) => {
+  const rawUrl = (req.query.url || '').trim();
+  if (!/^https?:\/\//i.test(rawUrl)) return res.status(400).json({ ok:false, step:'input', error:'Parameter "url" fehlt oder ist keine vollständige Adresse (muss mit https:// beginnen).' });
+  if (!/check24|c24n\.de/i.test(rawUrl)) return res.status(400).json({ ok:false, step:'input', error:'Bitte einen check24- oder c24n.de-Link einfügen.' });
+  const t0 = Date.now();
+  let browser, page, step = 'start';
+  try {
+    ({ browser, page } = await neuerBrowser());
+    step='seite-oeffnen'; budget(t0,step);
+    await page.goto(rawUrl, { waitUntil:'domcontentloaded', timeout:45000 });
+    await page.waitForTimeout(3000);
+    await killConsent(page);
+    await page.waitForLoadState('networkidle', { timeout:25000 }).catch(()=>{});
+    await killConsent(page);
+    await page.waitForTimeout(2500);
+    /* etwas scrollen, damit nachladende Bereiche (Preise, Details) erscheinen */
+    for (const y of [600, 1200, 1800]) {
+      await page.evaluate(v=>window.scrollTo(0,v), y).catch(()=>{});
+      await page.waitForTimeout(900);
+    }
+
+    step='daten-lesen'; budget(t0,step);
+    /* Text aus ALLEN Frames einsammeln (Rechner-Frame zuerst, falls vorhanden) */
+    let text = '';
+    const rf = rechnerFrame(page);
+    const reihenfolge = rf ? [rf, ...alleFrames(page).filter(f=>f!==rf)] : alleFrames(page);
+    for (const f of reihenfolge) {
+      text += '\n' + ((await f.locator('body').innerText({ timeout:8000 }).catch(()=> '')) || '');
+    }
+    if (text.replace(/\s+/g,'').length < 200) throw new Error('Seite scheint leer geladen zu sein – bitte nochmal versuchen.');
+
+    const titel = (await page.title().catch(()=> '')) || '';
+    const d = {};
+
+    /* Hotelname: aus dem Seitentitel („Hotelname, Ort | CHECK24“) oder erster passender Zeile */
+    let m = titel.match(/^([^|–\-]{4,70}?)(?:,| \||$)/);
+    if (m) d.hotel = m[1].trim();
+    if (!d.hotel || /check24|urlaub|pauschalreise/i.test(d.hotel)) {
+      const zeilen = text.split('\n').map(s=>s.trim()).filter(Boolean);
+      d.hotel = zeilen.find(z => /Hotel|Resort|Club|Aparthotel|Iberostar|Riu|Lopesan|Barcelo|TUI/i.test(z)
+                 && !/€|Nächte|Bewertung|Merkzettel/i.test(z) && z.length>5 && z.length<70) || '';
+    }
+    /* Ort: Titelteil nach dem Komma oder „in <Ort>“ */
+    m = titel.match(/,\s*([^|–\-]{3,40}?)\s*(?:\||$)/);
+    if (m) d.ort = m[1].trim();
+
+    /* Preise: p.P. bevorzugen, sonst Gesamtpreis/2 */
+    m = text.match(/([\d.]{3,7})\s*€\s*(?:p\.\s*P|pro\s*Person)/i);
+    if (m) d.preis_pp = +m[1].replace(/\./g,'');
+    let gesamt = 0;
+    m = text.match(/Gesamtpreis[^\d€]{0,25}([\d.]{3,7})\s*€/i) || text.match(/gesamt[^\d€]{0,15}([\d.]{3,7})\s*€/i);
+    if (m) gesamt = +m[1].replace(/\./g,'');
+    if (!d.preis_pp && gesamt) d.preis_pp = Math.round(gesamt/2);
+    if (!d.preis_pp) {
+      const alle = [...text.matchAll(/([\d.]{3,7})\s*€/g)].map(x=>+x[1].replace(/\./g,'')).filter(p=>p>=150&&p<20000);
+      if (alle.length) d.preis_pp = Math.min(...alle);
+    }
+    m = text.match(/statt\s*([\d.]{3,7})\s*€\s*(?:p\.\s*P|pro\s*Person)/i) || text.match(/statt\s*([\d.]{3,7})\s*€/i);
+    if (m) {
+      let s = +m[1].replace(/\./g,'');
+      if (gesamt && s > gesamt*0.8) s = Math.round(s/2);   /* „statt“ bezog sich auf Gesamtpreis */
+      if (d.preis_pp && s > d.preis_pp) d.statt_pp = s;
+    }
+
+    /* Bewertung (x,x/6, x,x/10 oder nach „Bewertung“), Sterne */
+    m = text.match(/(\d,\d)\s*\/\s*(?:6|10)/) || text.match(/Bewertung[^\d]{0,12}(\d,\d)/i) || text.match(/(\d,\d)\s*(?:sehr gut|gut|hervorragend)/i);
+    if (m) d.bewertung = m[1];
+    m = text.match(/(\d(?:[.,]5)?)\s*(?:Sterne|-Sterne|★)/i);
+    if (m) d.sterne = m[1].replace('.',',');
+
+    /* Verpflegung, Zimmer, Daten, Nächte, Extras (wie gehabt) */
+    m = text.match(/All[- ]?Inclusive(?:\s*Plus)?|Halbpension\s*Plus|Halbpension|Vollpension|Frühstück|Nur Übernachtung/i);
+    if (m) d.verpflegung = m[0];
+    m = text.match(/(Doppelzimmer|Familienzimmer|Studio|Suite|Appartement|Bungalow)[^\n·|,(]{0,45}/i);
+    if (m) d.zimmer = m[0].trim();
+    const dts=[...text.matchAll(/(\d{1,2})\.(\d{1,2})\.(\d{2,4})/g)].slice(0,2);
+    if (dts.length===2){
+      const iso = x => `${x[3].length===2?'20'+x[3]:x[3]}-${String(+x[2]).padStart(2,'0')}-${String(+x[1]).padStart(2,'0')}`;
+      d.von = iso(dts[0]); d.bis = iso(dts[1]);
+    }
+    m = text.match(/(\d{1,2})\s*Nächte/i);
+    if (m) d.naechte = +m[1];
+    m = text.match(/(?:ab|Abflug(?:hafen)?:?\s*)\s+(Frankfurt(?:-Hahn)?|München|Berlin|Düsseldorf|Hamburg|Stuttgart|Köln(?:\/Bonn)?|Hannover|Leipzig(?:-Halle)?|Nürnberg|Dresden|Bremen|Dortmund|Memmingen|Karlsruhe|Münster|Paderborn|Wien|Zürich|Basel)/i);
+    if (m) d.abflughafen = m[1];
+    const extras = [];
+    for (const [re, label] of [[/direkt.{0,12}strand|strandlage/i,'Direkte Strandlage'],[/pool/i,'Pool'],
+      [/klimaanlage/i,'Klimaanlage'],[/wlan|wifi/i,'WLAN'],[/transfer/i,'Inkl. Transfer'],
+      [/adults\s*only/i,'Adults Only'],[/rutsch|aquapark/i,'Wasserrutschen'],[/spa|wellness/i,'Wellness/Spa'],
+      [/animation|kinderclub|miniclub/i,'Kinderprogramm']]) {
+      if (re.test(text)) extras.push(label);
+    }
+    d.extras = extras.slice(0,4);
+    if (d.preis_pp && d.statt_pp) d.rabatt = Math.round((1-d.preis_pp/d.statt_pp)*100);
+
+    /* Endgültige URL nach Weiterleitungen (bei c24n.de-Kurzlinks die Angebotsseite) */
+    let url = page.url();
+    if (rf && /hotel|angebot|suche/i.test(rf.url())) url = rf.url();
+    const hotelId = ((url+text).match(/[?&#]hotelId=(\d+)/i)||[])[1]||null;
+    const gefunden = ['hotel','preis_pp','statt_pp','bewertung','sterne','verpflegung','zimmer','von','bis','naechte','abflughafen','ort']
+      .filter(k => d[k]!==undefined && d[k]!=='' );
+    await browser.close();
+    return res.json({ ok:true, url, eingabeUrl: rawUrl, hotelId, gefunden, deal:d });
+  } catch (e) {
+    let seite=''; try{ seite=page?page.url():''; }catch(_){}
+    if (browser) await browser.close().catch(()=>{});
+    return res.status(500).json({ ok:false, step, seite, error:String(e.message||e).slice(0,500) });
   }
 });
 

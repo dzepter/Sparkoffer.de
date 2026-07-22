@@ -152,6 +152,7 @@ p + p { margin-top: 1em; }
   transition: background 0.3s;
 }
 .site-header.scrolled { background: rgba(18, 22, 14, 0.92); }
+.site-header.solid { background: var(--dark); }
 
 .header-inner {
   width: 100%;
@@ -401,6 +402,8 @@ a.card:hover { border-color: var(--green); transform: translateY(-4px); }
   border-radius: var(--radius);
   pointer-events: none;
 }
+.split-media.portrait img { aspect-ratio: 3 / 4; object-position: top center; }
+.split-media.photo img { filter: contrast(1.05) saturate(0.92); }
 .split-media .tag {
   position: absolute;
   left: 0;
@@ -527,6 +530,27 @@ a.card:hover { border-color: var(--green); transform: translateY(-4px); }
 .on-dark .price { color: #fff; }
 .price small { font-size: 0.8rem; font-weight: 500; color: var(--ink-soft); letter-spacing: 0.06em; }
 .on-dark .price small { color: #9aa093; }
+
+/* ---------- Buchbestellung ---------- */
+
+.order-panel {
+  background: var(--dark);
+  color: #eceee6;
+  border-radius: var(--radius);
+  padding: clamp(2rem, 4vw, 3rem);
+  display: grid;
+  gap: 2rem;
+  position: sticky;
+  top: calc(var(--header-h) + 24px);
+}
+.order-panel .book-cover { max-width: 230px; margin: 0; }
+.order-panel .kicker { color: var(--green-bright); }
+.order-sub { color: #c9cdc2; margin-top: 0.8rem; }
+.order-list { list-style: none; margin: 1.4rem 0 0; display: grid; gap: 8px; }
+.order-list li { padding-left: 20px; position: relative; color: #eceee6; }
+.order-list li::before { content: "»"; position: absolute; left: 0; color: var(--green-bright); font-weight: 800; }
+.order-note { margin-top: 1.4rem; font-size: 0.95rem; color: #b7bcae; }
+@media (max-width: 860px) { .order-panel { position: static; } }
 
 /* ---------- Vortragsliste ---------- */
 

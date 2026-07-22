@@ -13,6 +13,7 @@ ohne Baukasten, ohne WordPress, ohne externe Dienste.
 | `learn-to-lead.html` | Das Zertifizierungsprogramm mit allen 12 Modulen |
 | `vortraege.html` | Vortragsthemen und Teilnehmerstimmen |
 | `impulse.html` | Die fünf Blog-Artikel („Abkürzungen“ u. a.) zum Aufklappen |
+| `bestellung.html` | Bestellformular für das Buch „Lust auf Erfolg“ |
 | `kontakt.html` | Kontaktdaten, Öffnungszeiten, Formular |
 | `impressum.html` / `datenschutz.html` | Pflichtseiten |
 | `404.html` | Fehlerseite |

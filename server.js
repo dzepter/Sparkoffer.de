@@ -9,7 +9,7 @@
 
    Endpoints: /link-info, /deal-link, /live-deal, /best-deal, /debug-suche, /version */
 
-const VERSION = 'v13';
+const VERSION = 'v14';
 const express = require('express');
 const { chromium } = require('playwright');
 const path = require('path');
@@ -20,7 +20,10 @@ app.use((req, res, next) => { res.set('Access-Control-Allow-Origin', '*'); next(
 
 app.get('/version', (_q, r) => r.json({ ok:true, version: VERSION }));
 
-app.get(['/','/app'], (_q, r) => {
+/* Öffentliches Deal-Portal (Startseite, /deals/…, /admin, AdSense, SEO, Rechtsseiten) */
+require('./portal')(app, express);
+
+app.get('/app', (_q, r) => {
   const f = path.join(__dirname, 'sparkoffer-app.html');
   if (fs.existsSync(f)) return r.sendFile(f);
   r.send('Sparkoffer Link-Roboter '+VERSION+' läuft ✅ – Endpoints: /link-info, /deal-link, /live-deal, /best-deal, /debug-suche, /version');

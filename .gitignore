@@ -1,3 +1,4 @@
 node_modules/
 data/deals.json
 package-lock.json
+rechner-portal/dist/

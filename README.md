@@ -1,5 +1,9 @@
 # Sparkoffer Link-Roboter 🤖 + Deal-Portal 💶
 
+> **🧮 NEU: Rechner-Portal** – ein eigenständiges AdSense-Projekt (23 Online-Rechner,
+> statische Website, gratis zu hosten) liegt im Ordner [`rechner-portal/`](rechner-portal/).
+> Anleitung: [`rechner-portal/README.md`](rechner-portal/README.md)
+
 Zwei Teile in einem Projekt:
 
 1. **Link-Roboter** (wie bisher): holt automatisch Hotel-Detailseiten und

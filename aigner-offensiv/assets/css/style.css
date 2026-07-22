@@ -403,7 +403,7 @@ a.card:hover { border-color: var(--green); transform: translateY(-4px); }
   pointer-events: none;
 }
 .split-media.portrait img { aspect-ratio: 3 / 4; object-position: top center; }
-.split-media.photo img { filter: contrast(1.05) saturate(0.92); }
+.split-media.photo img { filter: contrast(1.05) saturate(0.92); object-position: top center; }
 .split-media .tag {
   position: absolute;
   left: 0;
@@ -685,6 +685,14 @@ a.card:hover { border-color: var(--green); transform: translateY(-4px); }
 @media (max-width: 860px) { .contact-grid { grid-template-columns: 1fr; } }
 
 .contact-info { display: grid; gap: 1.8rem; }
+.contact-photo {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: var(--radius);
+  filter: contrast(1.05) saturate(0.92);
+}
 .contact-info .block h3 { margin-bottom: 8px; }
 .contact-info a { color: var(--ink); text-decoration-color: var(--green); text-underline-offset: 3px; }
 .contact-info .muted { color: var(--ink-soft); font-size: 0.97rem; }

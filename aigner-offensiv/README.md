@@ -41,7 +41,8 @@ Datenbank benötigt.
 - **Rechtstexte:** Impressum wurde von der alten Website übernommen; die
   Datenschutzerklärung wurde an die neue, technisch schlankere Website angepasst.
   Beide bitte vor Veröffentlichung noch einmal juristisch prüfen (lassen).
-- **Bilder:** Die Fotos stammen von der bisherigen Website und werden per CSS
-  modern eingefärbt. Eigene, aktuelle Fotos (z. B. ein Porträt und echte
-  Vortragsbilder) würden die Seite noch stärker machen – einfach die Dateien in
-  `assets/img/` austauschen.
+- **Bilder:** Die Porträt- und Vortragsfotos von Rainer Aigner liegen als
+  `assets/img/rainer-aigner-*.jpg`. Die grünen Themenbilder stammen von der
+  bisherigen Website. Das Vortragsfoto (`rainer-aigner-1.jpg`) ist nur in
+  kleiner Auflösung vorhanden – eine größere Version desselben Fotos kann
+  die Datei einfach ersetzen.

@@ -1,0 +1,108 @@
+==============================================================
+SPARKOFFER.DE - KOMPLETTES REDESIGN ("Deal-Ticket"-Look)
+Stand: 08.07.2026 - Version 7 - GROSSES MARKEN-UPDATE
+==============================================================
+
+>>> WICHTIG: BITTE ZUERST LESEN <<<
+Die letzten Fehler auf der Live-Seite (grauer unformatierter
+Kasten, abgeschnittene Datumszeile im Mietwagen-Rechner) lagen
+daran, dass die Datei sparkoffer.css NICHT mit hochgeladen
+wurde. Bitte diesmal ALLE Dateien aus diesem Ordner hochladen
+und ueberschreiben - besonders:
+
+   >>> sparkoffer.css <<<   (die wichtigste Datei!)
+
+SO PRUEFST DU NACH DEM UPLOAD, OB ALLES STIMMT:
+1. Oeffne im Browser:  sparkoffer.de/sparkoffer.css
+2. Suche im Text nach:  rc-scale
+   -> Gefunden? Dann ist die neue Datei live. Fertig!
+   -> Nicht gefunden? Dann wurde die CSS nicht ueberschrieben.
+
+NEU IN VERSION 7 (Marken-Update)
+--------------------------------
+- Komplett neuer Marken-Look: Navy/Teal/Coral/Gold aus deinem
+  Logo-Paket, neues Logo in Header & Footer.
+- NEUE DATEIEN unbedingt mit hochladen: logo-header.svg,
+  og-image.png, favicon.ico, favicon-32.png, favicon-192.png,
+  apple-touch-icon.png, logo-icon.png, qr-whatsapp.png
+- Deals jetzt als "Text-Tickets" mit Ziel, Leistung, Preis und
+  Rabatt -> Google kann die Deals endlich lesen (SEO!).
+- Startseite umsortiert: Deals direkt nach dem Hero.
+- QR-Code fuer Desktop-Besucher (scannen -> Kanal beitreten).
+- Open-Graph-Bild: geteilte Links sehen in WhatsApp jetzt
+  professionell aus.
+- SEO-Wissensblock + geschaerfte Titel/Beschreibungen.
+- NOCH ZU TUN (manuell): Instagram- & WhatsApp-Profilbild aus
+  deinem Logo-Paket (Ordner 02_social) einsetzen. Google Search
+  Console anmelden und sitemap.xml einreichen.
+
+NEU IN VERSION 5
+----------------
+- Neue Unterseite flughafen-parken.html (Partner:
+  Parken-und-Fliegen.de) mit deinem Affiliate-Link,
+  SEO-optimiert (Valet-Parken, Shuttle-Parken, FAQ-Schema).
+- Neues Bild: flughafen-parken.jpg (liegt im ZIP, bitte
+  MIT hochladen!)
+- "Parken" ist jetzt in Menü und Footer aller Seiten.
+- sitemap.xml um die neue Seite ergaenzt.
+
+WAS IN VERSION 4 BEHOBEN WURDE
+------------------------------
+- Mietwagen-Rechner: wird auf dem Handy intern breiter
+  gerendert und passgenau verkleinert -> die Datumszeile
+  ("11. Juli, 12:00 - 18. Juli, 10:00") passt in EINE Zeile,
+  nichts wird mehr abgeschnitten. Desktop unveraendert.
+- Rechner ist wieder direkt sichtbar (kein Aufklapp-Kasten).
+- Affiliate-Hinweis dezent nach unten verschoben (kein
+  grosses "Anzeige"-Badge mehr ganz oben).
+- Mobile WhatsApp-Leiste erscheint erst nach etwas Scrollen
+  (keine Ueberlappung mehr mit dem gruenen Hero-Button).
+- CSS-Versionierung (?v=4) gegen Browser-Cache.
+
+SO GEHST DU VOR
+---------------
+1. Alle Dateien aus diesem Ordner per Strato-Dateimanager oder FTP
+   in deinen Website-Ordner hochladen und die alten Dateien
+   ueberschreiben.
+
+2. Deine Bilder bleiben unveraendert und muessen weiter im selben
+   Ordner liegen:
+   logo.png, deal-varna.jpg, deal-istanbul.jpg, deal-dubai.jpg,
+   deal-hammamet.jpg, deal-rhodos.jpg, deal-mallorca.jpg,
+   deal-tossa.jpg, deal-kreta.jpg
+
+3. mietwagen.html:
+   Der CHECK24-Mietwagen-Vergleich ist bereits eingebaut -
+   hier ist nichts weiter zu tun.
+
+4. Impressum & Datenschutz:
+   Beide Seiten habe ich mit deinen Angaben (Dennis Zeptr
+   Vermietungen, Mainz) neu aufgebaut und an die tatsaechlich
+   genutzten Dienste angepasst (Strato, Google Fonts, CHECK24,
+   WhatsApp/Instagram-Links). Bitte einmal gegenlesen - falls du in
+   deinen alten Dateien individuelle Ergaenzungen hattest, uebernimm
+   sie. Im Zweifel rechtlich pruefen lassen.
+
+WAS IST NEU
+-----------
+- Komplett neues Design im "Deal-Ticket"/Boarding-Pass-Look:
+  Deal-Ticker unter dem Header, Ticket-Karte im Hero, Deal-Karten
+  mit Abriss-Perforation, WhatsApp-Chat-Vorschau, neue Schriften
+  (Bricolage Grotesque + Instrument Sans + IBM Plex Mono).
+- Ueberall klare Wege in den WhatsApp-Kanal: gruener Header-Button,
+  Deal-Karten, CTA-Bloecke und eine fixe WhatsApp-Leiste unten auf
+  dem Handy.
+- CHECK24-Pauschalreise-Rechner, Kanal-/Instagram-Links, alle
+  Werbe-Kennzeichnungen ("Anzeige") und die 8 Deal-Bilder wurden
+  uebernommen.
+- sitemap.xml aktualisiert, robots.txt unveraendert.
+
+NEUE DEALS EINPFLEGEN
+---------------------
+Am einfachsten: Ein neues Bild mit GLEICHEM Dateinamen hochladen
+(z. B. deal-mallorca.jpg ueberschreiben) - fertig.
+Oder in deals.html einen <a class="deal">-Block kopieren und
+Bildname + Alt-Text anpassen. Die Rabatte im Laufband ("Ticker")
+kannst du direkt oben in index.html und deals.html anpassen.
+
+Bei Fragen: einfach wieder bei Claude melden. Gute Reise! :)

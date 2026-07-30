@@ -1,0 +1,425 @@
+/* =========================================================
+   sparkoffer.de – Stylesheet v2 · „Deal-Ticket“-Redesign
+   Einmal hochladen, alle Seiten verlinken es per:
+   <link rel="stylesheet" href="sparkoffer.css">
+   ========================================================= */
+
+:root{
+  --ink:#0B1D33;            /* Tiefes Petrol – Text & Linien */
+  --teal:#0F2A47;           /* Header */
+  --teal-deep:#071527;      /* Footer / Chat-Kopf */
+  --paper:#F3F6F9;          /* Warmes Papier (Hintergrund) */
+  --card:#FFFFFF;           /* Karten */
+  --coral:#FF6B6B;          /* Akzent (Logo-Koffer) */
+  --sun:#FFB347;            /* Akzent (Logo-Badge) */
+  --wa:#1da851;             /* WhatsApp-Grün (Buttons) */
+  --wa-bright:#25d366;      /* WhatsApp-Grün (Icons) */
+  --muted:#4B5B6E;
+  --line:rgba(11,29,51,.16);
+  --teal-brand:#00A8B5;
+  --teal-ink:#087882;   /* Teal, lesbar für kleinen Text */
+  --coral-ink:#E04E4E;  /* Coral, lesbar für kleinen Text */
+  --aqua:#57D3C5;
+  --font-d:"Bricolage Grotesque","Poppins",system-ui,sans-serif;
+  --font-b:"Instrument Sans","Inter",system-ui,-apple-system,sans-serif;
+  --font-m:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r:16px; --r-lg:24px;
+  --pop:5px 5px 0 var(--ink);
+  --pop-sm:3px 3px 0 var(--ink);
+  --maxw:1120px;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font:400 1.02rem/1.65 var(--font-b);
+  -webkit-font-smoothing:antialiased;
+}
+/* feines Papierkorn */
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:2147483647;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.028'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply;
+}
+::selection{background:var(--sun);color:var(--ink)}
+
+h1,h2,h3,h4{font-family:var(--font-d);color:var(--ink);line-height:1.08;letter-spacing:-.01em;margin:0 0 .5em}
+h1{font-size:clamp(2.25rem,5.4vw,3.85rem);font-weight:800}
+h2{font-size:clamp(1.55rem,3vw,2.15rem);font-weight:800;margin-top:1.5em}
+h3{font-size:1.2rem;font-weight:700;margin-top:1.3em}
+p{margin:0 0 1em}
+a{color:var(--coral-ink);text-decoration:none}
+a:hover{text-decoration:underline}
+img{max-width:100%;height:auto;display:block}
+s{color:var(--muted)}
+.ic{width:1.15em;height:1.15em;fill:currentColor;flex:none}
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:22px}
+[id]{scroll-margin-top:96px}
+
+/* ---------- Header ---------- */
+.site-header{position:sticky;top:0;z-index:60;background:#fff;border-bottom:2px solid var(--ink)}
+.head-in{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px;position:relative}
+.brand{display:inline-flex;align-items:center;gap:11px;color:var(--ink);font-family:var(--font-d);font-weight:800;font-size:1.4rem;letter-spacing:-.01em}
+.brand:hover{text-decoration:none}
+.brand .logo{width:40px;height:42px}
+.brand b{font-weight:800;color:var(--teal-brand)}
+.brand i{font-style:normal;color:var(--coral)}
+.nav{display:flex;align-items:center;gap:2px}
+.nav a{color:var(--ink);font-weight:600;font-size:.95rem;padding:9px 13px;border-radius:999px}
+.nav a:hover{background:rgba(11,29,51,.07);text-decoration:none}
+.nav a.active{background:rgba(255,179,71,.28);color:var(--ink)}
+.nav-wa{display:inline-flex;align-items:center;gap:8px;background:var(--wa);color:#fff !important;margin-left:10px;border:2px solid var(--ink);box-shadow:var(--pop-sm);border-radius:999px;padding:8px 16px !important;font-weight:700;transition:transform .12s,box-shadow .12s}
+.nav-wa:hover{background:var(--wa);transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.nav-toggle{display:none}
+
+@media(max-width:1020px){
+  .nav-toggle{display:inline-flex;align-items:center;background:transparent;border:2px solid rgba(11,29,51,.35);color:var(--ink);font:700 .9rem var(--font-b);padding:9px 16px;border-radius:999px;cursor:pointer}
+  .nav{display:none;position:absolute;left:-22px;right:-22px;top:calc(100% + 2px);background:#fff;flex-direction:column;align-items:stretch;padding:14px 22px 20px;gap:4px;border-bottom:2px solid var(--ink);box-shadow:0 18px 30px rgba(7,21,39,.14)}
+  .nav a{padding:12px 14px;font-size:1.05rem;border-radius:12px}
+  .nav-wa{margin:10px 0 0;justify-content:center}
+  body.nav-open .nav{display:flex}
+}
+
+/* ---------- Deal-Ticker ---------- */
+.ticker{background:var(--teal-ink);color:#fff;overflow:hidden;border-bottom:2px solid var(--ink)}
+.ticker-track{display:flex;width:max-content;gap:34px;animation:tick 38s linear infinite}
+.ticker-track:hover{animation-play-state:paused}
+.ticker-group{display:flex;align-items:center;gap:34px;padding:10px 0;font:600 .76rem/1 var(--font-m);letter-spacing:.13em;text-transform:uppercase;white-space:nowrap}
+.ticker-group b{color:#fff;font-weight:600}
+.tick-dot{color:rgba(255,255,255,.5)}
+@keyframes tick{to{transform:translateX(calc(-50% - 17px))}}
+
+/* ---------- Hero (Startseite) ---------- */
+.hero{position:relative;padding:56px 0 26px;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+.badge-ad{display:inline-flex;align-items:center;gap:8px;font:600 .7rem var(--font-m);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1.5px solid var(--line);border-radius:999px;padding:6px 13px;margin-bottom:20px;background:var(--card)}
+.badge-ad::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--coral)}
+.hero h1{margin-bottom:.4em}
+.mark{position:relative;white-space:nowrap;z-index:0}
+.mark::after{content:"";position:absolute;left:-2%;right:-3%;bottom:.05em;height:.36em;background:var(--sun);z-index:-1;transform:rotate(-1.4deg)}
+.sub{font-size:1.13rem;color:var(--muted);max-width:34em}
+.trust{display:flex;flex-wrap:wrap;gap:10px 22px;margin:22px 0 0;padding:0;list-style:none;font-weight:600;font-size:.93rem}
+.trust li{display:flex;align-items:center;gap:9px}
+.trust li::before{content:"✓";flex:none;display:inline-flex;width:21px;height:21px;border-radius:50%;background:var(--ink);color:var(--sun);font-size:.7rem;font-weight:800;align-items:center;justify-content:center}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font:700 1.02rem var(--font-b);padding:14px 24px;border-radius:14px;border:2px solid var(--ink);cursor:pointer;background:var(--card);color:var(--ink);box-shadow:var(--pop);transition:transform .12s ease,box-shadow .12s ease;text-align:center}
+.btn:hover{text-decoration:none;transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn-wa{background:var(--wa);color:#fff}
+.btn-ink{background:var(--ink);color:var(--paper)}
+.btn-sun{background:var(--sun);color:var(--ink)}
+.btn-ig{background:linear-gradient(100deg,#f58529,#dd2a7b 55%,#8134af);color:#fff}
+.btn-row{display:flex;flex-wrap:wrap;gap:14px;margin:26px 0 8px}
+
+/* ---------- Deal-Ticket (Hero-Visual) ---------- */
+.hero-visual{position:relative;justify-self:end;width:min(440px,100%)}
+.ticket-ghost{position:absolute;inset:0;border:2px dashed var(--ink);border-radius:var(--r-lg);transform:rotate(2.6deg) translate(13px,11px);opacity:.35}
+.ticket{position:relative;background:var(--card);border:2px solid var(--ink);border-radius:var(--r-lg);box-shadow:8px 8px 0 var(--ink);transform:rotate(-2deg)}
+.ticket-main{padding:24px 26px 20px}
+.t-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.t-label{font:600 .64rem var(--font-m);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.stamp{font:600 .82rem var(--font-m);letter-spacing:.05em;color:var(--coral-ink);border:2px solid var(--coral-ink);border-radius:10px;padding:.3em .6em;transform:rotate(6deg);background:rgba(255,107,107,.09);white-space:nowrap}
+.t-dest{font:800 clamp(2rem,4vw,2.7rem)/1 var(--font-d);margin:15px 0 5px}
+.t-info{color:var(--muted);font-weight:500;margin:0}
+.t-price{display:flex;align-items:baseline;gap:12px;margin-top:18px;flex-wrap:wrap}
+.t-price b{font:600 2.05rem/1 var(--font-m)}
+.t-price em{font-style:normal;font:600 .64rem var(--font-m);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ticket-cut{position:relative;border-top:2px dashed var(--ink)}
+.ticket-cut::before,.ticket-cut::after{content:"";position:absolute;top:-12px;width:22px;height:22px;border-radius:50%;background:var(--paper);border:2px solid var(--ink)}
+.ticket-cut::before{left:-13px}
+.ticket-cut::after{right:-13px}
+.ticket-stub{display:flex;align-items:center;gap:26px;padding:16px 26px 20px}
+.ticket-stub .cell{display:flex;flex-direction:column;gap:3px}
+.ticket-stub .cell b{font:600 .95rem var(--font-m)}
+.barcode{margin-left:auto;width:104px;height:36px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 7px,transparent 7px 9px,var(--ink) 9px 10px,transparent 10px 14px)}
+.ticket-note{font:500 .78rem var(--font-m);letter-spacing:.04em;color:var(--muted);margin:18px 8px 0;text-align:right}
+
+/* ---------- Sektionen ---------- */
+.section{padding:42px 0 8px}
+.kicker{display:inline-flex;align-items:center;gap:9px;font:600 .73rem var(--font-m);letter-spacing:.16em;text-transform:uppercase;color:var(--teal-ink);margin:0 0 10px}
+.kicker::before{content:"✈";display:inline-block;transform:rotate(-18deg)}
+.kicker.light{color:rgba(255,255,255,.94)}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:8px}
+.sec-head h2{margin:0}
+.sec-link{font:700 .95rem var(--font-b);color:var(--ink);text-decoration:underline;text-decoration-color:var(--coral);text-decoration-thickness:2px;text-underline-offset:4px;white-space:nowrap}
+.sec-link:hover{color:var(--coral)}
+.sec-sub{color:var(--muted);max-width:44em}
+
+/* ---------- Schritte ---------- */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:28px 0 12px}
+.step{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:24px 22px;box-shadow:var(--pop-sm)}
+.step-num{display:block;font:800 2.7rem/1 var(--font-d);color:var(--coral);margin-bottom:12px}
+@supports (-webkit-text-stroke:2px black){
+  .step-num{color:transparent;-webkit-text-stroke:2px var(--coral)}
+}
+.step h3{margin:.1em 0 .35em}
+.step p{margin:0;color:var(--muted)}
+
+/* ---------- Inhalts-Kacheln ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px;margin:26px 0}
+.tile{display:flex;flex-direction:column;gap:7px;background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:22px 20px;color:var(--ink);box-shadow:var(--pop-sm);transition:transform .12s,box-shadow .12s}
+.tile:hover{text-decoration:none;transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
+.tile .tag{font:600 .66rem var(--font-m);letter-spacing:.15em;text-transform:uppercase;color:var(--teal-ink)}
+.tile h3{margin:0;font-size:1.15rem}
+.tile p{margin:0;color:var(--muted);font-size:.95rem}
+.tile .go{margin-top:auto;padding-top:12px;font-weight:700;font-size:.9rem}
+.tile .go::after{content:" →"}
+
+/* ---------- Deal-Karten (Ticket-Look) ---------- */
+.deal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:26px;margin:28px 0}
+.deal{position:relative;display:block;background:var(--card);border:2px solid var(--ink);border-radius:var(--r-lg);overflow:hidden;color:var(--ink);box-shadow:var(--pop);transition:transform .12s,box-shadow .12s}
+.deal:hover{text-decoration:none;transform:translate(-3px,-3px);box-shadow:8px 8px 0 var(--ink)}
+.deal img{width:100%}
+.deal-foot{display:flex;align-items:center;gap:14px;padding:13px 20px;border-top:2px dashed var(--ink);position:relative}
+.deal-foot::before,.deal-foot::after{content:"";position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--paper);border:2px solid var(--ink)}
+.deal-foot::before{left:-12px}
+.deal-foot::after{right:-12px}
+.deal-foot span{font:600 .72rem var(--font-m);letter-spacing:.13em;text-transform:uppercase}
+.mini-code{margin-left:auto;width:62px;height:22px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 6px,transparent 6px 9px)}
+
+/* ---------- Hinweis-Box (Werbung) ---------- */
+.notice{background:var(--card);border:2px solid var(--ink);border-left:10px solid var(--sun);border-radius:var(--r);padding:14px 18px;margin:22px 0;font-size:.95rem;color:var(--muted)}
+.notice strong{color:var(--ink)}
+
+/* ---------- Vergleichsrechner ---------- */
+.widget-box{background:#fff;border:2px solid var(--ink);border-radius:var(--r-lg);box-shadow:var(--pop);padding:14px 10px;margin:24px 0;min-height:140px}
+
+/* ---------- WhatsApp-CTA ---------- */
+.cta-wa{background:var(--wa);border:2px solid var(--ink);border-radius:var(--r-lg);box-shadow:8px 8px 0 var(--ink);color:#fff;padding:36px 32px;margin:52px 0 36px;position:relative;overflow:hidden}
+.cta-wa::before{content:"";position:absolute;right:-80px;top:-80px;width:250px;height:250px;border-radius:50%;background:rgba(255,255,255,.12)}
+.cta-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:38px;align-items:center;position:relative}
+.cta-wa h2{color:#fff;margin-top:0}
+.cta-wa p{color:rgba(255,255,255,.95)}
+.cta-wa .btn{background:var(--card);color:var(--ink)}
+.cta-points{list-style:none;margin:0 0 4px;padding:0;display:grid;gap:9px;font-weight:600}
+.cta-points li{display:flex;gap:11px;align-items:center}
+.cta-points li::before{content:"✓";flex:none;width:22px;height:22px;border-radius:50%;background:#fff;color:var(--wa);display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:.75rem}
+.cta-wa.center{text-align:center;padding:38px 30px}
+.cta-wa.center p{margin-inline:auto;max-width:36em}
+.cta-wa.center .btn-row{justify-content:center}
+
+/* ---------- WhatsApp-Chat-Vorschau ---------- */
+.chat{background:#E9EEF4;border:2px solid var(--ink);border-radius:20px;box-shadow:var(--pop);overflow:hidden;transform:rotate(1.4deg);position:relative}
+.chat-head{display:flex;align-items:center;gap:12px;background:var(--teal-deep);color:#fff;padding:12px 16px}
+.chat-ava{flex:none;width:38px;height:38px;border-radius:50%;background:#fff;border:2px solid rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center}
+.chat-ava svg{width:24px;height:26px}
+.chat-head b{display:block;font-family:var(--font-d);font-size:1rem;line-height:1.15}
+.chat-head small{display:block;font-size:.72rem;opacity:.75}
+.chat-head .ic{margin-left:auto;width:21px;height:21px;color:var(--wa-bright)}
+.chat-body{padding:16px 14px 18px;display:grid;gap:10px}
+.chat-day{justify-self:center;font:600 .64rem var(--font-m);letter-spacing:.14em;text-transform:uppercase;background:rgba(11,29,51,.08);border-radius:999px;padding:4px 12px;color:var(--muted)}
+.msg{background:#fff;border-radius:4px 14px 14px 14px;padding:10px 13px 7px;font-size:.92rem;line-height:1.5;box-shadow:0 1px 0 rgba(11,29,51,.16);max-width:96%;color:var(--ink)}
+.msg .pct{color:var(--coral-ink);font-weight:700}
+.msg .time{display:block;text-align:right;font:500 .62rem var(--font-m);color:var(--muted);margin-top:4px}
+.msg.sys{background:rgba(255,179,71,.4);justify-self:center;font-size:.8rem;font-weight:600;border-radius:999px;padding:6px 15px;box-shadow:none}
+
+/* ---------- FAQ ---------- */
+.faq{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);margin:12px 0;box-shadow:var(--pop-sm)}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:16px 20px;font:700 1.05rem var(--font-d)}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font:600 1.25rem var(--font-m);color:var(--coral)}
+.faq[open] summary::after{content:"–"}
+.faq .faq-a{padding:0 20px 16px;color:var(--muted)}
+.faq .faq-a p{margin:0}
+
+/* ---------- Häkchen-Listen ---------- */
+ul.checks{list-style:none;padding:0;margin:1.1em 0}
+ul.checks li{position:relative;padding:7px 0 7px 37px}
+ul.checks li::before{content:"✓";position:absolute;left:0;top:9px;width:23px;height:23px;border-radius:50%;background:var(--ink);color:var(--sun);font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+
+/* ---------- Karten & Artikel ---------- */
+.card{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--pop-sm);padding:20px 22px;margin:22px 0}
+.page-head{padding:46px 0 6px}
+.page-head.center{text-align:center}
+.page-head.center .sub{margin-inline:auto}
+.page-head .btn-row{margin-bottom:0}
+.page-head.center .btn-row{justify-content:center}
+.article{max-width:730px}
+.article .lead{font-size:1.14rem;color:var(--muted)}
+.meta{font:500 .76rem var(--font-m);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:4px 0 26px}
+
+/* ---------- Footer ---------- */
+.site-footer{background:var(--teal-deep);color:rgba(255,255,255,.82);margin-top:70px;padding:46px 0 30px;border-top:2px solid var(--ink)}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr .9fr;gap:32px}
+.site-footer .brand{font-size:1.22rem}
+.site-footer .brand .logo{width:32px;height:34px}
+.foot-brand p{color:rgba(255,255,255,.72);max-width:26em;font-size:.95rem;margin:14px 0 16px}
+.foot-social{display:flex;gap:10px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.88rem;border-radius:999px;padding:9px 16px;color:#fff}
+.chip:hover{text-decoration:none;filter:brightness(1.1)}
+.chip-wa{background:var(--wa)}
+.chip-ig{background:linear-gradient(100deg,#f58529,#dd2a7b 55%,#8134af)}
+.site-footer h4{color:#fff;font:700 .76rem var(--font-m);letter-spacing:.16em;text-transform:uppercase;margin:6px 0 14px}
+.foot-col{display:grid;gap:9px;align-content:start}
+.foot-col a{color:rgba(255,255,255,.82);font-size:.95rem}
+.foot-col a:hover{color:#fff}
+.foot-note{border-top:1px solid rgba(255,255,255,.15);margin-top:36px;padding-top:16px;font-size:.8rem;color:rgba(255,255,255,.55)}
+.foot-copy{font:500 .7rem var(--font-m);letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);margin:10px 0 0}
+
+/* ---------- Mobile WhatsApp-Leiste ---------- */
+.wa-bar{display:none}
+@media(max-width:760px){
+  .wa-bar{display:block;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:70;
+    transform:translateY(160%);opacity:0;pointer-events:none;
+    transition:transform .32s cubic-bezier(.2,.7,.2,1),opacity .32s ease;will-change:transform}
+  body.wa-show .wa-bar{transform:translateY(0);opacity:1;pointer-events:auto}
+  .wa-bar a{display:flex;align-items:center;gap:12px;background:var(--wa);color:#fff;border:2px solid var(--ink);border-radius:16px;box-shadow:var(--pop);padding:11px 15px;font-size:.88rem;line-height:1.3}
+  .wa-bar a:hover{text-decoration:none}
+  .wa-bar .ic{width:22px;height:22px}
+  .wa-bar b{font-weight:800}
+  .wa-bar em{font-style:normal;margin-left:auto;background:#fff;color:var(--ink);font-weight:800;border-radius:999px;padding:7px 14px;font-size:.84rem;white-space:nowrap}
+}
+@media(prefers-reduced-motion:reduce){
+  .wa-bar{transition:none}
+}
+
+/* ---------- Responsive ---------- */
+@media(max-width:940px){
+  .hero{padding-top:30px}
+  .hero::before{content:"";position:absolute;top:8px;right:-20px;width:min(360px,76vw);height:132px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 380 140'%3E%3Cpath d='M6 122 C 100 132, 235 96, 338 22' fill='none' stroke='%230B1D33' stroke-width='2.2' stroke-dasharray='1 9' stroke-linecap='round' opacity='.38'/%3E%3Cg transform='translate(336,20) rotate(-28)'%3E%3Cpath d='M0 11 L20 0 L9 15 L7 9 Z' fill='%23FF6B6B'/%3E%3C/g%3E%3C/svg%3E") no-repeat right top/contain;pointer-events:none}
+  .hero-grid{grid-template-columns:1fr;gap:44px}
+  .hero-visual{justify-self:center}
+  .cta-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  .hero{padding-top:22px}
+  .btn{width:100%}
+  .ticket{transform:rotate(-1.2deg)}
+  .ticket-stub{gap:18px;padding-inline:22px}
+  .barcode{width:76px}
+  .foot-grid{grid-template-columns:1fr}
+  .cta-wa{padding:28px 22px}
+  .deal-grid{grid-template-columns:1fr}
+}
+
+/* ---------- A11y & Motion ---------- */
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--coral);outline-offset:3px;border-radius:8px}
+@media(prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+  html{scroll-behavior:auto}
+}
+
+/* =========================================================
+   v2.1 – Interaktivität & Vertrauen
+   ========================================================= */
+
+/* ---------- Fließende Seitenwechsel (progressiv) ---------- */
+@view-transition{navigation:auto}
+@media (prefers-reduced-motion:no-preference){
+  ::view-transition-old(root){animation:vt-out .16s ease both}
+  ::view-transition-new(root){animation:vt-in .28s ease both}
+}
+@keyframes vt-out{to{opacity:0;transform:translateY(-8px)}}
+@keyframes vt-in{from{opacity:0;transform:translateY(12px)}}
+
+/* ---------- Hero-Einstieg mit Stempel-Aufprall ---------- */
+@media (prefers-reduced-motion:no-preference){
+  .hero .kicker,.hero h1,.hero .sub,.hero .btn-row,.hero .trust{animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
+  .hero h1{animation-delay:.08s}
+  .hero .sub{animation-delay:.18s}
+  .hero .btn-row{animation-delay:.28s}
+  .hero .trust{animation-delay:.38s}
+  .hero-visual{animation:ticket-in .8s cubic-bezier(.2,.7,.2,1) .25s both}
+  .hero .ticket .stamp{animation:stamp-hit .55s cubic-bezier(.2,1.4,.3,1) 1.05s both}
+}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}}
+@keyframes ticket-in{from{opacity:0;transform:translateY(28px) rotate(4deg)}}
+@keyframes stamp-hit{
+  0%{opacity:0;transform:scale(2.6) rotate(-16deg)}
+  60%{opacity:1;transform:scale(.94) rotate(8deg)}
+  100%{transform:scale(1) rotate(6deg)}
+}
+
+/* ---------- Scroll-Reveal (Klassen setzt das Skript) ---------- */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .6s ease var(--d,0ms),transform .6s cubic-bezier(.2,.7,.2,1) var(--d,0ms)}
+.rv.in{opacity:1;transform:none}
+.chat.rv{transform:translateY(22px) rotate(1.4deg)}
+.chat.rv.in{transform:rotate(1.4deg)}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}}
+
+/* ---------- FAQ sanft aufklappen (progressiv) ---------- */
+:root{interpolate-size:allow-keywords}
+.faq::details-content{height:0;overflow:clip;transition:height .3s ease,content-visibility .3s allow-discrete}
+.faq[open]::details-content{height:auto}
+
+/* ---------- „Geprüft“-Stempel auf Deal-Karten ---------- */
+.deal::after{content:"Geprüft ✓";position:absolute;top:12px;right:12px;background:var(--card);border:2px solid var(--ink);border-radius:10px;padding:4px 11px;font:700 .68rem var(--font-m);letter-spacing:.08em;text-transform:uppercase;transform:rotate(5deg);box-shadow:2px 2px 0 var(--ink)}
+
+/* ---------- „So prüfen wir“-Streifen ---------- */
+.check-strip{display:flex;flex-wrap:wrap;gap:14px 30px;background:var(--ink);color:var(--paper);border:2px solid var(--ink);border-radius:var(--r);padding:18px 24px;margin-top:20px}
+.check-strip span{flex:1 1 190px;display:flex;flex-direction:column;gap:2px;font-size:.86rem;color:rgba(250,241,221,.78)}
+.check-strip b{font:700 .68rem var(--font-m);letter-spacing:.15em;text-transform:uppercase;color:var(--sun)}
+
+/* ---------- Deal-Radar ---------- */
+.radar{max-width:680px;margin-top:24px}
+.radar-track{position:relative;height:26px;margin:0 8px 20px;border-bottom:2px dashed var(--line)}
+.radar-plane{position:absolute;bottom:-14px;left:0;font-size:22px;transform:translateX(-30%) rotate(8deg);transition:left .55s cubic-bezier(.3,1.2,.4,1)}
+.radar-q{background:var(--card);border:2px solid var(--ink);border-radius:var(--r-lg);box-shadow:var(--pop);padding:22px 24px 26px}
+.radar-label{font:600 .72rem var(--font-m);letter-spacing:.16em;text-transform:uppercase;color:var(--teal-ink);margin:0 0 6px}
+.radar-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:12px}
+.ropt{font:700 1rem var(--font-b);color:var(--ink);padding:16px 12px;border:2px solid var(--ink);border-radius:14px;background:var(--paper);box-shadow:var(--pop-sm);cursor:pointer;transition:transform .12s,box-shadow .12s,background .12s}
+.ropt:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink);background:var(--card)}
+.ropt:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.radar-result .ticket{transform:none;max-width:460px}
+.radar-result .ticket .stamp{transform:rotate(6deg)}
+.radar-note{font-size:.92rem;color:var(--muted);margin:18px 0 4px;max-width:34em}
+.radar-reset{background:none;border:none;cursor:pointer;font:600 .9rem var(--font-b);color:var(--ink);text-decoration:underline;text-decoration-color:var(--coral);text-decoration-thickness:2px;text-underline-offset:3px;padding:8px 0}
+.radar-reset:hover{color:var(--coral)}
+@media(prefers-reduced-motion:no-preference){
+  .radar-result:not([hidden]) .ticket .stamp{animation:stamp-hit .55s cubic-bezier(.2,1.4,.3,1) .3s both}
+}
+
+/* ---------- Footer-Herkunft ---------- */
+.foot-made{font-size:.85rem;color:rgba(255,255,255,.55);margin:-6px 0 16px}
+
+/* ---------- Dezente Anzeige-Kennzeichnung (statt prominenter Badge oben) ---------- */
+.disclosure{font-size:.82rem;color:var(--muted);margin:12px 2px 0;line-height:1.5}
+.disclosure::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--coral);margin-right:8px;vertical-align:middle}
+
+/* ---------- CHECK24-Mietwagen-Rechner (skaliert auf Handybreite) ----------
+   Der Rechner wird intern mit 460px Breite gerendert, damit die Datums-
+   zeile in EINE Zeile passt, und auf schmalen Screens proportional
+   verkleinert (Skript in mietwagen.html synchronisiert die Höhe). */
+.rc-scale{overflow:hidden}
+.rc-virtual{position:relative}
+#c24pp-rentalcar-iframe iframe{width:100%!important;border:0;display:block}
+#c24pp-rentalcar-iframe{min-height:430px}
+@media(max-width:560px){
+  .rc-box{margin-inline:-22px;border-left:none;border-right:none;border-radius:0;box-shadow:none;padding:8px 6px}
+}
+
+/* ---------- Foto-Rahmen (z. B. Flughafen-Parken) ---------- */
+.photo{border:2px solid var(--ink);border-radius:var(--r-lg);box-shadow:var(--pop);overflow:hidden;margin:26px 0}
+.photo img{width:100%;display:block}
+
+/* =========================================================
+   v7 – Neuer Marken-Look (Logo, Text-Deals, QR)
+   ========================================================= */
+
+/* Deal-Karten: lesbarer Angebots-Block (SEO + Übersicht) */
+.deal-info{padding:16px 20px 15px}
+.deal-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.deal-info h3{margin:0;font-size:1.35rem}
+.deal-info .d-sub{margin:3px 0 0;color:var(--muted);font-size:.92rem}
+.deal-price{display:flex;align-items:baseline;gap:10px;margin-top:13px;flex-wrap:wrap}
+.deal-price b{font:600 1.5rem/1 var(--font-m)}
+.deal-price em{font-style:normal;font:600 .62rem var(--font-m);letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+
+/* QR-Box: nur am Desktop (Handy hat die Buttons) */
+.qr-box{display:none}
+@media(min-width:761px){
+  .qr-box{display:flex;align-items:center;gap:14px;margin-top:20px;background:#fff;color:var(--ink);border:2px solid var(--ink);border-radius:14px;padding:10px 18px 10px 10px;max-width:360px;box-shadow:var(--pop-sm)}
+  .qr-box img{width:96px;height:96px;display:block;border-radius:8px}
+  .qr-box b{display:block;font-family:var(--font-d);font-size:1rem;line-height:1.2}
+  .qr-box small{display:block;color:var(--muted);font-size:.83rem;line-height:1.4;margin-top:2px}
+}
+
+/* ---------- Footer: Dunkel-Varianten für Logo & Wortmarke ---------- */
+.site-footer .brand{color:#fff}
+.site-footer .brand b{color:var(--aqua)}
+.site-footer .brand i{color:var(--coral)}
+.site-footer .brand .logo{background:#fff;border-radius:9px;padding:3px;box-sizing:content-box}

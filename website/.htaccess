@@ -1,0 +1,38 @@
+# ============================================================
+# sparkoffer.de – Weiterleitungen & Caching (fuer Strato)
+# Diese Datei gehoert ins Hauptverzeichnis des Webspace –
+# dorthin, wo auch index.html liegt.
+# ACHTUNG: FTP-Programme blenden Dateien mit Punkt am Anfang
+# manchmal aus ("versteckte Dateien anzeigen" aktivieren).
+# ============================================================
+
+AddType font/woff2 .woff2
+AddDefaultCharset UTF-8
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# 1) www.sparkoffer.de -> sparkoffer.de (301, dauerhaft)
+RewriteCond %{HTTP_HOST} ^www\.sparkoffer\.de$ [NC]
+RewriteRule ^(.*)$ https://sparkoffer.de/$1 [R=301,L]
+
+# 2) http -> https (301)
+#    Falls nach dem Upload eine Endlos-Weiterleitung auftritt
+#    (selten, haengt von der Strato-SSL-Einstellung ab):
+#    nur diesen Block 2 entfernen und im Strato-Kundenbereich
+#    unter Sicherheit > SSL "https erzwingen" aktivieren.
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://sparkoffer.de/$1 [R=301,L]
+</IfModule>
+
+# Browser-Caching: Schriften lange (Dateinamen aendern sich nie),
+# Bilder & CSS kurz genug, dass Deal-Wechsel schnell ankommen.
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType font/woff2 "access plus 1 year"
+ExpiresByType image/jpeg "access plus 7 days"
+ExpiresByType image/png "access plus 7 days"
+ExpiresByType image/svg+xml "access plus 30 days"
+ExpiresByType image/x-icon "access plus 30 days"
+ExpiresByType text/css "access plus 7 days"
+</IfModule>

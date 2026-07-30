@@ -65,14 +65,31 @@ DEALS AKTUALISIEREN (Kurzanleitung)
 
 NOCH ZU TUN (manuell, wichtig fuer SEO!)
 ----------------------------------------
-1. Google Search Console: sparkoffer.de anmelden (DNS-Variante)
-   und sitemap.xml einreichen: https://sparkoffer.de/sitemap.xml
-2. Beim Hoster einstellen (falls moeglich):
-   - http://  -> https://  Weiterleitung (301)
-   - www.sparkoffer.de -> sparkoffer.de Weiterleitung (301)
+1. Google Search Console: sparkoffer.de anmelden und
+   sitemap.xml einreichen (Anleitung: siehe unten).
+2. Die Datei .htaccess mit hochladen (liegt in diesem Ordner,
+   beginnt mit einem Punkt - im FTP-Programm "versteckte
+   Dateien anzeigen" aktivieren!). Sie erledigt die http->https
+   und www->ohne-www Weiterleitungen automatisch.
+   Danach testen: http://www.sparkoffer.de eingeben -> muss
+   auf https://sparkoffer.de umspringen.
 3. Optional: Besucher-Statistik ohne Cookies (z.B. Plausible
    oder Matomo) einbauen, um zu sehen welche WhatsApp-Buttons
    am besten funktionieren.
+
+GOOGLE SEARCH CONSOLE EINRICHTEN (10 Minuten)
+----------------------------------------------
+1. https://search.google.com/search-console oeffnen und mit
+   einem Google-Konto anmelden.
+2. "Property hinzufuegen" -> Variante "URL-Praefix" waehlen
+   und https://sparkoffer.de eintragen.
+3. Bestaetigungsmethode "HTML-Datei" waehlen: Google gibt dir
+   eine Datei wie google1a2b3c....html zum Herunterladen.
+4. Diese Datei per FTP ins Hauptverzeichnis hochladen (neben
+   index.html) und in der Search Console "Bestaetigen" klicken.
+5. Links im Menue "Sitemaps" oeffnen und eintragen: sitemap.xml
+6. Nach 2-3 Tagen unter "Leistung" schauen: Dort siehst du,
+   fuer welche Suchbegriffe die Seite erscheint.
 
 KOMPLETTE DATEILISTE ZUM HOCHLADEN
 -----------------------------------

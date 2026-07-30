@@ -1,108 +1,95 @@
 ==============================================================
-SPARKOFFER.DE - KOMPLETTES REDESIGN ("Deal-Ticket"-Look)
-Stand: 08.07.2026 - Version 7 - GROSSES MARKEN-UPDATE
+SPARKOFFER.DE - GROSSER SEO-AUSBAU
+Stand: 30.07.2026 - Version 12
 ==============================================================
 
 >>> WICHTIG: BITTE ZUERST LESEN <<<
-Die letzten Fehler auf der Live-Seite (grauer unformatierter
-Kasten, abgeschnittene Datumszeile im Mietwagen-Rechner) lagen
-daran, dass die Datei sparkoffer.css NICHT mit hochgeladen
-wurde. Bitte diesmal ALLE Dateien aus diesem Ordner hochladen
-und ueberschreiben - besonders:
 
-   >>> sparkoffer.css <<<   (die wichtigste Datei!)
+Diesmal sind VIELE neue Dateien dazugekommen. Bitte den
+KOMPLETTEN Inhalt dieses Ordners hochladen - inklusive des
+neuen Unterordners:
+
+   >>> fonts/  <<<   (8 Schriftdateien - NEU und PFLICHT!)
+
+Ohne den fonts-Ordner sieht die Seite kaputt aus (Schriften
+werden jetzt lokal gehostet statt von Google geladen -
+das ist schneller UND datenschutzrechtlich sauberer).
 
 SO PRUEFST DU NACH DEM UPLOAD, OB ALLES STIMMT:
 1. Oeffne im Browser:  sparkoffer.de/sparkoffer.css
-2. Suche im Text nach:  rc-scale
-   -> Gefunden? Dann ist die neue Datei live. Fertig!
-   -> Nicht gefunden? Dann wurde die CSS nicht ueberschrieben.
+   -> Suche im Text nach:  v12
+   -> Gefunden? Neue CSS ist live.
+2. Oeffne:  sparkoffer.de/fonts/ibm-plex-mono-500-latin.woff2
+   -> Laedt eine Datei herunter? Fonts sind live.
+3. Oeffne:  sparkoffer.de/reiseziele.html
+   -> Seite existiert? Alle neuen Seiten sind live.
 
-NEU IN VERSION 7 (Marken-Update)
---------------------------------
-- Komplett neuer Marken-Look: Navy/Teal/Coral/Gold aus deinem
-  Logo-Paket, neues Logo in Header & Footer.
-- NEUE DATEIEN unbedingt mit hochladen: logo-header.svg,
-  og-image.png, favicon.ico, favicon-32.png, favicon-192.png,
-  apple-touch-icon.png, logo-icon.png, qr-whatsapp.png
-- Deals jetzt als "Text-Tickets" mit Ziel, Leistung, Preis und
-  Rabatt -> Google kann die Deals endlich lesen (SEO!).
-- Startseite umsortiert: Deals direkt nach dem Hero.
-- QR-Code fuer Desktop-Besucher (scannen -> Kanal beitreten).
-- Open-Graph-Bild: geteilte Links sehen in WhatsApp jetzt
-  professionell aus.
-- SEO-Wissensblock + geschaerfte Titel/Beschreibungen.
-- NOCH ZU TUN (manuell): Instagram- & WhatsApp-Profilbild aus
-  deinem Logo-Paket (Ordner 02_social) einsetzen. Google Search
-  Console anmelden und sitemap.xml einreichen.
+NEU IN VERSION 12 (SEO-Ausbau + Feinschliff)
+--------------------------------------------
+NEUE SEITEN (12):
+- reiseziele.html               (Hub: alle Reiseziele)
+- tuerkei-pauschalreise.html    - aegypten-pauschalreise.html
+- kreta-pauschalreise.html      - teneriffa-pauschalreise.html
+- zypern-pauschalreise.html     - malta-pauschalreise.html
+- algarve-pauschalreise.html
+- all-inclusive-urlaub.html     - last-minute-pauschalreisen.html
+- beste-reisezeit.html          - pauschalreise-mit-kindern.html
+(mallorca-pauschalreise.html wurde auf das neue Muster ausgebaut)
 
-NEU IN VERSION 5
-----------------
-- Neue Unterseite flughafen-parken.html (Partner:
-  Parken-und-Fliegen.de) mit deinem Affiliate-Link,
-  SEO-optimiert (Valet-Parken, Shuttle-Parken, FAQ-Schema).
-- Neues Bild: flughafen-parken.jpg (liegt im ZIP, bitte
-  MIT hochladen!)
-- "Parken" ist jetzt in Menü und Footer aller Seiten.
-- sitemap.xml um die neue Seite ergaenzt.
+AUSSERDEM:
+- Navigation hat jetzt "Reiseziele"; Footer mit Reiseziel-Spalte
+- Deal-Karten fuehren auf die passende Reiseziel-Seite, dort
+  wartet der grosse WhatsApp-Hinweis (mehr Google-Kraft, gleiche
+  Kanal-Fuehrung)
+- deals.html: neues Deal-Archiv "Leider verpasst" (bei jedem
+  Deal-Wechsel unten in die Tabelle eintragen - das haelt die
+  Seite fuer Google frisch!)
+- Schriften lokal (fonts/), Datenschutz-Text dazu angepasst
+- Mobile WhatsApp-Leiste hat jetzt ein Schliessen-Kreuz
+- Alle Seiten: Breadcrumbs, strukturierte Daten (JSON-LD),
+  Klimatabellen, FAQ-Bereiche
 
-WAS IN VERSION 4 BEHOBEN WURDE
-------------------------------
-- Mietwagen-Rechner: wird auf dem Handy intern breiter
-  gerendert und passgenau verkleinert -> die Datumszeile
-  ("11. Juli, 12:00 - 18. Juli, 10:00") passt in EINE Zeile,
-  nichts wird mehr abgeschnitten. Desktop unveraendert.
-- Rechner ist wieder direkt sichtbar (kein Aufklapp-Kasten).
-- Affiliate-Hinweis dezent nach unten verschoben (kein
-  grosses "Anzeige"-Badge mehr ganz oben).
-- Mobile WhatsApp-Leiste erscheint erst nach etwas Scrollen
-  (keine Ueberlappung mehr mit dem gruenen Hero-Button).
-- CSS-Versionierung (?v=4) gegen Browser-Cache.
+DEALS AKTUALISIEREN (Kurzanleitung)
+-----------------------------------
+1. Deal-Bild (Hochformat 900x1125, unter 160 KB) hochladen,
+   z.B. deal-kreta.jpg
+2. In index.html UND deals.html eine Deal-Karte kopieren und
+   Ziel/Preise/Bild/alt-Text anpassen (Kommentar in deals.html
+   zeigt wie)
+3. Ticker-Zeilen oben in index.html + deals.html anpassen
+   (jeweils 2x der gleiche Block!)
+4. Alten Deal in die "Leider verpasst"-Tabelle auf deals.html
+   verschieben (mit Monat)
+5. Wenn ein Reiseziel-Guide zum Deal existiert: dort den
+   "Aktueller Deal"-Block ebenfalls tauschen
 
-SO GEHST DU VOR
----------------
-1. Alle Dateien aus diesem Ordner per Strato-Dateimanager oder FTP
-   in deinen Website-Ordner hochladen und die alten Dateien
-   ueberschreiben.
+NOCH ZU TUN (manuell, wichtig fuer SEO!)
+----------------------------------------
+1. Google Search Console: sparkoffer.de anmelden (DNS-Variante)
+   und sitemap.xml einreichen: https://sparkoffer.de/sitemap.xml
+2. Beim Hoster einstellen (falls moeglich):
+   - http://  -> https://  Weiterleitung (301)
+   - www.sparkoffer.de -> sparkoffer.de Weiterleitung (301)
+3. Optional: Besucher-Statistik ohne Cookies (z.B. Plausible
+   oder Matomo) einbauen, um zu sehen welche WhatsApp-Buttons
+   am besten funktionieren.
 
-2. Deine Bilder bleiben unveraendert und muessen weiter im selben
-   Ordner liegen:
-   logo.png, deal-varna.jpg, deal-istanbul.jpg, deal-dubai.jpg,
-   deal-hammamet.jpg, deal-rhodos.jpg, deal-mallorca.jpg,
-   deal-tossa.jpg, deal-kreta.jpg
+KOMPLETTE DATEILISTE ZUM HOCHLADEN
+-----------------------------------
+HTML (25): index, deals, reiseziele, mallorca-pauschalreise,
+tuerkei-, aegypten-, kreta-, teneriffa-, zypern-, malta-,
+algarve-pauschalreise, ratgeber, versteckte-kosten-pauschalreise,
+fruehbucher-oder-last-minute, all-inclusive-urlaub,
+last-minute-pauschalreisen, beste-reisezeit,
+pauschalreise-mit-kindern, mietwagen, flughafen-parken,
+ueber-uns, kontakt, impressum, datenschutz, affiliate-offenlegung
+CSS: sparkoffer.css
+FONTS: fonts/ (kompletter Ordner, 8 Dateien)
+BILDER: deal-algarve.jpg, deal-gozo.jpg, deal-teneriffa.jpg,
+deal-zypern.jpg, flughafen-parken.jpg, og-image.png,
+qr-whatsapp.png, logo-icon.png, logo-header.svg, favicon.ico,
+favicon-32.png, favicon-192.png, apple-touch-icon.png
+SONSTIGES: sitemap.xml, robots.txt
 
-3. mietwagen.html:
-   Der CHECK24-Mietwagen-Vergleich ist bereits eingebaut -
-   hier ist nichts weiter zu tun.
-
-4. Impressum & Datenschutz:
-   Beide Seiten habe ich mit deinen Angaben (Dennis Zeptr
-   Vermietungen, Mainz) neu aufgebaut und an die tatsaechlich
-   genutzten Dienste angepasst (Strato, Google Fonts, CHECK24,
-   WhatsApp/Instagram-Links). Bitte einmal gegenlesen - falls du in
-   deinen alten Dateien individuelle Ergaenzungen hattest, uebernimm
-   sie. Im Zweifel rechtlich pruefen lassen.
-
-WAS IST NEU
------------
-- Komplett neues Design im "Deal-Ticket"/Boarding-Pass-Look:
-  Deal-Ticker unter dem Header, Ticket-Karte im Hero, Deal-Karten
-  mit Abriss-Perforation, WhatsApp-Chat-Vorschau, neue Schriften
-  (Bricolage Grotesque + Instrument Sans + IBM Plex Mono).
-- Ueberall klare Wege in den WhatsApp-Kanal: gruener Header-Button,
-  Deal-Karten, CTA-Bloecke und eine fixe WhatsApp-Leiste unten auf
-  dem Handy.
-- CHECK24-Pauschalreise-Rechner, Kanal-/Instagram-Links, alle
-  Werbe-Kennzeichnungen ("Anzeige") und die 8 Deal-Bilder wurden
-  uebernommen.
-- sitemap.xml aktualisiert, robots.txt unveraendert.
-
-NEUE DEALS EINPFLEGEN
----------------------
-Am einfachsten: Ein neues Bild mit GLEICHEM Dateinamen hochladen
-(z. B. deal-mallorca.jpg ueberschreiben) - fertig.
-Oder in deals.html einen <a class="deal">-Block kopieren und
-Bildname + Alt-Text anpassen. Die Rabatte im Laufband ("Ticker")
-kannst du direkt oben in index.html und deals.html anpassen.
-
-Bei Fragen: einfach wieder bei Claude melden. Gute Reise! :)
+Alte Deal-Bilder (rhodos, dubai, varna, mallorca, kreta, tossa,
+istanbul, hammamet) koennen auf dem Server geloescht werden.

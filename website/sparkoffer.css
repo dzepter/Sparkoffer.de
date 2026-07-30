@@ -1,8 +1,20 @@
 /* =========================================================
-   sparkoffer.de – Stylesheet v2 · „Deal-Ticket“-Redesign
+   sparkoffer.de – Stylesheet v12 · „Deal-Ticket“-Redesign
    Einmal hochladen, alle Seiten verlinken es per:
-   <link rel="stylesheet" href="sparkoffer.css">
+   <link rel="stylesheet" href="sparkoffer.css?v=12">
+   NEU in v12: Schriften werden selbst gehostet (Ordner fonts/
+   mit hochladen!) – kein Google-Fonts-CDN mehr (DSGVO + Tempo).
    ========================================================= */
+
+/* ---------- Selbst gehostete Schriften ---------- */
+@font-face{font-family:'Bricolage Grotesque';font-style:normal;font-weight:600 800;font-stretch:100%;font-display:swap;src:url(fonts/bricolage-grotesque-600-800-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Bricolage Grotesque';font-style:normal;font-weight:600 800;font-stretch:100%;font-display:swap;src:url(fonts/bricolage-grotesque-600-800-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/ibm-plex-mono-500-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/ibm-plex-mono-500-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/ibm-plex-mono-600-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/ibm-plex-mono-600-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:400 700;font-stretch:100%;font-display:swap;src:url(fonts/instrument-sans-400-700-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:400 700;font-stretch:100%;font-display:swap;src:url(fonts/instrument-sans-400-700-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 
 :root{
   --ink:#0B1D33;            /* Tiefes Petrol – Text & Linien */
@@ -242,7 +254,7 @@ ul.checks li::before{content:"✓";position:absolute;left:0;top:9px;width:23px;h
 
 /* ---------- Footer ---------- */
 .site-footer{background:var(--teal-deep);color:rgba(255,255,255,.82);margin-top:70px;padding:46px 0 30px;border-top:2px solid var(--ink)}
-.foot-grid{display:grid;grid-template-columns:1.4fr 1fr .9fr;gap:32px}
+.foot-grid{display:grid;grid-template-columns:1.35fr .85fr .9fr .8fr;gap:32px}
 .site-footer .brand{font-size:1.22rem}
 .site-footer .brand .logo{width:32px;height:34px}
 .foot-brand p{color:rgba(255,255,255,.72);max-width:26em;font-size:.95rem;margin:14px 0 16px}
@@ -423,3 +435,72 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 .site-footer .brand b{color:var(--aqua)}
 .site-footer .brand i{color:var(--coral)}
 .site-footer .brand .logo{background:#fff;border-radius:9px;padding:3px;box-sizing:content-box}
+
+/* =========================================================
+   v12 – Reiseziel-Seiten, Ratgeber-Ausbau, SEO-Komponenten
+   ========================================================= */
+
+/* ---------- Breadcrumbs ---------- */
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:7px;list-style:none;margin:0 0 20px;padding:0;font:600 .74rem var(--font-m);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.crumbs li{display:flex;align-items:center;gap:7px}
+.crumbs li+li::before{content:"→";color:var(--coral)}
+.crumbs a{color:var(--muted)}
+.crumbs a:hover{color:var(--ink);text-decoration:none}
+.crumbs [aria-current]{color:var(--ink)}
+.page-head .crumbs{justify-content:flex-start}
+.page-head.center .crumbs{justify-content:center}
+
+/* ---------- Fakten-Streifen (Reiseziele) ---------- */
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:26px 0}
+.fact{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:13px 16px;box-shadow:var(--pop-sm)}
+.fact b{display:block;font:600 .62rem var(--font-m);letter-spacing:.14em;text-transform:uppercase;color:var(--teal-ink);margin-bottom:4px}
+.fact span{font-weight:700;font-size:.97rem}
+
+/* ---------- Tabellen (Klima, Preise, Vergleiche) ---------- */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;background:var(--card);border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--pop-sm);margin:24px 0}
+table.data{border-collapse:collapse;width:100%;min-width:560px;font-size:.93rem}
+table.data th,table.data td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+table.data thead th{font:600 .68rem var(--font-m);letter-spacing:.13em;text-transform:uppercase;background:var(--ink);color:var(--paper);border-bottom:2px solid var(--ink)}
+table.data tbody tr:last-child td{border-bottom:none}
+table.data tbody tr:nth-child(even){background:rgba(11,29,51,.035)}
+table.data td.best,table.data th.best{background:rgba(87,211,197,.25);font-weight:700}
+
+/* ---------- Inhaltsverzeichnis (lange Ratgeber) ---------- */
+.toc{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--pop-sm);padding:18px 22px;margin:26px 0;max-width:730px}
+.toc b{display:block;font:600 .68rem var(--font-m);letter-spacing:.15em;text-transform:uppercase;color:var(--teal-ink);margin-bottom:10px}
+.toc ol{margin:0;padding-left:1.2em;display:grid;gap:6px;font-weight:600;font-size:.95rem}
+.toc a{color:var(--ink)}
+.toc a:hover{color:var(--coral)}
+
+/* ---------- Schmale WhatsApp-Zeile (zwischen Abschnitten) ---------- */
+.cta-line{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--card);border:2px solid var(--ink);border-left:10px solid var(--wa);border-radius:var(--r);box-shadow:var(--pop-sm);padding:16px 20px;margin:30px 0}
+.cta-line .ic{width:26px;height:26px;color:var(--wa)}
+.cta-line p{margin:0;font-weight:600;flex:1 1 240px}
+.cta-line p small{display:block;font-weight:500;color:var(--muted);font-size:.85rem}
+.cta-line .btn{padding:10px 18px;font-size:.95rem;box-shadow:var(--pop-sm)}
+
+/* ---------- Hinweis-Varianten ---------- */
+.notice.tip{border-left-color:var(--teal-brand)}
+.notice.warn{border-left-color:var(--coral)}
+
+/* ---------- Artikel-Typografie ---------- */
+.article ul:not(.checks),.article ol{padding-left:1.3em}
+.article ul:not(.checks) li,.article ol li{margin:.4em 0}
+.article strong{color:var(--ink)}
+
+/* ---------- Deal-Bilder: feste Proportion (kein Springen) ---------- */
+.deal img{aspect-ratio:4/5;object-fit:cover;background:rgba(11,29,51,.06)}
+
+/* ---------- Monats-/Themen-Pillen ---------- */
+.pills{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0}
+.pill{display:inline-flex;align-items:center;gap:7px;font:700 .88rem var(--font-b);color:var(--ink);background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:8px 15px;box-shadow:var(--pop-sm);transition:transform .12s,box-shadow .12s}
+.pill:hover{text-decoration:none;transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
+
+/* ---------- Footer: 4 Spalten responsiv ---------- */
+@media(max-width:940px){.foot-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.foot-grid{grid-template-columns:1fr}}
+
+/* ---------- wa-bar: Schließen-Knopf ---------- */
+@media(max-width:760px){
+  .wa-bar .wa-close{position:absolute;top:-10px;right:-6px;width:27px;height:27px;border-radius:50%;background:var(--ink);color:#fff;border:2px solid #fff;font:700 1rem/1 var(--font-b);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 2px 6px rgba(7,21,39,.35)}
+}

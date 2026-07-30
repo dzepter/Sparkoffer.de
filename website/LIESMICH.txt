@@ -17,7 +17,7 @@ das ist schneller UND datenschutzrechtlich sauberer).
 
 SO PRUEFST DU NACH DEM UPLOAD, OB ALLES STIMMT:
 1. Oeffne im Browser:  sparkoffer.de/sparkoffer.css
-   -> Suche im Text nach:  v12
+   -> Suche im Text nach:  v13
    -> Gefunden? Neue CSS ist live.
 2. Oeffne:  sparkoffer.de/fonts/ibm-plex-mono-500-latin.woff2
    -> Laedt eine Datei herunter? Fonts sind live.

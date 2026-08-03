@@ -20,7 +20,10 @@ export function ImpactCheckSection() {
             <p className="mt-6 text-lg leading-relaxed text-mute-dark">
               {impactCheck.description}
             </p>
-            <p className="mt-6 border border-line-dark bg-ink-2 p-5 text-sm leading-relaxed text-mute-dark">
+            <p className="mt-6 border-l-4 border-rot-hell bg-ink-2 p-5 leading-relaxed text-white/90">
+              <strong className="font-display uppercase tracking-wider text-rot-hell">
+                Wichtig:{" "}
+              </strong>
               {impactCheck.disclaimer}
             </p>
             <div className="mt-8">

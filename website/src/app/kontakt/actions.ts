@@ -69,14 +69,14 @@ export async function submitContact(
     "Neue Anfrage über das Kontaktformular auf aigner-offensiv.de",
     "",
     kontext ? `Bezug: ${kontext}` : null,
-    `Name: ${values.vorname} ${values.nachname}`,
+    `Name: ${values.name}`,
     `Unternehmen: ${values.unternehmen}`,
-    `Funktion: ${values.funktion}`,
     `E-Mail: ${values.email}`,
+    `Gewünschtes Angebot: ${angebotLabel}`,
+    values.funktion ? `Funktion: ${values.funktion}` : null,
     values.telefon ? `Telefon: ${values.telefon}` : null,
     values.standorte ? `Anzahl Standorte: ${values.standorte}` : null,
     values.teilnehmer ? `Mögliche Teilnehmer: ${values.teilnehmer}` : null,
-    `Gewünschtes Angebot: ${angebotLabel}`,
     values.veranstaltungsort
       ? `Bevorzugter Veranstaltungsort: ${values.veranstaltungsort}`
       : null,

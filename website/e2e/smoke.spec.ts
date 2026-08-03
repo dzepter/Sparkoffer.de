@@ -132,7 +132,7 @@ test("Kontaktformular ist ohne JavaScript vorhanden und vorausgewählt", async (
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto("http://localhost:3111/kontakt?angebot=fuehrerschein");
-  await expect(page.getByLabel("Vorname")).toBeVisible();
+  await expect(page.getByLabel("Name", { exact: false }).first()).toBeVisible();
   await expect(page.getByLabel("Ihre Nachricht")).toBeVisible();
   await expect(page.getByLabel("Gewünschtes Angebot")).toHaveValue(
     "fuehrerschein"

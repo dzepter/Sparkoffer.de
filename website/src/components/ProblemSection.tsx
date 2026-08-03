@@ -34,7 +34,7 @@ export function ProblemSection() {
                 wurden sie jedoch häufig nicht systematisch vorbereitet.
               </p>
             </div>
-            <p className="display mt-8 border-l-4 border-rot pl-5 text-xl text-ink sm:text-2xl">
+            <p className="mt-8 border-l-4 border-rot pl-5 text-xl font-semibold leading-snug text-ink sm:text-2xl">
               Wer auf der Fläche Verantwortung trägt, braucht mehr als
               Fachwissen. Er braucht Klarheit, Menschenkenntnis und echte
               Handlungskompetenz.

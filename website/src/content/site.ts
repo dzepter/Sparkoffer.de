@@ -127,7 +127,7 @@ export const cta = {
     href: routes.kontakt,
   },
   erstgespraech: {
-    label: "Erstgespräch vereinbaren",
+    label: "Unverbindliches Erstgespräch vereinbaren",
     href: routes.kontakt,
   },
 } as const;

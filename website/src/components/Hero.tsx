@@ -5,9 +5,9 @@ import { SitePhoto } from "./SitePhoto";
 import { ButtonLink, Container, TacticLines } from "./ui";
 
 const trustItems = [
-  "100 % Präsenz",
-  "Praxisfälle aus dem Unternehmen",
-  "Umsetzung statt Seminarwissen",
+  "100 Prozent Präsenz",
+  "Fünf intensive Offensivtage",
+  "Konkrete Fälle aus dem Unternehmen",
 ];
 
 export function Hero() {
@@ -22,7 +22,7 @@ export function Hero() {
         className="bottom-10 left-0 hidden h-40 w-[36rem] text-rot/25 lg:block"
       />
       <Container className="relative">
-        <div className="grid items-center gap-10 py-14 sm:py-20 grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16 lg:py-24">
+        <div className="grid grid-cols-1 items-center gap-10 py-14 sm:py-20 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16 lg:py-24">
           <div>
             <Reveal>
               <p className="eyebrow text-mute-dark">
@@ -45,14 +45,14 @@ export function Hero() {
                 Wir entwickeln Marktleiter, Filialleiter, Abteilungsleiter und
                 Nachwuchsführungskräfte zu Führungspersönlichkeiten, die
                 Mitarbeiter binden, Verantwortung aktivieren und
-                wirtschaftliche Ziele auf die Fläche bringen – in fünf
-                intensiven Offensivtagen und zu 100 Prozent in Präsenz.
+                wirtschaftliche Ziele auf die Fläche bringen – persönlich, mit
+                Rainer Aigner.
               </p>
             </Reveal>
             <Reveal delay={200}>
               <div className="mt-9 flex flex-wrap gap-4">
-                <ButtonLink href={cta.primary.href} variant="primary">
-                  {cta.primary.label}
+                <ButtonLink href={cta.erstgespraech.href} variant="primary">
+                  {cta.erstgespraech.label}
                 </ButtonLink>
                 <ButtonLink href={cta.secondary.href} variant="outline-light">
                   {cta.secondary.label}
@@ -65,12 +65,16 @@ export function Hero() {
             <div className="absolute -left-4 -top-4 hidden h-full w-full border border-white/15 lg:block" />
             <SitePhoto
               image={images.heroHome}
+              fallback={images.rainerPresenting}
               sizes="(max-width: 1024px) 100vw, 40vw"
               className="relative aspect-[4/5] w-full"
+              imgClassName={
+                images.heroHome.available ? "" : "object-[22%_center]"
+              }
               preload
             />
-            <p className="tactic-number absolute -bottom-6 right-2 text-8xl text-white/10 select-none">
-              05
+            <p className="absolute inset-x-0 -bottom-0 bg-gradient-to-t from-ink/90 to-transparent px-5 pb-4 pt-10 text-sm text-white/90">
+              Rainer Aigner – Ex-Profi, Unternehmer, Führungskräftetrainer
             </p>
           </Reveal>
         </div>

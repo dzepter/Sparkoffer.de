@@ -1,6 +1,10 @@
 /**
  * Kontaktanfrage: Typen, Auswahloptionen und serverseitige Validierung.
  * Bewusst ohne zusätzliche Abhängigkeiten umgesetzt.
+ *
+ * Pflichtfelder bewusst schlank gehalten (niedrigschwellige Erstanfrage):
+ * Name, Unternehmen, E-Mail, gewünschtes Angebot, Nachricht, Datenschutz.
+ * Alle weiteren Angaben sind optional.
  */
 
 /** Auswahl "gewünschtes Angebot" – zentral gepflegt. */
@@ -16,17 +20,17 @@ export const requestOptions = [
 export type RequestOptionValue = (typeof requestOptions)[number]["value"];
 
 export type ContactFormValues = {
-  vorname: string;
-  nachname: string;
+  name: string;
   unternehmen: string;
-  funktion: string;
   email: string;
+  angebot: string;
+  nachricht: string;
+  /** Optionale Angaben */
+  funktion: string;
   telefon: string;
   standorte: string;
   teilnehmer: string;
-  angebot: string;
   veranstaltungsort: string;
-  nachricht: string;
   datenschutz: boolean;
 };
 
@@ -56,17 +60,16 @@ export function readFormValues(
       .trim()
       .slice(0, name === "nachricht" ? MAX_MESSAGE : MAX_SHORT);
   return {
-    vorname: text("vorname"),
-    nachname: text("nachname"),
+    name: text("name"),
     unternehmen: text("unternehmen"),
-    funktion: text("funktion"),
     email: text("email"),
+    angebot: text("angebot"),
+    nachricht: text("nachricht"),
+    funktion: text("funktion"),
     telefon: text("telefon"),
     standorte: text("standorte"),
     teilnehmer: text("teilnehmer"),
-    angebot: text("angebot"),
     veranstaltungsort: text("veranstaltungsort"),
-    nachricht: text("nachricht"),
     datenschutz: formData.get("datenschutz") === "ja",
   };
 }
@@ -76,17 +79,11 @@ export function validateContact(
 ): Partial<Record<keyof ContactFormValues, string>> {
   const errors: Partial<Record<keyof ContactFormValues, string>> = {};
 
-  if (!values.vorname) {
-    errors.vorname = "Bitte geben Sie Ihren Vornamen an.";
-  }
-  if (!values.nachname) {
-    errors.nachname = "Bitte geben Sie Ihren Nachnamen an.";
+  if (!values.name) {
+    errors.name = "Bitte geben Sie Ihren Namen an.";
   }
   if (!values.unternehmen) {
     errors.unternehmen = "Bitte geben Sie Ihr Unternehmen an.";
-  }
-  if (!values.funktion) {
-    errors.funktion = "Bitte geben Sie Ihre Funktion im Unternehmen an.";
   }
   if (!values.email) {
     errors.email = "Bitte geben Sie Ihre geschäftliche E-Mail-Adresse an.";

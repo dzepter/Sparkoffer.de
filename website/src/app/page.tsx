@@ -9,6 +9,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ModuleOverview } from "@/components/ModuleOverview";
 import { PresenceSection } from "@/components/PresenceSection";
 import { ProblemSection } from "@/components/ProblemSection";
+import { QuoteBand } from "@/components/QuoteBand";
 import { TestimonialSection } from "@/components/TestimonialSection";
 import { faqs } from "@/content/faqs";
 import { contactData, routes, siteConfig } from "@/content/site";
@@ -72,6 +73,7 @@ export default function Home() {
       <JsonLd data={faqJsonLd} />
       <Hero />
       <ProblemSection />
+      <QuoteBand />
       <BenefitGrid />
       <ModuleOverview />
       <FootballPrinciple />

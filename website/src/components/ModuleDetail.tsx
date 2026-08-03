@@ -37,8 +37,13 @@ export function ModuleDetail({
           {/* Linke Spalte: Nummer, Titel, Leitidee, Herausforderung */}
           <Reveal>
             <div className="flex items-start gap-5">
+              {/*
+                Dekoratives Wasserzeichen – die Nummer steht direkt daneben
+                nochmals mit vollem Kontrast („Offensivtag 01 · Kapitän“).
+              */}
               <span
                 aria-hidden="true"
+                data-watermark
                 className={`tactic-number text-7xl sm:text-8xl ${
                   dark ? "text-white/15" : "text-rot/15"
                 }`}

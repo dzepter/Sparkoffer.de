@@ -7,6 +7,13 @@ import { useEffect, useRef, useState } from "react";
 import { cta, navigation, routes } from "@/content/site";
 
 /**
+ * Header-Logo-Darstellung:
+ * "A" = Signatur allein, größer und mit mehr Raum.
+ * "B" = Signatur + ergänzendes Wortzeichen „AIGNER OFFENSIV“.
+ */
+const LOGO_VARIANT: "A" | "B" = "B";
+
+/**
  * Header mit schlanker Hauptnavigation.
  * Wird beim Scrollen dezent kompakter und bleibt erreichbar.
  */
@@ -73,10 +80,14 @@ export function Header() {
         compact ? "shadow-sm" : ""
       }`}
     >
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
+        {/*
+          Logo-Variante B: Signatur + ergänzendes Wortzeichen.
+          (Variante A – nur größere Signatur – über LOGO_VARIANT="A" testbar.)
+        */}
         <Link
           href={routes.home}
-          className={`flex shrink-0 items-center transition-all duration-300 ${
+          className={`flex shrink-0 items-center gap-3 transition-all duration-300 ${
             compact ? "py-2" : "py-3 sm:py-4"
           }`}
         >
@@ -85,15 +96,33 @@ export function Header() {
             alt="Aigner Offensiv – Startseite"
             width={1092}
             height={428}
-            sizes="140px"
+            sizes="150px"
             className={`w-auto mix-blend-multiply transition-all duration-300 ${
-              compact ? "h-9" : "h-11 sm:h-13"
+              LOGO_VARIANT === "A"
+                ? compact
+                  ? "h-11"
+                  : "h-13 sm:h-15"
+                : compact
+                  ? "h-9"
+                  : "h-10 sm:h-12"
             }`}
           />
+          {LOGO_VARIANT === "B" ? (
+            <span
+              aria-hidden="true"
+              className={`hidden border-l border-line pl-3 font-display font-semibold uppercase leading-tight tracking-[0.18em] text-ink transition-all duration-300 md:block ${
+                compact ? "text-[0.6875rem]" : "text-xs"
+              }`}
+            >
+              Aigner
+              <br />
+              <span className="text-rot">Offensiv</span>
+            </span>
+          ) : null}
         </Link>
 
         {/* Desktop-Navigation */}
-        <nav aria-label="Hauptnavigation" className="hidden lg:block">
+        <nav aria-label="Hauptnavigation" className="hidden xl:block">
           <ul className="flex items-center gap-6">
             {navigation.map((item) => {
               const active =
@@ -104,7 +133,7 @@ export function Header() {
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`font-display text-[0.9375rem] font-medium uppercase tracking-wider transition-colors hover:text-rot ${
+                    className={`font-display text-[0.9375rem] font-medium uppercase tracking-wider whitespace-nowrap transition-colors hover:text-rot ${
                       active ? "text-rot" : "text-ink"
                     }`}
                   >
@@ -119,7 +148,7 @@ export function Header() {
         <div className="flex items-center gap-3">
           <Link
             href={cta.primary.href}
-            className="hidden min-h-11 items-center bg-rot px-5 py-2.5 font-display text-[0.9375rem] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-rot-dark sm:inline-flex"
+            className="hidden min-h-11 items-center whitespace-nowrap bg-rot px-5 py-2.5 font-display text-[0.9375rem] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-rot-dark sm:inline-flex"
           >
             {cta.primary.label}
           </Link>
@@ -128,7 +157,7 @@ export function Header() {
           <button
             ref={toggleRef}
             type="button"
-            className="inline-flex min-h-11 min-w-11 items-center justify-center text-ink lg:hidden"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center text-ink xl:hidden"
             aria-expanded={open}
             aria-controls="mobile-menu"
             onClick={() => setOpen((v) => !v)}
@@ -168,7 +197,7 @@ export function Header() {
         id="mobile-menu"
         ref={panelRef}
         hidden={!open}
-        className="border-t border-line bg-paper lg:hidden"
+        className="border-t border-line bg-paper xl:hidden"
       >
         <nav aria-label="Mobile Navigation" className="px-5 py-4">
           <ul className="flex flex-col">

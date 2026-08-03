@@ -65,8 +65,14 @@ export default function RainerAignerPage() {
             <Reveal delay={150}>
               <SitePhoto
                 image={images.rainerPortraitCasual}
+                fallback={images.rainerStage}
                 sizes="(max-width: 1024px) 100vw, 40vw"
                 className="aspect-square w-full min-w-0 sm:max-w-md lg:ml-auto"
+                imgClassName={
+                  images.rainerPortraitCasual.available
+                    ? ""
+                    : "object-[52%_center]"
+                }
               />
             </Reveal>
           </div>
@@ -118,14 +124,22 @@ export default function RainerAignerPage() {
           className="-right-40 -bottom-40 h-96 w-96 text-white/[0.05]"
         />
         <Container className="relative">
-          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:gap-16">
-            <Reveal>
-              <SitePhoto
-                image={images.miaSanMia}
-                sizes="(max-width: 1024px) 100vw, 30vw"
-                className="aspect-[3/4] w-full max-w-sm"
-              />
-            </Reveal>
+          <div
+            className={
+              images.miaSanMia.available
+                ? "grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:gap-16"
+                : "max-w-3xl"
+            }
+          >
+            {images.miaSanMia.available ? (
+              <Reveal>
+                <SitePhoto
+                  image={images.miaSanMia}
+                  sizes="(max-width: 1024px) 100vw, 30vw"
+                  className="aspect-[3/4] w-full max-w-sm"
+                />
+              </Reveal>
+            ) : null}
             <Reveal delay={120}>
               <Eyebrow className="text-rot-hell">{rainer.award.eyebrow}</Eyebrow>
               <h2 className="display mt-3 text-3xl text-white sm:text-4xl">

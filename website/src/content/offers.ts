@@ -71,12 +71,12 @@ export const offers: Offer[] = [
   },
 ];
 
-/** Der 50.000-Euro-Wirkungscheck. */
+/** Der Wirkungscheck – wirtschaftliche Potenziale, ohne Garantieversprechen. */
 export const impactCheck = {
   eyebrow: "Wirtschaftliche Perspektive",
-  title: "Der 50.000-Euro-Wirkungscheck",
+  title: "Der Wirkungscheck für fünfstellige Potenziale",
   description:
-    "Unklare Verantwortung, unnötige Überstunden, schwache Einarbeitung, vermeidbare Fehler und ungenutzte Verkaufschancen können erhebliche Kosten verursachen. Im Wirkungscheck betrachten wir gemeinsam, an welchen Stellen Führungs- und Prozessverbesserungen wirtschaftliche Potenziale erschließen können.",
+    "Unklare Verantwortung, unnötige Überstunden, schwache Einarbeitung, vermeidbare Fehler und ungenutzte Verkaufschancen können erhebliche Kosten verursachen – schnell summieren sich fünfstellige Beträge im Jahr, bis hin zur 50.000-Euro-Frage. Im Wirkungscheck betrachten wir gemeinsam, an welchen Stellen Führungs- und Prozessverbesserungen wirtschaftliche Potenziale erschließen können.",
   fields: [
     "Fluktuation",
     "Einarbeitungsaufwand",

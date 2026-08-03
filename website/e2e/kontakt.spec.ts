@@ -10,10 +10,8 @@ import { expect, test } from "@playwright/test";
 test("Kontaktanfrage mit gültigen Daten wird bestätigt", async ({ page }) => {
   await page.goto("/kontakt");
 
-  await page.getByLabel("Vorname").fill("Maria");
-  await page.getByLabel("Nachname").fill("Beispiel");
+  await page.getByLabel("Name", { exact: false }).first().fill("Maria Beispiel");
   await page.getByLabel("Unternehmen").fill("Beispiel Handels GmbH");
-  await page.getByLabel("Ihre Funktion").fill("Personalleitung");
   await page
     .getByLabel("Geschäftliche E-Mail-Adresse")
     .fill("maria.beispiel@example.de");
@@ -32,6 +30,33 @@ test("Kontaktanfrage mit gültigen Daten wird bestätigt", async ({ page }) => {
   ).toBeVisible({ timeout: 10_000 });
 });
 
+test("Optionale Angaben sind einklappbar und werden übernommen", async ({
+  page,
+}) => {
+  await page.goto("/kontakt");
+
+  await page.getByLabel("Name", { exact: false }).first().fill("Max Muster");
+  await page.getByLabel("Unternehmen").fill("Muster Märkte KG");
+  await page
+    .getByLabel("Geschäftliche E-Mail-Adresse")
+    .fill("max@example.de");
+  await page.getByLabel("Gewünschtes Angebot").selectOption("offensivtag");
+  await page.getByLabel("Ihre Nachricht").fill("Bitte um Rückruf.");
+
+  // Optionale Angaben aufklappen und ausfüllen
+  await page.getByText("Weitere Angaben (optional)").click();
+  await expect(page.getByLabel("Telefonnummer")).toBeVisible();
+  await page.getByLabel("Telefonnummer").fill("089 123456");
+  await page.getByLabel("Anzahl der Standorte").fill("12");
+
+  await page.getByLabel(/Ich habe die/).check();
+  await page.getByRole("button", { name: "Anfrage senden" }).click();
+
+  await expect(
+    page.getByRole("status").filter({ hasText: "Vielen Dank" })
+  ).toBeVisible({ timeout: 10_000 });
+});
+
 test("Leeres Formular zeigt verständliche Fehlermeldungen", async ({
   page,
 }) => {
@@ -43,7 +68,7 @@ test("Leeres Formular zeigt verständliche Fehlermeldungen", async ({
   await expect(alert).toBeVisible({ timeout: 10_000 });
   await expect(alert).toContainText(/markierten Felder/i);
 
-  await expect(page.locator("#fehler-vorname")).toContainText(/Vornamen/);
+  await expect(page.locator("#fehler-name")).toContainText(/Namen/);
   await expect(page.locator("#fehler-email")).toContainText(/E-Mail/);
   await expect(page.locator("#fehler-datenschutz")).toContainText(
     /Datenschutzerklärung/
@@ -53,14 +78,16 @@ test("Leeres Formular zeigt verständliche Fehlermeldungen", async ({
 test("Eingaben bleiben nach Validierungsfehler erhalten", async ({ page }) => {
   await page.goto("/kontakt");
 
-  await page.getByLabel("Vorname").fill("Max");
+  await page.getByLabel("Name", { exact: false }).first().fill("Max Muster");
   await page.getByLabel("Unternehmen").fill("Muster AG");
   await page.getByRole("button", { name: "Anfrage senden" }).click();
 
   await expect(
     page.getByRole("alert").filter({ hasText: /Anfrage/ })
   ).toBeVisible({ timeout: 10_000 });
-  await expect(page.getByLabel("Vorname")).toHaveValue("Max");
+  await expect(page.getByLabel("Name", { exact: false }).first()).toHaveValue(
+    "Max Muster"
+  );
   await expect(page.getByLabel("Unternehmen")).toHaveValue("Muster AG");
 });
 
@@ -83,10 +110,8 @@ test("Ausgefüllter Honeypot führt zu unauffälliger Bestätigung", async ({
 }) => {
   await page.goto("/kontakt");
 
-  await page.getByLabel("Vorname").fill("Bot");
-  await page.getByLabel("Nachname").fill("Bot");
+  await page.getByLabel("Name", { exact: false }).first().fill("Bot Bot");
   await page.getByLabel("Unternehmen").fill("Bot GmbH");
-  await page.getByLabel("Ihre Funktion").fill("Bot");
   await page
     .getByLabel("Geschäftliche E-Mail-Adresse")
     .fill("bot@example.com");
@@ -108,11 +133,8 @@ test("Sehr lange Eingaben werden angenommen und begrenzt", async ({
 }) => {
   await page.goto("/kontakt");
 
-  const longName = "A".repeat(500);
-  await page.getByLabel("Vorname").fill(longName);
-  await page.getByLabel("Nachname").fill(longName);
+  await page.getByLabel("Name", { exact: false }).first().fill("A".repeat(500));
   await page.getByLabel("Unternehmen").fill("Langname-Test GmbH");
-  await page.getByLabel("Ihre Funktion").fill("Test");
   await page
     .getByLabel("Geschäftliche E-Mail-Adresse")
     .fill("lang@example.de");
@@ -125,4 +147,24 @@ test("Sehr lange Eingaben werden angenommen und begrenzt", async ({
   await expect(
     page.getByRole("status").filter({ hasText: "Vielen Dank" })
   ).toBeVisible({ timeout: 10_000 });
+});
+
+test("Formular ist vollständig per Tastatur bedienbar", async ({ page }) => {
+  await page.goto("/kontakt");
+
+  await page.getByLabel("Name", { exact: false }).first().focus();
+  await page.keyboard.type("Karla Tastatur");
+  await page.keyboard.press("Tab");
+  await page.keyboard.type("Tastatur GmbH");
+  await page.keyboard.press("Tab");
+  await page.keyboard.type("karla@example.de");
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("ArrowDown"); // Auswahl im Select
+  await page.keyboard.press("Tab");
+  await page.keyboard.type("Anfrage per Tastatur.");
+
+  await expect(page.getByLabel("Unternehmen")).toHaveValue("Tastatur GmbH");
+  await expect(
+    page.getByLabel("Geschäftliche E-Mail-Adresse")
+  ).toHaveValue("karla@example.de");
 });

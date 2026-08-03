@@ -21,6 +21,7 @@ const labelClass = "block font-medium text-ink";
 
 /**
  * Kontaktformular mit Server Action.
+ * Bewusst wenige Pflichtfelder; weitere Angaben sind einklappbar.
  * Funktioniert dank Progressive Enhancement auch ohne JavaScript –
  * Vorauswahl und Anfragekontext kommen serverseitig als Props.
  */
@@ -41,6 +42,15 @@ export function ContactForm({
   const values = state.status === "error" ? state.values : undefined;
   const errors = state.status === "error" ? state.fieldErrors : {};
   const errorCount = Object.keys(errors).length;
+
+  /* Optionale Angaben aufklappen, wenn dort bereits Werte stehen */
+  const optionalOpen = Boolean(
+    values?.funktion ||
+      values?.telefon ||
+      values?.standorte ||
+      values?.teilnehmer ||
+      values?.veranstaltungsort
+  );
 
   useEffect(() => {
     if (state.status === "error") {
@@ -115,187 +125,196 @@ export function ContactForm({
         </>
       ) : null}
 
-      <div className="mt-6 grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="vorname" className={labelClass}>
-            Vorname&nbsp;*
-          </label>
-          <input
-            type="text"
-            id="vorname"
-            name="vorname"
-            required
-            autoComplete="given-name"
-            defaultValue={values?.vorname}
-            aria-invalid={errors.vorname ? true : undefined}
-            aria-describedby={errors.vorname ? "fehler-vorname" : undefined}
-            className={inputClass}
-          />
-          <FieldError id="fehler-vorname" message={errors.vorname} />
+      <div className="mt-6 grid grid-cols-1 gap-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div>
+            <label htmlFor="name" className={labelClass}>
+              Name&nbsp;*
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              autoComplete="name"
+              defaultValue={values?.name}
+              aria-invalid={errors.name ? true : undefined}
+              aria-describedby={errors.name ? "fehler-name" : undefined}
+              className={inputClass}
+            />
+            <FieldError id="fehler-name" message={errors.name} />
+          </div>
+          <div>
+            <label htmlFor="unternehmen" className={labelClass}>
+              Unternehmen&nbsp;*
+            </label>
+            <input
+              type="text"
+              id="unternehmen"
+              name="unternehmen"
+              required
+              autoComplete="organization"
+              defaultValue={values?.unternehmen}
+              aria-invalid={errors.unternehmen ? true : undefined}
+              aria-describedby={
+                errors.unternehmen ? "fehler-unternehmen" : undefined
+              }
+              className={inputClass}
+            />
+            <FieldError id="fehler-unternehmen" message={errors.unternehmen} />
+          </div>
+          <div>
+            <label htmlFor="email" className={labelClass}>
+              Geschäftliche E-Mail-Adresse&nbsp;*
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              autoComplete="email"
+              defaultValue={values?.email}
+              aria-invalid={errors.email ? true : undefined}
+              aria-describedby={errors.email ? "fehler-email" : undefined}
+              className={inputClass}
+            />
+            <FieldError id="fehler-email" message={errors.email} />
+          </div>
+          <div>
+            <label htmlFor="angebot" className={labelClass}>
+              Gewünschtes Angebot&nbsp;*
+            </label>
+            <select
+              id="angebot"
+              name="angebot"
+              required
+              defaultValue={values?.angebot || preselected}
+              aria-invalid={errors.angebot ? true : undefined}
+              aria-describedby={errors.angebot ? "fehler-angebot" : undefined}
+              className={inputClass}
+            >
+              <option value="">Bitte wählen …</option>
+              {requestOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <FieldError id="fehler-angebot" message={errors.angebot} />
+          </div>
         </div>
-        <div>
-          <label htmlFor="nachname" className={labelClass}>
-            Nachname&nbsp;*
-          </label>
-          <input
-            type="text"
-            id="nachname"
-            name="nachname"
-            required
-            autoComplete="family-name"
-            defaultValue={values?.nachname}
-            aria-invalid={errors.nachname ? true : undefined}
-            aria-describedby={errors.nachname ? "fehler-nachname" : undefined}
-            className={inputClass}
-          />
-          <FieldError id="fehler-nachname" message={errors.nachname} />
-        </div>
-        <div>
-          <label htmlFor="unternehmen" className={labelClass}>
-            Unternehmen&nbsp;*
-          </label>
-          <input
-            type="text"
-            id="unternehmen"
-            name="unternehmen"
-            required
-            autoComplete="organization"
-            defaultValue={values?.unternehmen}
-            aria-invalid={errors.unternehmen ? true : undefined}
-            aria-describedby={
-              errors.unternehmen ? "fehler-unternehmen" : undefined
-            }
-            className={inputClass}
-          />
-          <FieldError id="fehler-unternehmen" message={errors.unternehmen} />
-        </div>
-        <div>
-          <label htmlFor="funktion" className={labelClass}>
-            Ihre Funktion&nbsp;*
-          </label>
-          <input
-            type="text"
-            id="funktion"
-            name="funktion"
-            required
-            autoComplete="organization-title"
-            defaultValue={values?.funktion}
-            aria-invalid={errors.funktion ? true : undefined}
-            aria-describedby={errors.funktion ? "fehler-funktion" : undefined}
-            className={inputClass}
-          />
-          <FieldError id="fehler-funktion" message={errors.funktion} />
-        </div>
-        <div>
-          <label htmlFor="email" className={labelClass}>
-            Geschäftliche E-Mail-Adresse&nbsp;*
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            autoComplete="email"
-            defaultValue={values?.email}
-            aria-invalid={errors.email ? true : undefined}
-            aria-describedby={errors.email ? "fehler-email" : undefined}
-            className={inputClass}
-          />
-          <FieldError id="fehler-email" message={errors.email} />
-        </div>
-        <div>
-          <label htmlFor="telefon" className={labelClass}>
-            Telefonnummer <span className="text-mute">(optional)</span>
-          </label>
-          <input
-            type="tel"
-            id="telefon"
-            name="telefon"
-            autoComplete="tel"
-            defaultValue={values?.telefon}
-            className={inputClass}
-          />
-        </div>
-        <div>
-          <label htmlFor="standorte" className={labelClass}>
-            Anzahl der Standorte <span className="text-mute">(optional)</span>
-          </label>
-          <input
-            type="text"
-            inputMode="numeric"
-            id="standorte"
-            name="standorte"
-            defaultValue={values?.standorte}
-            className={inputClass}
-          />
-        </div>
-        <div>
-          <label htmlFor="teilnehmer" className={labelClass}>
-            Mögliche Teilnehmer <span className="text-mute">(optional)</span>
-          </label>
-          <input
-            type="text"
-            inputMode="numeric"
-            id="teilnehmer"
-            name="teilnehmer"
-            defaultValue={values?.teilnehmer}
-            className={inputClass}
-          />
-        </div>
-        <div>
-          <label htmlFor="angebot" className={labelClass}>
-            Gewünschtes Angebot&nbsp;*
-          </label>
-          <select
-            id="angebot"
-            name="angebot"
-            required
-            defaultValue={values?.angebot || preselected}
-            aria-invalid={errors.angebot ? true : undefined}
-            aria-describedby={errors.angebot ? "fehler-angebot" : undefined}
-            className={inputClass}
-          >
-            <option value="">Bitte wählen …</option>
-            {requestOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <FieldError id="fehler-angebot" message={errors.angebot} />
-        </div>
-        <div>
-          <label htmlFor="veranstaltungsort" className={labelClass}>
-            Bevorzugter Veranstaltungsort{" "}
-            <span className="text-mute">(optional)</span>
-          </label>
-          <input
-            type="text"
-            id="veranstaltungsort"
-            name="veranstaltungsort"
-            placeholder="z. B. bei uns im Unternehmen"
-            defaultValue={values?.veranstaltungsort}
-            className={inputClass}
-          />
-        </div>
-      </div>
 
-      <div className="mt-5">
-        <label htmlFor="nachricht" className={labelClass}>
-          Ihre Nachricht&nbsp;*
-        </label>
-        <textarea
-          id="nachricht"
-          name="nachricht"
-          rows={6}
-          required
-          defaultValue={values?.nachricht}
-          placeholder="Beschreiben Sie kurz Ihre Ausgangssituation: Wie viele Führungskräfte, welche Herausforderungen, welcher Zeitrahmen?"
-          aria-invalid={errors.nachricht ? true : undefined}
-          aria-describedby={errors.nachricht ? "fehler-nachricht" : undefined}
-          className={inputClass}
-        />
-        <FieldError id="fehler-nachricht" message={errors.nachricht} />
+        <div>
+          <label htmlFor="nachricht" className={labelClass}>
+            Ihre Nachricht&nbsp;*
+          </label>
+          <textarea
+            id="nachricht"
+            name="nachricht"
+            rows={6}
+            required
+            defaultValue={values?.nachricht}
+            placeholder="Beschreiben Sie kurz Ihre Ausgangssituation: Wie viele Führungskräfte, welche Herausforderungen, welcher Zeitrahmen?"
+            aria-invalid={errors.nachricht ? true : undefined}
+            aria-describedby={errors.nachricht ? "fehler-nachricht" : undefined}
+            className={inputClass}
+          />
+          <FieldError id="fehler-nachricht" message={errors.nachricht} />
+        </div>
+
+        {/* Optionale Angaben – einklappbar, um die Erstanfrage schlank zu halten */}
+        <details
+          open={optionalOpen || undefined}
+          className="group border border-line bg-paper-2"
+        >
+          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 font-medium text-ink [&::-webkit-details-marker]:hidden">
+            Weitere Angaben (optional)
+            <span
+              aria-hidden="true"
+              className="shrink-0 text-rot transition-transform duration-200 group-open:rotate-45"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </span>
+          </summary>
+          <div className="grid grid-cols-1 gap-5 border-t border-line p-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="funktion" className={labelClass}>
+                Ihre Funktion
+              </label>
+              <input
+                type="text"
+                id="funktion"
+                name="funktion"
+                autoComplete="organization-title"
+                defaultValue={values?.funktion}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="telefon" className={labelClass}>
+                Telefonnummer
+              </label>
+              <input
+                type="tel"
+                id="telefon"
+                name="telefon"
+                autoComplete="tel"
+                defaultValue={values?.telefon}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="standorte" className={labelClass}>
+                Anzahl der Standorte
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                id="standorte"
+                name="standorte"
+                defaultValue={values?.standorte}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="teilnehmer" className={labelClass}>
+                Mögliche Teilnehmer
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                id="teilnehmer"
+                name="teilnehmer"
+                defaultValue={values?.teilnehmer}
+                className={inputClass}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label htmlFor="veranstaltungsort" className={labelClass}>
+                Bevorzugter Veranstaltungsort
+              </label>
+              <input
+                type="text"
+                id="veranstaltungsort"
+                name="veranstaltungsort"
+                placeholder="z. B. bei uns im Unternehmen"
+                defaultValue={values?.veranstaltungsort}
+                className={inputClass}
+              />
+            </div>
+          </div>
+        </details>
       </div>
 
       <div className="mt-6">

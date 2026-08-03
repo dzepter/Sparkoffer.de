@@ -23,7 +23,7 @@ export function Footer() {
               sizes="160px"
               className="h-14 w-auto bg-paper p-1.5"
             />
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-mute-dark">
+            <p className="mt-5 max-w-sm text-[0.9375rem] leading-relaxed text-mute-dark">
               {siteConfig.footerShort}
             </p>
           </div>
@@ -35,7 +35,7 @@ export function Footer() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-sm text-white/90 transition-colors hover:text-white hover:underline"
+                    className="text-[0.9375rem] text-white/90 transition-colors hover:text-white hover:underline"
                   >
                     {item.label}
                   </Link>
@@ -46,7 +46,7 @@ export function Footer() {
 
           <div>
             <h2 className="eyebrow text-mute-dark">Kontakt</h2>
-            <address className="mt-4 space-y-2.5 text-sm not-italic text-white/90">
+            <address className="mt-4 space-y-2.5 text-[0.9375rem] not-italic text-white/90">
               <p>
                 {contactData.company}
                 <br />

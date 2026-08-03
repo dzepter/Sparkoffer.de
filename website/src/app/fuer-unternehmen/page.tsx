@@ -26,7 +26,13 @@ export default function FuerUnternehmenPage() {
 
       <section className="border-b border-line bg-paper py-14 sm:py-20">
         <Container>
-          <div className="grid items-center gap-10 grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-16">
+          <div
+            className={
+              images.rainerPortraitFormal.available
+                ? "grid items-center gap-10 grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-16"
+                : "max-w-3xl"
+            }
+          >
             <Reveal>
               <Eyebrow>Für Unternehmen</Eyebrow>
               <h1 className="display mt-3 text-3xl text-ink sm:text-5xl lg:text-6xl">
@@ -40,13 +46,15 @@ export default function FuerUnternehmenPage() {
                 Ausgangssituation.
               </p>
             </Reveal>
-            <Reveal delay={150}>
-              <SitePhoto
-                image={images.rainerPortraitFormal}
-                sizes="(max-width: 1024px) 100vw, 40vw"
-                className="aspect-[4/5] w-full min-w-0 sm:max-w-md lg:ml-auto"
-              />
-            </Reveal>
+            {images.rainerPortraitFormal.available ? (
+              <Reveal delay={150}>
+                <SitePhoto
+                  image={images.rainerPortraitFormal}
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                  className="aspect-[4/5] w-full min-w-0 sm:max-w-md lg:ml-auto"
+                />
+              </Reveal>
+            ) : null}
           </div>
         </Container>
       </section>

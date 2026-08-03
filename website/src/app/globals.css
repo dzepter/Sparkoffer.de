@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+/*
+ * Handel Offensiv – Designsystem
+ * Farbwelt: tiefes Anthrazit, warmes Off-White, kraftvolles Rot als
+ * Offensiv-Akzent, sehr zurückhaltendes Spielfeldgrün, Gold nur im Logo.
+ */
+@theme {
+  --color-ink: #15171c;
+  --color-ink-2: #1d2026;
+  --color-ink-3: #2a2e36;
+  --color-paper: #f7f5f1;
+  --color-paper-2: #eeebe4;
+  --color-line: #dcd8d0;
+  /* Kräftigere Linie für Formularrahmen (Non-Text-Kontrast ≥ 3:1 auf Weiß) */
+  --color-line-strong: #82878f;
+  --color-line-dark: #3a3f48;
+  --color-rot: #c1272d;
+  --color-rot-dark: #9e1f27;
+  /* Hellere Rot-Variante für Text auf dunklem Grund (Kontrast) */
+  --color-rot-hell: #ef6660;
+  --color-gruen: #1c3a2e;
+  --color-gold: #b18e4e;
+  --color-mute: #565a61;
+  --color-mute-dark: #a8adb5;
+
+  --font-display: var(--font-oswald), "Arial Narrow", Impact, sans-serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto,
+    Arial, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Klar sichtbare Fokuszustände auf hellem und dunklem Grund */
+:focus-visible {
+  outline: 3px solid var(--color-rot);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.on-dark :focus-visible {
+  outline-color: #ff8a80;
+}
+
+::selection {
+  background: var(--color-rot);
+  color: #fff;
+}
+
+/* Display-Typografie */
+.display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.015em;
+  line-height: 1.08;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+/*
+ * Lange deutsche Komposita („Führungskräfteentwicklung“) würden auf
+ * schmalen Viewports horizontal überlaufen – bis Desktop-Breite darf
+ * der Browser Überschriften silbentrennen.
+ */
+@media (max-width: 64rem) {
+  .display {
+    hyphens: auto;
+  }
+}
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.8125rem;
+}
+
+/* Taktiktafel-Nummern */
+.tactic-number {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/*
+ * Sanftes Einblenden – nur aktiv, wenn JavaScript verfügbar ist
+ * (html.js wird im Layout gesetzt) und keine reduzierte Bewegung
+ * gewünscht ist. Ohne JS bleiben alle Inhalte sofort sichtbar.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .reveal {
+    opacity: 0.001;
+    transform: translateY(14px);
+    transition:
+      opacity 0.55s ease-out,
+      transform 0.55s ease-out;
+  }
+  html.js .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

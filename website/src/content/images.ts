@@ -82,6 +82,20 @@ export const images = {
     neededDescription:
       "Nahaufnahme: Rainer, dunkler Anzug, dunkelrote Krawatte (Office-Shooting)",
   },
+  /**
+   * „Mia san mia“-Kunstwerk: Spielernamen bilden das Vereinswappen,
+   * darunter Rainer Aigners Name. Verwendung laut Auftraggeber geklärt
+   * (Auszeichnung für die aktive Zeit beim FC Bayern München).
+   */
+  miaSanMia: {
+    src: "/images/rainer/mia-san-mia-auszeichnung.jpg",
+    alt: "„Mia san mia“-Kunstwerk: Die Namen von FC-Bayern-Spielern – darunter Rainer Aigner – bilden das Vereinswappen.",
+    width: 576,
+    height: 768,
+    available: false,
+    neededDescription:
+      "Foto des „Mia san mia“-Kunstwerks auf der Staffelei (Spielernamen bilden das Wappen, Rainer Aigners Name im Kreis der Spieler)",
+  },
   /** Buchcover „Lust auf Erfolg“ (von bisheriger Website, kleine Auflösung). */
   bookCover: {
     src: "/images/buch/lust-auf-erfolg-cover.jpg",

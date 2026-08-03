@@ -111,6 +111,37 @@ export default function RainerAignerPage() {
         </Container>
       </section>
 
+      {/* Auszeichnung „Mia san mia“ */}
+      <section className="on-dark relative overflow-hidden border-b border-line-dark bg-ink py-16 text-white sm:py-20">
+        <TacticLines
+          variant="halfway"
+          className="-right-40 -bottom-40 h-96 w-96 text-white/[0.05]"
+        />
+        <Container className="relative">
+          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:gap-16">
+            <Reveal>
+              <SitePhoto
+                image={images.miaSanMia}
+                sizes="(max-width: 1024px) 100vw, 30vw"
+                className="aspect-[3/4] w-full max-w-sm"
+              />
+            </Reveal>
+            <Reveal delay={120}>
+              <Eyebrow className="text-rot-hell">{rainer.award.eyebrow}</Eyebrow>
+              <h2 className="display mt-3 text-3xl text-white sm:text-4xl">
+                {rainer.award.title}
+              </h2>
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-mute-dark">
+                {rainer.award.text}
+              </p>
+              <p className="mt-4 max-w-xl leading-relaxed text-white/85">
+                {rainer.award.conclusion}
+              </p>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+
       {/* Führungsverständnis */}
       <section className="border-b border-line bg-paper-2 py-16 sm:py-24">
         <Container>

@@ -34,6 +34,18 @@ export const rainer = {
     },
   ],
 
+  /**
+   * Auszeichnung „Mia san mia“.
+   * ZU BESTÄTIGEN: offizieller Titel/Wortlaut und Jahr der Verleihung.
+   */
+  award: {
+    eyebrow: "Mia san mia",
+    title: "Teil der Spielergeschichte des FC Bayern München",
+    text: "Für seine aktive Zeit beim FC Bayern München wurde Rainer Aigner in diesem Jahr mit dem „Mia san mia“-Kunstwerk ausgezeichnet: Die Namen der Spieler, die das Trikot des Rekordmeisters getragen haben, bilden gemeinsam das Vereinswappen – mitten darin sein Name.",
+    conclusion:
+      "Was bleibt, ist mehr als eine Erinnerung: das Verständnis dafür, was eine Mannschaft trägt – Rollen, Vorbereitung, Verantwortung und der Wille, in entscheidenden Momenten zu handeln.",
+  },
+
   /** Persönliches Führungsverständnis. */
   principles: [
     "Erfolg ist eine persönliche Entscheidung.",

@@ -39,11 +39,14 @@ Website verwendet bis dahin zurückhaltende Formulierungen oder Platzhalter.
 ## Bilder (siehe PHOTO-GUIDE.md)
 
 - [ ] 4 Porträtfotos als Dateien nachliefern (Zuordnung im PHOTO-GUIDE).
+- [ ] „Mia san mia“-Foto (Gesamtansicht) als Datei nachliefern –
+      Nutzung laut Auftraggeber geklärt (Auszeichnung für die aktive Zeit
+      beim FC Bayern München).
+- [ ] „Mia san mia“: offiziellen Titel/Wortlaut und Jahr der Verleihung
+      bestätigen (Text in `src/content/rainer.ts` → `award`).
 - [ ] Originale ohne Grünfilter für Bühnen-/Fassadenfoto.
 - [ ] Buchcover in höherer Auflösung.
 - [ ] Logo als Vektordatei (SVG), falls vorhanden.
-- [ ] „Mia san mia“-Poster: Markenrechte (FC-Bayern-Logo) klären, bevor es
-      verwendet werden darf.
 
 ## Rechtliches
 

@@ -18,6 +18,7 @@ Diese Übersicht ordnet jedes benötigte Foto einem festen Dateinamen zu.
 | `rainer/rainer-aigner-portrait-buero.jpg` | Office-Shooting: Rainer sitzt an der Tischkante, offener Kragen, lächelnd | Seite „Rainer Aigner“, Einstieg |
 | `rainer/rainer-aigner-portrait-business.jpg` | Office-Shooting: Rainer stehend, dunkelblauer Anzug mit Krawatte (Ganzkörper oder Dreiviertel) | Seite „Für Unternehmen“ |
 | `rainer/rainer-aigner-portrait-nah.jpg` | Office-Shooting: Nahaufnahme, dunkler Anzug, dunkelrote Krawatte | Zitat-/Kontaktbereiche (derzeit Reserve) |
+| `rainer/mia-san-mia-auszeichnung.jpg` | „Mia san mia“-Kunstwerk auf der Staffelei (Gesamtansicht) | Seite „Rainer Aigner“, Abschnitt zur Auszeichnung |
 
 ## Bereits eingebundene Dateien (von der bisherigen Website)
 
@@ -30,10 +31,10 @@ Diese Übersicht ordnet jedes benötigte Foto einem festen Dateinamen zu.
 
 ## Weitere übermittelte Fotos (derzeit nicht eingeplant)
 
-- **„Mia san mia“-Poster (2 Fotos):** starkes persönliches Belegstück
-  (Rainer Aigners Name im Spielerkreis des FC Bayern). **Achtung:** Das
-  Poster zeigt das FC-Bayern-Logo und den Vereinsclaim – Nutzung nur nach
-  Klärung der Markenrechte. Bis dahin nicht eingebunden.
+- **„Mia san mia“-Detailfoto (Namen in Großaufnahme):** Reserve – die
+  Gesamtansicht ist eingeplant (siehe Tabelle oben). Die Nutzung ist laut
+  Auftraggeber geklärt (Auszeichnung für die aktive Zeit beim
+  FC Bayern München).
 - **Ältere Studio-Fotos (weißer Hintergrund, 3 Motive):** wirken deutlich
   älter als das Office-/Outdoor-Shooting; für den neuen Auftritt nicht
   vorgesehen, können aber als Reserve dienen.

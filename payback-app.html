@@ -64,6 +64,7 @@
       <li>Der Roboter meldet sich bei payback.de an und aktiviert jeden Coupon.</li>
       <li>Dauert 1–2 Minuten. Wenn der Server geschlafen hat (Gratis-Tarif), auch mal 3 Minuten – einfach warten.</li>
       <li>Aktivierte Coupons gelten überall: Karte, Payback-App und online.</li>
+      <li>Beim ersten Mal: unter ⚙️ dein Geheimwort (Schlüssel) eintragen – siehe Anleitung.</li>
     </ul>
   </div>
 
@@ -79,11 +80,11 @@
     </ul>
   </div>
 
-  <details>
+  <details id="einstellungen">
     <summary>⚙️ Einstellungen &amp; mehr</summary>
     <div class="karte">
-      <h2>Schlüssel (nur falls eingerichtet)</h2>
-      <p class="klein">Wenn du in Render die Variable <b>PAYBACK_SCHLUESSEL</b> gesetzt hast, trage hier dasselbe Geheimwort ein. Sonst leer lassen.</p>
+      <h2>Schlüssel (Pflicht)</h2>
+      <p class="klein">Trage hier genau dasselbe Geheimwort ein, das du in Render als Variable <b>PAYBACK_SCHLUESSEL</b> angelegt hast. Es schützt davor, dass Fremde deinen Coupon-Roboter starten – ohne Schlüssel macht der Server nichts.</p>
       <input type="text" id="schluessel" placeholder="Geheimwort" autocomplete="off">
       <p class="klein">
         <a href="https://www.payback.de/coupons" target="_blank" rel="noopener">Coupon-Center öffnen</a> – zum Nachschauen, ob alles aktiviert ist.
@@ -127,7 +128,12 @@
       } else {
         const step = j && j.step ? j.step : '?';
         const fehler = j && j.error ? j.error : 'Unbekannte Antwort vom Server (HTTP ' + r.status + ').';
-        status.textContent = '❌ Fehler bei Schritt „' + step + '“:\n' + fehler + '\n\nWenn das öfter passiert: diese Meldung kopieren und an Claude schicken – dann wird der Roboter nachjustiert.';
+        if (step === 'schluessel') {
+          document.getElementById('einstellungen').open = true;
+          status.textContent = '🔑 ' + fehler;
+        } else {
+          status.textContent = '❌ Fehler bei Schritt „' + step + '“:\n' + fehler + '\n\nWenn das öfter passiert: diese Meldung kopieren und an Claude schicken – dann wird der Roboter nachjustiert.';
+        }
       }
     } catch (e) {
       status.textContent = '❌ Server nicht erreichbar (' + e + ').\nBeim Gratis-Tarif schläft der Server nach 15 Minuten – kurz warten und nochmal auf den Knopf drücken.';

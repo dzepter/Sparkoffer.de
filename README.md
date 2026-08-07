@@ -12,8 +12,9 @@ github.com → Sign up
 ### 2. Neues Repository erstellen
 - github.com → „+" oben rechts → **New repository**
 - Name: `sparkoffer-link-roboter` → **Create repository**
-- **„uploading an existing file"** anklicken → die 3 Dateien
-  `server.js`, `package.json`, `Dockerfile` hineinziehen → **Commit changes**
+- **„uploading an existing file"** anklicken → die 4 Dateien
+  `server.js`, `package.json`, `Dockerfile`, `payback-app.html`
+  hineinziehen → **Commit changes**
 
 ### 3. Bei Render.com deployen
 - render.com → mit GitHub anmelden
@@ -54,12 +55,13 @@ Eine kleine Handy-App mit zwei Knöpfen:
    normal bestellen → 1 °Punkt pro 2 € (Amazon ist seit 2022 Payback-Partner).
 
 ### Einrichtung (einmalig, ca. 5 Min.)
-1. render.com → dein Web Service → **Environment** → zwei Variablen anlegen:
+1. render.com → dein Web Service → **Environment** → drei Variablen anlegen:
    - `PAYBACK_NUTZER` = deine Payback-Kartennummer, E-Mail oder Alias
    - `PAYBACK_PIN` = deine PIN bzw. dein Passwort
-   - Optional: `PAYBACK_SCHLUESSEL` = ein selbst ausgedachtes Geheimwort.
-     Dann kann niemand außer dir den Coupon-Knopf aufrufen (dasselbe Wort
-     in der App unter ⚙️ eintragen).
+   - `PAYBACK_SCHLUESSEL` = ein selbst ausgedachtes Geheimwort (Pflicht!).
+     Es schützt davor, dass Fremde im Internet deinen Coupon-Roboter
+     starten – ohne Schlüssel verweigert der Server den Dienst. Dasselbe
+     Wort einmalig in der App unter ⚙️ eintragen.
 2. **Save Changes** → Render startet neu (ca. 5 Min.).
 3. Auf dem Handy öffnen: `https://DEINE-ADRESSE.onrender.com/payback-app`
 4. Als App aufs Handy legen: im Browser-Menü **„Zum Startbildschirm
@@ -78,6 +80,9 @@ Eine kleine Handy-App mit zwei Knöpfen:
 ### Wichtig zur Sicherheit & fair bleiben
 - Deine Zugangsdaten liegen **nur** in Render als Environment-Variablen –
   nicht im Code und nicht auf GitHub. Trag sie nirgendwo anders ein.
+- Der Coupon-Knopf funktioniert **nur mit deinem Geheimwort**
+  (`PAYBACK_SCHLUESSEL`). Gib das Wort und deine Roboter-Adresse nicht
+  weiter – wer beides kennt, kann den Roboter starten.
 - Falls dein Payback-Konto eine 2-Faktor-Bestätigung (SMS-Code) verlangt,
   kann der Roboter sich nicht anmelden – die App zeigt das dann als Fehler.
 - Automatisiertes Aktivieren kann gegen die Payback-Nutzungsbedingungen

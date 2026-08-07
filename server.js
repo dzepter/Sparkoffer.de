@@ -19,6 +19,7 @@ const express = require('express');
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 
 const app = express();
 app.use((req, res, next) => { res.set('Access-Control-Allow-Origin', '*'); next(); });
@@ -608,9 +609,11 @@ app.get('/best-deal', async (req, res) => {
    Einrichtung in Render (→ Environment):
      PAYBACK_NUTZER     = Payback-Kartennummer, E-Mail-Adresse oder Alias
      PAYBACK_PIN        = PIN bzw. Passwort
-     PAYBACK_SCHLUESSEL = (optional) Geheimwort – wenn gesetzt, muss die App
-                          es als ?schluessel=… mitschicken (Schutz davor,
-                          dass Fremde den Endpoint aufrufen)
+     PAYBACK_SCHLUESSEL = PFLICHT: selbst ausgedachtes Geheimwort. Die App
+                          schickt es als ?schluessel=… mit. Ohne diesen
+                          Schutz könnte jeder im Internet den Roboter mit
+                          deinen Zugangsdaten starten – darum verweigert
+                          der Server ohne Schlüssel den Dienst.
    ================================================================ */
 
 const PAYBACK_COUPONS_URL = 'https://www.payback.de/coupons';
@@ -795,32 +798,39 @@ async function paybackCouponsAktivieren(page, t0){
   const schonAktiv = await f.locator('button, [role="button"]')
     .filter({ hasText:/^\s*aktiviert\s*$/i }).count().catch(()=>0);
 
-  let aktiviert = 0, klickFehler = 0, stagnation = 0, letzteAnzahl = Infinity;
-  for (let runde = 0; runde < 80; runde++) {
+  /* Als „aktiviert“ zählt nur, was die Anzahl offener Knöpfe wirklich
+     verringert – ein Klick allein ist noch kein Erfolg */
+  let aktiviert = 0, klickFehler = 0, stagnation = 0;
+  let { erster, offen } = await paybackOffeneCoupons(f);
+  for (let runde = 0; runde < 80 && erster; runde++) {
     budget(t0, 'aktivieren', 150000);
-    const { erster, offen } = await paybackOffeneCoupons(f);
-    if (!erster) break;
-    if (offen >= letzteAnzahl) { stagnation++; if (stagnation >= 3) break; }
-    else stagnation = 0;
-    letzteAnzahl = offen;
+    const vorher = offen;
     await erster.scrollIntoViewIfNeeded().catch(()=>{});
     const geklickt = await erster.click({ timeout:4000 }).then(()=>true).catch(()=>false);
-    if (!geklickt) { klickFehler++; if (klickFehler > 6) break; continue; }
-    aktiviert++;
+    if (!geklickt) klickFehler++;
     await page.waitForTimeout(900);
     /* Falls sich ein Bestätigungs-/Detailfenster öffnet: schließen */
     const zu = f.getByRole('button', { name:/^schließen$|^ok$|^verstanden$|^fertig$/i }).first();
     if (await zu.isVisible().catch(()=>false)) { await zu.click().catch(()=>{}); await page.waitForTimeout(400); }
+    ({ erster, offen } = await paybackOffeneCoupons(f));
+    if (offen < vorher) { aktiviert += vorher - offen; stagnation = 0; }
+    else { stagnation++; if (stagnation >= 3 || klickFehler > 6) break; }
   }
 
-  const rest = await paybackOffeneCoupons(f);
-  return { aktiviert, schonAktiv, nochOffen: rest.offen };
+  return { aktiviert, schonAktiv, nochOffen: offen };
+}
+
+function schluesselOk(eingabe, soll){
+  const a = Buffer.from(String(eingabe)), b = Buffer.from(String(soll));
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
 app.get('/payback/aktivieren', async (req, res) => {
   const schluessel = process.env.PAYBACK_SCHLUESSEL || '';
-  if (schluessel && (req.query.schluessel || '') !== schluessel)
-    return res.status(403).json({ ok:false, step:'schluessel', error:'Falscher oder fehlender Schlüssel. In der App unter ⚙️ denselben Schlüssel eintragen wie in Render (PAYBACK_SCHLUESSEL).' });
+  if (!schluessel)
+    return res.status(403).json({ ok:false, step:'schluessel', error:'Sicherheits-Schlüssel fehlt: In Render unter „Environment“ die Variable PAYBACK_SCHLUESSEL mit einem selbst ausgedachten Geheimwort anlegen und dasselbe Wort in der App unter ⚙️ eintragen. Ohne diesen Schutz könnte jeder im Internet deinen Coupon-Roboter starten – darum ist er Pflicht.' });
+  if (!schluesselOk(req.query.schluessel || '', schluessel))
+    return res.status(403).json({ ok:false, step:'schluessel', error:'Falscher oder fehlender Schlüssel. In der App unter ⚙️ genau dasselbe Geheimwort eintragen wie in Render (PAYBACK_SCHLUESSEL).' });
   const t0 = Date.now();
   let browser, page, step = 'start';
   try {

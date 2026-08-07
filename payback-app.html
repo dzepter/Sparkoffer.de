@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Payback Punkte-App</title>
+<link rel="manifest" href="/payback-manifest">
+<meta name="theme-color" content="#0046aa">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Payback+">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+         background:#eef3fb; color:#1a2a44; min-height:100vh;
+         padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  header { background:linear-gradient(135deg,#0046aa,#0a63d6); color:#fff;
+           padding:26px 20px 20px; border-radius:0 0 22px 22px; }
+  header h1 { font-size:1.45rem; }
+  header p { opacity:.85; font-size:.9rem; margin-top:4px; }
+  main { padding:16px; max-width:520px; margin:0 auto; }
+  .karte { background:#fff; border-radius:18px; padding:18px;
+           box-shadow:0 2px 10px rgba(0,40,120,.08); margin-bottom:16px; }
+  .karte h2 { font-size:1.05rem; margin-bottom:10px; }
+  .knopf { display:block; width:100%; border:0; border-radius:14px; padding:16px;
+           font-size:1.08rem; font-weight:700; text-align:center; cursor:pointer;
+           text-decoration:none; color:#fff; }
+  .blau { background:#0046aa; }
+  .blau:active { background:#003a8c; }
+  .orange { background:#ff9900; color:#1a1a1a; }
+  .orange:active { background:#e68a00; }
+  .knopf[disabled] { opacity:.55; }
+  .status { margin-top:12px; font-size:.95rem; line-height:1.45; background:#f2f6fd;
+            border-radius:10px; padding:12px; display:none; white-space:pre-line; }
+  .status.sichtbar { display:block; }
+  ul.tipps { margin:10px 0 0 18px; font-size:.88rem; line-height:1.55; color:#3d4d68; }
+  details { margin-top:4px; }
+  summary { font-size:.9rem; color:#51617e; cursor:pointer; padding:6px 0; }
+  details .karte { margin-top:8px; }
+  input[type="text"] { width:100%; padding:11px; border:1px solid #c6d3e8;
+                       border-radius:10px; font-size:1rem; margin-top:8px; }
+  .klein { font-size:.8rem; color:#6b7a94; margin-top:10px; line-height:1.5; }
+  footer { text-align:center; font-size:.78rem; color:#8b98ad; padding:6px 16px 24px; }
+  .ladend::after { content:''; display:inline-block; width:14px; height:14px; margin-left:8px;
+                   border:2px solid #fff; border-top-color:transparent; border-radius:50%;
+                   vertical-align:-2px; animation:dreh .8s linear infinite; }
+  @keyframes dreh { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>💙 Payback Punkte-App</h1>
+  <p>Coupons aktivieren &amp; bei Amazon punkten – von Sparkoffer</p>
+</header>
+
+<main>
+
+  <div class="karte">
+    <h2>🎟️ Schritt 1: Alle Coupons aktivieren</h2>
+    <button class="knopf blau" id="aktivierenKnopf" onclick="couponsAktivieren()">Alle Coupons aktivieren</button>
+    <div class="status" id="couponStatus"></div>
+    <ul class="tipps">
+      <li>Der Roboter meldet sich bei payback.de an und aktiviert jeden Coupon.</li>
+      <li>Dauert 1–2 Minuten. Wenn der Server geschlafen hat (Gratis-Tarif), auch mal 3 Minuten – einfach warten.</li>
+      <li>Aktivierte Coupons gelten überall: Karte, Payback-App und online.</li>
+    </ul>
+  </div>
+
+  <div class="karte">
+    <h2>🛒 Schritt 2: Bei Amazon einkaufen &amp; punkten</h2>
+    <a class="knopf orange" href="https://www.payback.de/shop/amazon" target="_blank" rel="noopener">Amazon über Payback öffnen</a>
+    <ul class="tipps">
+      <li><b>Wichtig:</b> Auf der Payback-Seite auf <b>„Jetzt shoppen“</b> tippen – nur dann zählt der Einkauf (1 °Punkt pro 2 €).</li>
+      <li>Beim allerersten Mal auf payback.de anmelden – der Browser merkt sich das.</li>
+      <li>Warenkorb vorher leeren und am besten gleich bestellen (innerhalb von 24 Stunden).</li>
+      <li>Ausgenommen sind u. a. Bücher, E-Books, Lebensmittel, Geschenkgutscheine und Abos wie Prime.</li>
+      <li>Die Punkte erscheinen nach ein paar Tagen, erst „gesperrt“ – frei werden sie nach ca. 70 Tagen (Rückgabefrist).</li>
+    </ul>
+  </div>
+
+  <details>
+    <summary>⚙️ Einstellungen &amp; mehr</summary>
+    <div class="karte">
+      <h2>Schlüssel (nur falls eingerichtet)</h2>
+      <p class="klein">Wenn du in Render die Variable <b>PAYBACK_SCHLUESSEL</b> gesetzt hast, trage hier dasselbe Geheimwort ein. Sonst leer lassen.</p>
+      <input type="text" id="schluessel" placeholder="Geheimwort" autocomplete="off">
+      <p class="klein">
+        <a href="https://www.payback.de/coupons" target="_blank" rel="noopener">Coupon-Center öffnen</a> – zum Nachschauen, ob alles aktiviert ist.
+      </p>
+    </div>
+  </details>
+
+</main>
+
+<footer id="fuss">Payback Punkte-App</footer>
+
+<script>
+  const schluesselFeld = document.getElementById('schluessel');
+  schluesselFeld.value = localStorage.getItem('pbSchluessel') || '';
+  schluesselFeld.addEventListener('input', () => localStorage.setItem('pbSchluessel', schluesselFeld.value.trim()));
+
+  fetch('/version').then(r => r.json())
+    .then(j => { document.getElementById('fuss').textContent = 'Payback Punkte-App · Link-Roboter ' + (j.version || ''); })
+    .catch(() => {});
+
+  async function couponsAktivieren(){
+    const knopf = document.getElementById('aktivierenKnopf');
+    const status = document.getElementById('couponStatus');
+    knopf.disabled = true; knopf.classList.add('ladend');
+    knopf.textContent = 'Roboter arbeitet …';
+    status.classList.add('sichtbar');
+    status.textContent = '⏳ Der Roboter meldet sich bei Payback an und klickt alle Coupons durch. Das dauert 1–2 Minuten – Seite offen lassen.';
+    const key = (localStorage.getItem('pbSchluessel') || '').trim();
+    const url = '/payback/aktivieren' + (key ? '?schluessel=' + encodeURIComponent(key) : '');
+    try {
+      const r = await fetch(url);
+      let j = null;
+      try { j = await r.json(); } catch(_) {}
+      if (j && j.ok) {
+        let text = '✅ Fertig in ' + (j.dauerSekunden || '?') + ' Sekunden!\n';
+        text += '• Neu aktiviert: ' + j.aktiviert + ' Coupon(s)\n';
+        if (j.schonAktiv) text += '• Waren schon aktiv: ' + j.schonAktiv + '\n';
+        if (j.nochOffen)  text += '• Nicht geschafft: ' + j.nochOffen + ' (nochmal auf den Knopf drücken)\n';
+        if (j.hinweis)    text += 'ℹ️ ' + j.hinweis;
+        status.textContent = text;
+      } else {
+        const step = j && j.step ? j.step : '?';
+        const fehler = j && j.error ? j.error : 'Unbekannte Antwort vom Server (HTTP ' + r.status + ').';
+        status.textContent = '❌ Fehler bei Schritt „' + step + '“:\n' + fehler + '\n\nWenn das öfter passiert: diese Meldung kopieren und an Claude schicken – dann wird der Roboter nachjustiert.';
+      }
+    } catch (e) {
+      status.textContent = '❌ Server nicht erreichbar (' + e + ').\nBeim Gratis-Tarif schläft der Server nach 15 Minuten – kurz warten und nochmal auf den Knopf drücken.';
+    }
+    knopf.disabled = false; knopf.classList.remove('ladend');
+    knopf.textContent = 'Alle Coupons aktivieren';
+  }
+</script>
+
+</body>
+</html>

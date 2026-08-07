@@ -1,5 +1,9 @@
-/* Sparkoffer Link-Roboter  (v12)
-   Neu gegenüber v11:
+/* Sparkoffer Link-Roboter  (v14)
+   Neu gegenüber v13:
+   – PAYBACK-Teil: /payback-app (Handy-App) und /payback/aktivieren
+     (meldet sich bei payback.de an und aktiviert alle Coupons).
+     Amazon-Einkäufe punkten über die Payback-Partnerseite payback.de/amazon.
+   Neu in v12:
    – Kartenerkennung über Playwright-Selektoren, die auch in Shadow-DOM /
      Webkomponenten hineinschauen (evaluate/querySelectorAll kann das nicht –
      sehr wahrscheinlich der Grund für „Keine Ergebniskarten gefunden").
@@ -7,9 +11,10 @@
    – /debug-suche   → führt eine Suche aus und zeigt, was der Roboter auf der
                       Ergebnisseite sieht (Frames, Textanfang, Kartenanzahl)
 
-   Endpoints: /link-info, /deal-link, /live-deal, /best-deal, /debug-suche, /version */
+   Endpoints: /link-info, /deal-link, /live-deal, /best-deal, /debug-suche,
+              /version, /payback-app, /payback/aktivieren */
 
-const VERSION = 'v13';
+const VERSION = 'v14';
 const express = require('express');
 const { chromium } = require('playwright');
 const path = require('path');
@@ -23,7 +28,7 @@ app.get('/version', (_q, r) => r.json({ ok:true, version: VERSION }));
 app.get(['/','/app'], (_q, r) => {
   const f = path.join(__dirname, 'sparkoffer-app.html');
   if (fs.existsSync(f)) return r.sendFile(f);
-  r.send('Sparkoffer Link-Roboter '+VERSION+' läuft ✅ – Endpoints: /link-info, /deal-link, /live-deal, /best-deal, /debug-suche, /version');
+  r.send('Sparkoffer Link-Roboter '+VERSION+' läuft ✅ – Endpoints: /link-info, /deal-link, /live-deal, /best-deal, /debug-suche, /version, /payback-app, /payback/aktivieren');
 });
 
 /* ---------------- Helfer ---------------- */
@@ -594,6 +599,276 @@ app.get('/best-deal', async (req, res) => {
              naechte:det.naechte||k.naechte||+ctx.nights, abflughafen:ctx.airport } });
   }
 });
+
+/* ================================================================
+   PAYBACK  (NEU in v14)
+   /payback-app        → kleine Handy-App: Coupons aktivieren + Amazon öffnen
+   /payback/aktivieren → meldet sich bei payback.de an und aktiviert alle Coupons
+
+   Einrichtung in Render (→ Environment):
+     PAYBACK_NUTZER     = Payback-Kartennummer, E-Mail-Adresse oder Alias
+     PAYBACK_PIN        = PIN bzw. Passwort
+     PAYBACK_SCHLUESSEL = (optional) Geheimwort – wenn gesetzt, muss die App
+                          es als ?schluessel=… mitschicken (Schutz davor,
+                          dass Fremde den Endpoint aufrufen)
+   ================================================================ */
+
+const PAYBACK_COUPONS_URL = 'https://www.payback.de/coupons';
+const PAYBACK_AMAZON_URL  = 'https://www.payback.de/shop/amazon';
+
+async function paybackConsent(page){
+  await killConsent(page);
+  for (const t of ['Alles akzeptieren','Alle Cookies akzeptieren','Einverstanden']) {
+    for (const f of alleFrames(page)) {
+      try {
+        const b = f.getByRole('button', { name:t }).first();
+        if (await b.isVisible().catch(()=>false)) { await b.click().catch(()=>{}); await page.waitForTimeout(400); }
+      } catch(_){}
+    }
+  }
+}
+
+function paybackProblemPruefen(text){
+  const t = (text||'').toLowerCase();
+  if (/captcha|are you a robot|bist du ein mensch|zugriff verweigert|access denied|blockiert|pardon our interruption|reference #/i.test(t))
+    return 'Payback blockiert gerade automatisierte Zugriffe (Captcha/Bot-Schutz). Bitte später nochmal versuchen – wenn es dauerhaft passiert, die Coupons einmal von Hand in der Payback-App aktivieren.';
+  if (/bestätigungscode|verifizierungscode|zwei-faktor|2-faktor|sms-code|einmal-code/i.test(t))
+    return 'Dein Payback-Konto verlangt einen Bestätigungscode (2-Faktor-Anmeldung). Das kann der Roboter nicht lösen – bitte in den Payback-Einstellungen prüfen oder Coupons von Hand aktivieren.';
+  return null;
+}
+
+async function paybackSeitenText(page){
+  let t = '';
+  for (const f of alleFrames(page)) {
+    t += '\n' + ((await f.locator('body').innerText({ timeout:4000 }).catch(()=> ''))||'');
+  }
+  return t;
+}
+
+/* Erstes sichtbares Feld aus einer Selektor-Liste finden – in allen Frames,
+   Selektoren in der angegebenen Reihenfolge (spezifische zuerst) */
+async function paybackFeld(page, selektoren, timeoutMs){
+  const ende = Date.now() + (timeoutMs || 1500);
+  while (true) {
+    for (const sel of selektoren) {
+      for (const f of alleFrames(page)) {
+        try {
+          const l = f.locator(sel).first();
+          if (await l.isVisible().catch(()=>false)) return l;
+        } catch(_){}
+      }
+    }
+    if (Date.now() > ende) return null;
+    await page.waitForTimeout(600);
+  }
+}
+
+const PB_USER_SEL = ['input[autocomplete="username"]','input[type="email"]','input[name*="alias" i]',
+  'input[name*="user" i]','input[id*="user" i]','input[placeholder*="mail" i]',
+  'input[placeholder*="Karte" i]','input[placeholder*="Alias" i]','input[type="tel"]','input[type="text"]'];
+
+async function paybackAnmelden(page, t0){
+  const nutzer = process.env.PAYBACK_NUTZER || '';
+  const pin    = process.env.PAYBACK_PIN || '';
+  if (!nutzer || !pin) throw new Error('Zugangsdaten fehlen: In Render unter „Environment“ die Variablen PAYBACK_NUTZER und PAYBACK_PIN anlegen (siehe README, Abschnitt Payback).');
+
+  budget(t0, 'payback-startseite', 150000);
+  await page.goto(PAYBACK_COUPONS_URL, { waitUntil:'domcontentloaded', timeout:45000 });
+  await page.waitForTimeout(2500);
+  await paybackConsent(page);
+  await page.waitForLoadState('networkidle', { timeout:20000 }).catch(()=>{});
+  await paybackConsent(page);
+
+  /* Zum Login-Formular kommen: entweder wurden wir schon umgeleitet
+     (Passwortfeld da), sonst Login-Knopf klicken, sonst /login direkt öffnen */
+  let passFeld = await paybackFeld(page, ['input[type="password"]'], 2000);
+  for (const schritt of ['knopf','direkt']) {
+    if (passFeld) break;
+    budget(t0, 'payback-login-suchen', 150000);
+    if (schritt === 'knopf') {
+      for (const rolle of ['link','button']) {
+        const b = page.getByRole(rolle, { name:/^login$|^anmelden$/i }).first();
+        if (await b.isVisible().catch(()=>false)) { await b.click().catch(()=>{}); break; }
+      }
+    } else {
+      await page.goto('https://www.payback.de/login', { waitUntil:'domcontentloaded', timeout:45000 }).catch(()=>{});
+    }
+    await page.waitForTimeout(2500);
+    await paybackConsent(page);
+    /* Zweistufiges Formular? Erst Nutzername eintragen und „Weiter“ drücken */
+    passFeld = await paybackFeld(page, ['input[type="password"]'], 4000);
+    if (!passFeld) {
+      const userFeld = await paybackFeld(page, PB_USER_SEL, 2000);
+      if (userFeld) {
+        await userFeld.click().catch(()=>{});
+        await userFeld.fill(nutzer).catch(()=>{});
+        await page.waitForTimeout(600);   /* Formular schaltet den Knopf erst frei */
+        const weiter = page.getByRole('button', { name:/weiter|fortfahren|continue/i }).first();
+        const submit = page.locator('button[type="submit"]').first();
+        if (await weiter.isVisible().catch(()=>false)) await weiter.click({ timeout:6000 }).catch(()=>{});
+        else if (await submit.isVisible().catch(()=>false)) await submit.click({ timeout:6000 }).catch(()=>{});
+        else await page.keyboard.press('Enter').catch(()=>{});
+        await page.waitForTimeout(2500);
+        await paybackConsent(page);
+        passFeld = await paybackFeld(page, ['input[type="password"]'], 6000);
+      }
+    }
+  }
+  if (!passFeld) {
+    const problem = paybackProblemPruefen(await paybackSeitenText(page));
+    throw new Error(problem || 'Login-Formular nicht gefunden (kein Passwortfeld sichtbar). Payback hat die Seite evtl. umgebaut – diese Meldung an Claude schicken. Seite: '+page.url().slice(0,120));
+  }
+
+  budget(t0, 'payback-anmelden', 150000);
+  /* Nutzerfeld füllen (bei einstufigem Formular noch leer) */
+  const userFeld = await paybackFeld(page, PB_USER_SEL, 1500);
+  if (userFeld) {
+    const wert = await userFeld.inputValue().catch(()=> '');
+    if (!wert) { await userFeld.click().catch(()=>{}); await userFeld.fill(nutzer).catch(()=>{}); }
+  }
+  await passFeld.click().catch(()=>{});
+  await passFeld.fill(pin);
+  await page.waitForTimeout(600);   /* Formular schaltet den Knopf erst frei */
+  let gesendet = false;
+  for (const name of [/^anmelden$/i, /^login$/i, /^einloggen$/i, /anmelden|einloggen/i]) {
+    const b = page.getByRole('button', { name }).first();
+    if (await b.isVisible().catch(()=>false)) { await b.click({ timeout:6000 }).catch(()=>{}); gesendet = true; break; }
+  }
+  if (!gesendet) {
+    const submit = page.locator('button[type="submit"]').first();
+    if (await submit.isVisible().catch(()=>false)) { await submit.click({ timeout:6000 }).catch(()=>{}); gesendet = true; }
+  }
+  if (!gesendet) await passFeld.press('Enter').catch(()=>{});
+  await page.waitForTimeout(3500);
+  await page.waitForLoadState('networkidle', { timeout:20000 }).catch(()=>{});
+  await paybackConsent(page);
+
+  const text = await paybackSeitenText(page);
+  const problem = paybackProblemPruefen(text);
+  if (problem) throw new Error(problem);
+  if (await paybackFeld(page, ['input[type="password"]'], 1500)) {
+    if (/falsch|ungültig|stimmen nicht|nicht korrekt|fehlgeschlagen|gesperrt/i.test(text))
+      throw new Error('Payback meldet: Anmeldung abgelehnt (Zugangsdaten falsch oder Konto gesperrt). Bitte PAYBACK_NUTZER und PAYBACK_PIN in Render prüfen.');
+    throw new Error('Login hat nicht geklappt (Passwortfeld weiterhin sichtbar). Seite: '+page.url().slice(0,120));
+  }
+}
+
+/* Zählt offene „Aktivieren“-Knöpfe im Frame und liefert den ersten davon.
+   getByRole schaut auch in Shadow-DOM-Webkomponenten hinein. */
+async function paybackOffeneCoupons(f){
+  const loc = f.getByRole('button', { name:/aktivieren/i });
+  const n = Math.min(await loc.count().catch(()=>0), 120);
+  let erster = null, offen = 0;
+  for (let i = 0; i < n; i++) {
+    const b = loc.nth(i);
+    const txt = (((await b.innerText().catch(()=> ''))||'') + ' ' +
+                 ((await b.getAttribute('aria-label').catch(()=>null))||'')).toLowerCase();
+    if (/deaktivieren/.test(txt)) continue;
+    if (/aktiviert/.test(txt) && !/aktivieren/.test(txt)) continue;
+    if (!(await b.isVisible().catch(()=>false)) || !(await b.isEnabled().catch(()=>false))) continue;
+    offen++;
+    if (!erster) erster = b;
+  }
+  return { erster, offen };
+}
+
+async function paybackCouponsAktivieren(page, t0){
+  /* Lazy-Loading: scrollen, bis keine neuen Coupons mehr nachkommen */
+  let letzteHoehe = -1;
+  for (let i = 0; i < 18; i++) {
+    budget(t0, 'coupons-nachladen', 150000);
+    const h = await page.evaluate(() => document.body.scrollHeight).catch(()=>0);
+    if (h === letzteHoehe && i >= 3) break;
+    letzteHoehe = h;
+    await page.evaluate(() => window.scrollBy(0, 1600)).catch(()=>{});
+    await page.waitForTimeout(800);
+  }
+  await page.evaluate(() => window.scrollTo(0, 0)).catch(()=>{});
+  await page.waitForTimeout(600);
+
+  /* Frame mit den Coupons finden (normalerweise die Hauptseite) */
+  let f = page.mainFrame();
+  for (const kand of alleFrames(page)) {
+    if (await kand.getByRole('button', { name:/aktivieren/i }).count().catch(()=>0)) { f = kand; break; }
+  }
+
+  const schonAktiv = await f.locator('button, [role="button"]')
+    .filter({ hasText:/^\s*aktiviert\s*$/i }).count().catch(()=>0);
+
+  let aktiviert = 0, klickFehler = 0, stagnation = 0, letzteAnzahl = Infinity;
+  for (let runde = 0; runde < 80; runde++) {
+    budget(t0, 'aktivieren', 150000);
+    const { erster, offen } = await paybackOffeneCoupons(f);
+    if (!erster) break;
+    if (offen >= letzteAnzahl) { stagnation++; if (stagnation >= 3) break; }
+    else stagnation = 0;
+    letzteAnzahl = offen;
+    await erster.scrollIntoViewIfNeeded().catch(()=>{});
+    const geklickt = await erster.click({ timeout:4000 }).then(()=>true).catch(()=>false);
+    if (!geklickt) { klickFehler++; if (klickFehler > 6) break; continue; }
+    aktiviert++;
+    await page.waitForTimeout(900);
+    /* Falls sich ein Bestätigungs-/Detailfenster öffnet: schließen */
+    const zu = f.getByRole('button', { name:/^schließen$|^ok$|^verstanden$|^fertig$/i }).first();
+    if (await zu.isVisible().catch(()=>false)) { await zu.click().catch(()=>{}); await page.waitForTimeout(400); }
+  }
+
+  const rest = await paybackOffeneCoupons(f);
+  return { aktiviert, schonAktiv, nochOffen: rest.offen };
+}
+
+app.get('/payback/aktivieren', async (req, res) => {
+  const schluessel = process.env.PAYBACK_SCHLUESSEL || '';
+  if (schluessel && (req.query.schluessel || '') !== schluessel)
+    return res.status(403).json({ ok:false, step:'schluessel', error:'Falscher oder fehlender Schlüssel. In der App unter ⚙️ denselben Schlüssel eintragen wie in Render (PAYBACK_SCHLUESSEL).' });
+  const t0 = Date.now();
+  let browser, page, step = 'start';
+  try {
+    ({ browser, page } = await neuerBrowser());
+    step = 'anmelden';
+    await paybackAnmelden(page, t0);
+    step = 'coupons-oeffnen'; budget(t0, step, 150000);
+    if (!/payback\.de\/coupons/i.test(page.url())) {
+      await page.goto(PAYBACK_COUPONS_URL, { waitUntil:'domcontentloaded', timeout:45000 });
+    }
+    await page.waitForTimeout(2500);
+    await paybackConsent(page);
+    await page.waitForLoadState('networkidle', { timeout:20000 }).catch(()=>{});
+    step = 'aktivieren';
+    const erg = await paybackCouponsAktivieren(page, t0);
+    let hinweis = 'Die Coupons gelten für dein ganzes Payback-Konto – egal ob du danach mit Karte, App oder online einkaufst.';
+    let debug;
+    if (erg.aktiviert === 0 && erg.schonAktiv === 0 && erg.nochOffen === 0) {
+      const text = await paybackSeitenText(page);
+      const problem = paybackProblemPruefen(text);
+      if (problem) throw new Error(problem);
+      hinweis = 'Keine „Aktivieren“-Knöpfe gefunden – entweder sind gerade keine Coupons da, oder Payback hat die Seite umgebaut. Falls in der Payback-App Coupons zu sehen sind: diese Antwort an Claude schicken.';
+      debug = { seite: page.url().slice(0,120), frames: frameListe(page).split(' | '),
+                textAnfang: text.replace(/\s+/g,' ').slice(0,300) };
+    }
+    await browser.close();
+    return res.json({ ok:true, version:VERSION, ...erg, hinweis, amazon: PAYBACK_AMAZON_URL,
+      dauerSekunden: Math.round((Date.now()-t0)/1000), ...(debug ? { debug } : {}) });
+  } catch (e) {
+    let seite=''; try{ seite = page ? page.url() : ''; }catch(_){}
+    if (browser) await browser.close().catch(()=>{});
+    return res.status(500).json({ ok:false, version:VERSION, step, seite, error:String(e.message||e).slice(0,500) });
+  }
+});
+
+app.get(['/payback','/payback-app'], (_q, r) => {
+  const f = path.join(__dirname, 'payback-app.html');
+  if (fs.existsSync(f)) return r.sendFile(f);
+  r.status(404).send('payback-app.html fehlt – bitte die Datei mit ins Repository hochladen und neu deployen.');
+});
+
+app.get('/payback-manifest', (_q, r) => r.json({
+  name: 'Payback Punkte-App', short_name: 'Payback+',
+  start_url: '/payback-app', display: 'standalone',
+  background_color: '#0046aa', theme_color: '#0046aa',
+  icons: [{ src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230046aa'/%3E%3Ctext x='50' y='70' font-size='56' text-anchor='middle' fill='white' font-family='Arial,sans-serif' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E",
+            sizes: 'any', type: 'image/svg+xml' }]
+}));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log('Link-Roboter '+VERSION+' läuft auf Port', PORT));

@@ -44,9 +44,54 @@ Ab `minRabatt` (Standard 40 %) greift er sofort zu; sonst nimmt er am Ende
 den besten gefundenen Deal. Die Antwort enthält ein `protokoll` mit dem, was
 er pro Ziel gefunden hat.
 
+## NEU in v14: Payback Punkte-App 💙
+Eine kleine Handy-App mit zwei Knöpfen:
+1. **Alle Coupons aktivieren** – der Roboter meldet sich bei payback.de an und
+   aktiviert jeden Coupon im Coupon-Center (gilt danach überall: Karte,
+   Payback-App und online).
+2. **Amazon über Payback öffnen** – öffnet die Payback-Partnerseite
+   `payback.de/amazon`. Dort auf **„Jetzt shoppen"** tippen, dann bei Amazon
+   normal bestellen → 1 °Punkt pro 2 € (Amazon ist seit 2022 Payback-Partner).
+
+### Einrichtung (einmalig, ca. 5 Min.)
+1. render.com → dein Web Service → **Environment** → zwei Variablen anlegen:
+   - `PAYBACK_NUTZER` = deine Payback-Kartennummer, E-Mail oder Alias
+   - `PAYBACK_PIN` = deine PIN bzw. dein Passwort
+   - Optional: `PAYBACK_SCHLUESSEL` = ein selbst ausgedachtes Geheimwort.
+     Dann kann niemand außer dir den Coupon-Knopf aufrufen (dasselbe Wort
+     in der App unter ⚙️ eintragen).
+2. **Save Changes** → Render startet neu (ca. 5 Min.).
+3. Auf dem Handy öffnen: `https://DEINE-ADRESSE.onrender.com/payback-app`
+4. Als App aufs Handy legen: im Browser-Menü **„Zum Startbildschirm
+   hinzufügen"** (Android) bzw. Teilen-Symbol → **„Zum Home-Bildschirm"**
+   (iPhone). Ab dann startet sie wie eine normale App.
+
+### Wichtig zu den Amazon-Punkten
+- Es zählt **nur**, wenn du den Einkauf über die Payback-Seite startest
+  (Knopf in der App → „Jetzt shoppen"). Beim ersten Mal dort anmelden.
+- Warenkorb vorher leeren, innerhalb von 24 Stunden bestellen.
+- Ausgenommen: u. a. Bücher, E-Books, Lebensmittel, Geschenkgutscheine,
+  Abos (Prime, Audible …) und Vorbestellungen.
+- Punkte erscheinen nach wenigen Tagen erst „gesperrt" und werden nach
+  ca. 70 Tagen (Rückgabefrist) freigeschaltet.
+
+### Wichtig zur Sicherheit & fair bleiben
+- Deine Zugangsdaten liegen **nur** in Render als Environment-Variablen –
+  nicht im Code und nicht auf GitHub. Trag sie nirgendwo anders ein.
+- Falls dein Payback-Konto eine 2-Faktor-Bestätigung (SMS-Code) verlangt,
+  kann der Roboter sich nicht anmelden – die App zeigt das dann als Fehler.
+- Automatisiertes Aktivieren kann gegen die Payback-Nutzungsbedingungen
+  verstoßen (gleiches Thema wie bei Check24 unten). Nutzung auf eigenes
+  Risiko – im Zweifel Coupons von Hand in der Payback-App aktivieren.
+- Wenn ein Fehler kommt (`"ok": false` mit `step` und `error`): Meldung an
+  Claude schicken – die Klick-Stellen auf payback.de können sich ändern und
+  werden dann in `server.js` nachjustiert.
+
 ## Update einspielen (wenn du schon deployed hast)
 GitHub → dein Repository → `server.js` anklicken → Stift-Symbol (Edit) →
 kompletten Inhalt durch die neue Datei ersetzen → **Commit changes**.
+Für v14 zusätzlich: die neue Datei `payback-app.html` hochladen („Add file →
+Upload files") und die `Dockerfile` genauso aktualisieren.
 Render baut automatisch neu (ca. 5 Min.), fertig.
 
 ## Wichtige Hinweise

@@ -41,8 +41,8 @@ export default async function CockpitLayout({ children }: { children: ReactNode 
     groups.push({
       label: "System",
       items: [
-        { href: "/system/benutzer", label: "Benutzer & Rollen" },
-        { href: "/system/audit", label: "Audit Log" },
+        { href: "/system/benutzer-und-rollen", label: "Benutzer & Rollen" },
+        { href: "/system/audit-log", label: "Audit Log" },
         { href: "/system/einstellungen", label: "Einstellungen" },
       ],
     });

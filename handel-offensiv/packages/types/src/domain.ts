@@ -21,6 +21,8 @@ import type {
 export interface ActorMembership {
   organizationId: Uuid;
   role: MemberRole;
+  /** Feingranulare Rechte-Overrides aus organization_memberships.permissions (jsonb) */
+  permissions?: Record<string, boolean>;
 }
 
 export interface ActorContext {

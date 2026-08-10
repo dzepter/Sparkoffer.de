@@ -1,7 +1,7 @@
 # Trainer-Handbuch
 
 Für Trainerinnen und Trainer von Aigner Offensiv. Sie arbeiten im selben
-Cockpit wie die Verwaltung (`admin.aigner-offensiv.de`), sehen dort aber
+Cockpit wie die Verwaltung (`cockpit.handel-offensiv.de`), sehen dort aber
 ausschließlich Ihre eigenen Gruppen. Anmeldung mit E-Mail + Passwort;
 die Aktivierung der Zwei-Faktor-Anmeldung (MFA) wird dringend empfohlen.
 

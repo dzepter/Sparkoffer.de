@@ -1,7 +1,7 @@
 # Admin-Handbuch (Super Admin / Verwaltung)
 
 Für die Verwaltung der Plattform durch Aigner Offensiv. Das Cockpit ist
-erreichbar unter der Admin-Domain (z. B. `admin.aigner-offensiv.de`) und
+erreichbar unter der Admin-Domain (z. B. `cockpit.handel-offensiv.de`) und
 für Teilnehmer nicht sichtbar. Anmeldung mit E-Mail + Passwort;
 für Admin-Konten ist die Aktivierung von MFA vorgesehen
 (System → Einstellungen → MFA).

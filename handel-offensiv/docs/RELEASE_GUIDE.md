@@ -62,7 +62,7 @@ Die App ist loginpflichtig – Apple braucht einen funktionierenden Testzugang:
 
 - Deploy über Vercel (empfohlen): Projekt auf `handel-offensiv/apps/admin`
   zeigen lassen, pnpm-Monorepo wird erkannt; Env-Variablen je Environment setzen.
-- Domain `admin.aigner-offensiv.de` per CNAME aufschalten.
+- Domain `cockpit.handel-offensiv.de` per CNAME aufschalten.
 - Produktions-Deploys nur aus `main` (Briefing §51) – Branch-Protection aktivieren.
 
 ## Versionierung & Freigabe

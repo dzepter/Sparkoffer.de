@@ -22,7 +22,7 @@ müssen. Bis dahin arbeitet das System mit klar markierten DEMO-/Platzhalterwert
       + Absenderadresse (Vorschlag: keine noreply-Adresse, sondern z. B.
       mannschaftsraum@aigner-offensiv.de)
 - [ ] **Hosting Admin-Cockpit**: Vercel-Konto oder Alternative; gewünschte Domain
-      (Vorschlag: `admin.aigner-offensiv.de`)
+      (Vorschlag: `cockpit.handel-offensiv.de`)
 - [ ] Wer erhält Super-Admin-Zugänge? (Namen + E-Mail-Adressen)
 
 ## Inhalte

@@ -4,17 +4,17 @@
    ============================================================ */
 
 :root {
-  --paper: #f7f6f1;
+  --paper: #f5f7f9;
   --white: #ffffff;
-  --ink: #131711;
-  --ink-soft: #454b42;
-  --line: #e3e3d8;
-  --line-dark: #2a2f26;
-  --green: #a8c62b;
-  --green-bright: #c5e33c;
-  --green-deep: #5f7a10;
-  --dark: #12160e;
-  --dark-2: #181d13;
+  --ink: #131a22;
+  --ink-soft: #44505e;
+  --line: #dee4ea;
+  --line-dark: #263a50;
+  --green: #2e6fb0;
+  --green-bright: #7fb8e8;
+  --green-deep: #1f5e96;
+  --dark: #101c2a;
+  --dark-2: #16263a;
   --radius: 2px;
   --w-max: 1180px;
   --header-h: 76px;
@@ -145,13 +145,13 @@ p + p { margin-top: 1em; }
   height: var(--header-h);
   display: flex;
   align-items: center;
-  background: rgba(18, 22, 14, 0.55);
+  background: rgba(16, 28, 42, 0.55);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   transition: background 0.3s;
 }
-.site-header.scrolled { background: rgba(18, 22, 14, 0.92); }
+.site-header.scrolled { background: rgba(16, 28, 42, 0.92); }
 .site-header.solid { background: var(--dark); }
 
 .header-inner {
@@ -281,8 +281,8 @@ p + p { margin-top: 1em; }
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(15deg, rgba(18, 22, 14, 0.96) 25%, rgba(18, 22, 14, 0.55) 60%, rgba(18, 22, 14, 0.35) 100%),
-    linear-gradient(to top, rgba(18, 22, 14, 0.9), transparent 45%);
+    linear-gradient(15deg, rgba(16, 28, 42, 0.96) 25%, rgba(16, 28, 42, 0.55) 60%, rgba(16, 28, 42, 0.35) 100%),
+    linear-gradient(to top, rgba(16, 28, 42, 0.9), transparent 45%);
 }
 
 .hero .wrap { position: relative; z-index: 2; width: 100%; }
@@ -297,7 +297,7 @@ p + p { margin-top: 1em; }
   top: 0;
   bottom: 0;
   width: 34vw;
-  background: linear-gradient(rgba(197, 227, 60, 0.14), rgba(197, 227, 60, 0.02));
+  background: linear-gradient(rgba(127, 184, 232, 0.14), rgba(127, 184, 232, 0.02));
   transform: skewX(-14deg);
   z-index: 1;
   pointer-events: none;
@@ -398,7 +398,7 @@ a.card:hover { border-color: var(--green); transform: translateY(-4px); }
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(18, 22, 14, 0.45), rgba(18, 22, 14, 0.05) 55%);
+  background: linear-gradient(to top, rgba(16, 28, 42, 0.45), rgba(16, 28, 42, 0.05) 55%);
   border-radius: var(--radius);
   pointer-events: none;
 }
@@ -516,7 +516,7 @@ a.card:hover { border-color: var(--green); transform: translateY(-4px); }
   margin: 0 auto;
   transform: rotate(-2deg);
   transition: transform 0.3s;
-  filter: drop-shadow(0 24px 40px rgba(18, 22, 14, 0.35));
+  filter: drop-shadow(0 24px 40px rgba(16, 28, 42, 0.35));
 }
 .book-cover:hover { transform: rotate(0deg) scale(1.02); }
 
@@ -724,7 +724,7 @@ a.card:hover { border-color: var(--green); transform: translateY(-4px); }
 .field input:focus, .field textarea:focus {
   outline: none;
   border-color: var(--green-deep);
-  box-shadow: 0 0 0 3px rgba(168, 198, 43, 0.25);
+  box-shadow: 0 0 0 3px rgba(46, 111, 176, 0.25);
 }
 .field textarea { min-height: 160px; resize: vertical; }
 
@@ -925,3 +925,14 @@ a.card:hover { border-color: var(--green); transform: translateY(-4px); }
 .phone-mock .pm-btn { background: var(--green); color: var(--dark); text-align: center; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em; padding: 10px; border-radius: 6px; text-transform: uppercase; }
 .phone-mock .pm-bar { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.12); overflow: hidden; }
 .phone-mock .pm-bar i { display: block; height: 100%; width: 40%; background: var(--green); }
+
+
+/* Blau ist die finale Markenfarbe von HANDEL OFFENSIV – weißer Text auf Blau */
+.btn { color: #fff; }
+.btn:hover { color: #fff; }
+.btn.ghost { color: var(--ink); }
+.on-dark .btn.ghost { color: #e8edf2; }
+.on-dark .btn.ghost:hover { color: #fff; }
+.main-nav a.nav-cta { color: #fff; }
+.phone-mock .pm-btn { color: #fff; }
+.split-media .tag { color: #fff; }

@@ -1,0 +1,4 @@
+# HANDEL OFFENSIV – Serverkonfiguration (Apache/Strato)
+
+# Eigene Fehlerseite statt der Strato-Standardseite
+ErrorDocument 404 /404.html

@@ -104,17 +104,34 @@ if (!is_file(PASSWORT_DATEI) && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($
   }
 }
 
-// Anmelden
+// Anmelden – mit dateibasierter Bremse gegen Durchprobieren
+// (sessionunabhängig: gilt auch, wenn der Angreifer keine Cookies mitschickt)
+define('SPERR_DATEI', __DIR__ . '/loginsperre.json');
+function sperre_lesen() {
+  if (!is_file(SPERR_DATEI)) return ['fehl' => 0, 'seit' => 0];
+  $d = json_decode((string)file_get_contents(SPERR_DATEI), true);
+  return is_array($d) ? $d + ['fehl' => 0, 'seit' => 0] : ['fehl' => 0, 'seit' => 0];
+}
+function sperre_schreiben($d) { @file_put_contents(SPERR_DATEI, json_encode($d), LOCK_EX); }
+
 if (is_file(PASSWORT_DATEI) && !eingeloggt() && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['passwort'])) {
-  $_SESSION['versuche'] = ($_SESSION['versuche'] ?? 0) + 1;
-  if ($_SESSION['versuche'] > 5) sleep(3); // Bremse gegen Durchprobieren
-  $hash = require PASSWORT_DATEI;
-  if (password_verify((string)$_POST['passwort'], (string)$hash)) {
-    $_SESSION['redaktion_ok'] = true;
-    $_SESSION['versuche'] = 0;
-    session_regenerate_id(true);
+  $sperre = sperre_lesen();
+  // Zähler nach 15 Minuten Ruhe zurücksetzen
+  if ($sperre['seit'] > 0 && time() - $sperre['seit'] > 900) $sperre = ['fehl' => 0, 'seit' => 0];
+  if ($sperre['fehl'] >= 20 && time() - $sperre['seit'] < 900) {
+    $fehler = 'Zu viele Fehlversuche. Bitte warten Sie 15 Minuten und versuchen Sie es dann erneut.';
   } else {
-    $fehler = 'Das Passwort ist nicht korrekt.';
+    if ($sperre['fehl'] >= 5) sleep(2); // jede weitere Antwort verzögern
+    $hash = require PASSWORT_DATEI;
+    if (password_verify((string)$_POST['passwort'], (string)$hash)) {
+      $_SESSION['redaktion_ok'] = true;
+      session_regenerate_id(true);
+      sperre_schreiben(['fehl' => 0, 'seit' => 0]);
+    } else {
+      usleep(random_int(300000, 800000)); // Timing verschleiern
+      sperre_schreiben(['fehl' => $sperre['fehl'] + 1, 'seit' => time()]);
+      $fehler = 'Das Passwort ist nicht korrekt.';
+    }
   }
 }
 

@@ -9,21 +9,35 @@ Dauer: ca. 15–20 Minuten.
 2. Unter **Domains** prüfen, dass `handel-offensiv.de` in Ihrem Paket liegt.
    Falls noch nicht: Domain im Paket bestellen (wenige Klicks, sofort aktiv).
 
-## Schritt 2: Dateien hochladen (einfachster Weg: Strato WebFTP)
+## Schritt 2: Dateien hochladen
 
-1. Im Kundenlogin: Ihr Paket öffnen → **Websitebereich / Dateiverwaltung
-   (WebFTP)** aufrufen.
-2. Einen neuen Ordner anlegen, z. B. `handel-offensiv`.
-3. **Alle Dateien und Ordner aus diesem Verzeichnis** dort hineinladen –
-   also `index.html`, `kontakt.html`, `login.html`, `impressum.html`,
-   `datenschutz.html`, `account-loeschen.html`, `404.html`,
-   `ANLEITUNG-STRATO.md` (optional) sowie die kompletten Ordner
-   `assets/` und `cms/`.
+**Weg A – im Browser (Strato-Dateimanager):**
 
-   *Tipp:* Bequemer als WebFTP ist das kostenlose Programm
-   **FileZilla** – die FTP-Zugangsdaten (Server, Benutzer, Passwort)
-   stehen im Strato-Kundenlogin unter „FTP-Zugänge".
-   Damit ziehen Sie einfach den ganzen Ordnerinhalt per Maus hinüber.
+1. Im Kundenlogin: Ihr Paket öffnen → in der linken Menüleiste
+   **„Datenbanken und Webspace" → „Webspace verwalten"**.
+   (So heißt das frühere „WebFTP" heute.)
+2. Oben **„Neues Verzeichnis erstellen"** → Name `handel-offensiv`.
+3. In den Ordner wechseln und über **„Datei hochladen"** alle Dateien
+   hineinladen: `index.html`, `login.html`, `kontakt.html`,
+   `impressum.html`, `datenschutz.html`, `account-loeschen.html`,
+   `404.html`, `.htaccess`, `robots.txt`, `sitemap.xml` sowie die
+   kompletten Ordner `assets/` und `cms/` (Unterordner ggf. von Hand
+   anlegen und die Dateien einzeln hochladen).
+
+**Weg B – bequemer mit FileZilla (empfohlen):**
+
+1. Kostenloses Programm **FileZilla** installieren
+   (filezilla-project.org).
+2. Zugangsdaten: im Kundenlogin unter **„Datenbanken und Webspace" →
+   „SFTP & SSH"** (Server, Benutzername; Passwort dort festlegen).
+   In FileZilla eintragen, Port **22**, „Verbinden".
+3. Links den entpackten Website-Ordner öffnen, rechts den Ordner
+   `handel-offensiv` anlegen und den **kompletten Inhalt** mit der
+   Maus hinüberziehen – fertig in einem Rutsch.
+
+   *Hinweis:* Die Datei `.htaccess` ist eine „versteckte Datei".
+   Falls Sie sie links nicht sehen: in FileZilla im Menü
+   **Server → „Auflistung versteckter Dateien erzwingen"** aktivieren.
 
 ## Schritt 3: Domain mit dem Ordner verbinden
 

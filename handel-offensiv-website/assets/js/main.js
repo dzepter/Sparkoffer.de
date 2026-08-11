@@ -1,4 +1,4 @@
-/* AIGNER OFFENSIV – kleine, abhängigkeitsfreie Interaktionen */
+/* HANDEL OFFENSIV – kleine, abhängigkeitsfreie Interaktionen */
 (function () {
   "use strict";
 
@@ -82,18 +82,19 @@
   if (form) {
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+      // Pflichtfelder prüfen und Browser-Fehlermeldungen anzeigen
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
       var get = function (name) {
         var f = form.elements[name];
         return f ? f.value.trim() : "";
       };
-      var consent = form.elements["datenschutz"];
-      if (consent && !consent.checked) {
-        consent.focus();
-        return;
-      }
-      var subject = "Anfrage über aigner-offensiv.de";
+      var subject = "Anfrage über handel-offensiv.de";
       var body =
-        "Name: " + get("name") + " " + get("vorname") + "\n" +
+        "Name: " + get("vorname") + " " + get("name") + "\n" +
+        (get("firma") ? "Unternehmen: " + get("firma") + "\n" : "") +
         "E-Mail: " + get("email") + "\n" +
         "Telefon: " + get("telefon") + "\n\n" +
         get("nachricht");
@@ -103,41 +104,6 @@
         "&body=" +
         encodeURIComponent(body);
       var note = document.getElementById("form-hinweis");
-      if (note) note.hidden = false;
-    });
-  }
-
-  // Bestellformular: öffnet das E-Mail-Programm mit fertiger Bestellung
-  var orderForm = document.getElementById("bestell-formular");
-  if (orderForm) {
-    orderForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var get = function (name) {
-        var f = orderForm.elements[name];
-        return f ? f.value.trim() : "";
-      };
-      var consent = orderForm.elements["datenschutz"];
-      if (consent && !consent.checked) {
-        consent.focus();
-        return;
-      }
-      var anzahl = get("anzahl") || "1";
-      var subject = "Bestellung „Lust auf Erfolg“ (" + anzahl + " Exemplar" + (anzahl === "1" ? "" : "e") + ")";
-      var body =
-        "Hiermit bestelle ich verbindlich:\n\n" +
-        anzahl + " x „Lust auf Erfolg“ von Rainer Aigner (je 24,95 EUR inkl. MwSt., zzgl. Versand)\n\n" +
-        "Lieferadresse:\n" +
-        get("vorname") + " " + get("name") + "\n" +
-        get("strasse") + "\n" +
-        get("plz") + " " + get("ort") + "\n\n" +
-        "E-Mail: " + get("email") + "\n" +
-        (get("nachricht") ? "\nAnmerkung:\n" + get("nachricht") + "\n" : "");
-      window.location.href =
-        "mailto:info@aigner-offensiv.de?subject=" +
-        encodeURIComponent(subject) +
-        "&body=" +
-        encodeURIComponent(body);
-      var note = document.getElementById("bestell-hinweis");
       if (note) note.hidden = false;
     });
   }

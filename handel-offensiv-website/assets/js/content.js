@@ -3,7 +3,7 @@
    die fest eingebauten Texte zurück. */
 (function () {
   "use strict";
-  fetch("cms/content.json", { cache: "no-store" })
+  fetch("/cms/content.json", { cache: "no-store" })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (texte) {
       if (!texte) return;

@@ -50,18 +50,18 @@
       <div class="wrap">
         <div class="section-head reveal">
           <p class="kicker">Anmelden</p>
-          <h1 style="font-size:clamp(1.9rem,4vw,3rem)">Rein in die <span class="accent">Kabine.</span></h1>
-          <p class="lead" style="margin-top:1rem">Handel Offensiv ist ein geschlossenes Programm – der Zugang erfolgt ausschließlich über eine persönliche Einladung. Wählen Sie Ihren Weg:</p>
+          <h1 style="font-size:clamp(1.9rem,4vw,3rem)" data-edit="login_titel">Rein in die <span class="accent">Kabine.</span></h1>
+          <p class="lead" style="margin-top:1rem" data-edit="login_text">Handel Offensiv ist ein geschlossenes Programm – der Zugang erfolgt ausschließlich über eine persönliche Einladung. Wählen Sie Ihren Weg:</p>
         </div>
 
         <div class="grid cols-2">
 
           <div class="card reveal">
             <span class="idx">Teilnehmer</span>
-            <h3>Die Handel-Offensiv-App</h3>
-            <p>Als Teilnehmerin oder Teilnehmer nutzen Sie die App auf Ihrem iPhone: Aufgaben, Lernimpulse, Ihr Offensivplan und Ihre Termine – alles an einem Ort.</p>
+            <h3 data-edit="login_app_titel">Die Handel-Offensiv-App</h3>
+            <p data-edit="login_app_text">Als Teilnehmerin oder Teilnehmer nutzen Sie die App auf Ihrem iPhone: Aufgaben, Lernimpulse, Ihr Offensivplan und Ihre Termine – alles an einem Ort.</p>
             <p><strong>So kommen Sie rein:</strong></p>
-            <p>1. Sie erhalten eine persönliche Einladungs-E-Mail von Aigner Offensiv.<br>
+            <p data-edit="login_app_schritte">1. Sie erhalten eine persönliche Einladungs-E-Mail von Aigner Offensiv.<br>
                2. Link öffnen, eigenes Passwort festlegen.<br>
                3. App laden, anmelden – fertig.</p>
             <div class="btn-row">
@@ -72,8 +72,8 @@
 
           <div class="card reveal d1">
             <span class="idx">Trainer &amp; Verwaltung</span>
-            <h3>Das Cockpit</h3>
-            <p>Trainerinnen, Trainer und die Programmverwaltung arbeiten im Web-Cockpit: Gruppen im Blick, Aufgaben mit Feedback, Inhalte und Freischaltungen verwalten.</p>
+            <h3 data-edit="login_cockpit_titel">Das Cockpit</h3>
+            <p data-edit="login_cockpit_text">Trainerinnen, Trainer und die Programmverwaltung arbeiten im Web-Cockpit: Gruppen im Blick, Aufgaben mit Feedback, Inhalte und Freischaltungen verwalten.</p>
             <p><strong>Zugang:</strong> mit Ihren persönlichen Zugangsdaten – für Admin-Konten mit Zwei-Faktor-Anmeldung.</p>
             <div class="btn-row">
               <!-- Beim Go-Live der Plattform wieder als Link aktivieren:
@@ -89,8 +89,8 @@
 
     <section class="section on-dark claim-band">
       <div class="wrap reveal">
-        <blockquote>Die Kabine bleibt <mark>geschützt.</mark></blockquote>
-        <cite>Persönliche Reflexionen sind privat – Zugang nur auf Einladung, keine öffentliche Registrierung.</cite>
+        <blockquote data-edit="login_claim">Die Kabine bleibt <mark>geschützt.</mark></blockquote>
+        <cite data-edit="login_claim_text">Persönliche Reflexionen sind privat – Zugang nur auf Einladung, keine öffentliche Registrierung.</cite>
       </div>
     </section>
   </main>
@@ -108,5 +108,6 @@
   </footer>
 
   <script src="assets/js/main.js"></script>
+  <script src="assets/js/content.js"></script>
 </body>
 </html>

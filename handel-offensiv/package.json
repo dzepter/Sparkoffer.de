@@ -1,0 +1,18 @@
+{
+  "name": "handel-offensiv",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Handel Offensiv – Der digitale Mannschaftsraum. Lernplattform für das Präsenzprogramm von Aigner Offensiv.",
+  "packageManager": "pnpm@10.9.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "pnpm -r --if-present lint",
+    "test": "pnpm -r --if-present test",
+    "build:admin": "pnpm --filter @handel-offensiv/admin build",
+    "dev:admin": "pnpm --filter @handel-offensiv/admin dev",
+    "dev:mobile": "pnpm --filter @handel-offensiv/mobile start"
+  }
+}

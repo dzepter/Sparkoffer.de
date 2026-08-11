@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Archivo lokal gebuendelt (public/fonts) – KEIN Google-Fonts-CDN (DSGVO).
+ * Deklarationen sind defensiv: fehlen die woff2-Dateien (siehe
+ * public/fonts/README.md), faellt der Browser lautlos auf den System-Stack
+ * aus tailwind.config.ts zurueck.
+ */
+@font-face {
+  font-family: "Archivo";
+  src: url("/fonts/Archivo-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("/fonts/Archivo-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("/fonts/Archivo-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("/fonts/Archivo-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  html {
+    /* Expliziter Light Mode (Briefing §56) */
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+
+  ::selection {
+    @apply bg-green text-dark;
+  }
+
+  :focus-visible {
+    outline: 2px solid #5f7a10; /* greenDeep – ausreichender Kontrast */
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /*
+   * Subtile Spielfeld-/Taktiklinien als Hintergrundstruktur –
+   * ruhig und praezise, keine Deko-Ueberladung.
+   */
+  .pitch-lines {
+    background-image:
+      linear-gradient(to right, rgba(19, 23, 17, 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(19, 23, 17, 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .pitch-lines-dark {
+    background-image:
+      linear-gradient(to right, rgba(247, 246, 241, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(247, 246, 241, 0.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+}

@@ -1,0 +1,42 @@
+# Supabase-CLI-Konfiguration – Handel Offensiv Learning App
+project_id = "handel-offensiv"
+
+[api]
+enabled = true
+port = 54321
+# Nur public via PostgREST exponieren; Schema "app" bleibt intern (RLS-Hilfsfunktionen)
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+# PG >= 15 noetig (UNIQUE NULLS NOT DISTINCT, security_invoker-Views)
+major_version = 17
+
+[studio]
+enabled = true
+port = 54323
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+# TODO: Produktions-URL eintragen (Deep-Link-/Redirect-Basis)
+site_url = "http://localhost:3000"
+additional_redirect_urls = []
+# Access-Token 1 Stunde gueltig, Refresh-Token-Rotation aktiv
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+# Keine Selbstregistrierung: Zugang ausschliesslich per Einladung
+# (Admin-Invite / Edge Function mit Service Role)
+enable_signup = false
+
+[auth.email]
+enable_signup = false
+double_confirm_changes = true
+enable_confirmations = true

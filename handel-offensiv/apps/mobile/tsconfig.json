@@ -1,0 +1,20 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      // Pinnt die React-Typen auf @types/react 18 (Expo SDK 52 Matrix).
+      // Ohne dieses Mapping loesen d.ts-Dateien von Dependencies "react" ueber
+      // pnpm's Hoist-Verzeichnis auf @types/react 19 auf (Admin-App nutzt
+      // React 19) und mischen inkompatible JSX-Typen in den Typecheck.
+      "react": ["./node_modules/@types/react"],
+      "react/*": ["./node_modules/@types/react/*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "exclude": ["node_modules"]
+}

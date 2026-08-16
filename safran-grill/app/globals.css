@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/*
+ * Design-Tokens Safran Grill
+ * Warm, ruhig, editorial: Creme-Grund, Espresso-Text, tiefer Safranton
+ * als Akzent, dezentes Terrakotta/Oliv als Nebenfarben.
+ */
+@theme {
+  --color-*: initial;
+
+  /* Grundflächen */
+  --color-cream: #f8f3ea;
+  --color-cream-deep: #f0e8d9;
+  --color-paper: #fdfbf6;
+
+  /* Text */
+  --color-ink: #241c12;
+  --color-ink-soft: #5c4f3f;
+  --color-ink-faint: #8a7b68;
+
+  /* Akzente */
+  --color-saffron: #b56812;
+  --color-saffron-deep: #94530c;
+  --color-terracotta: #a34a2e;
+  --color-olive: #5f5b3a;
+
+  /* Dunkle Sektion (Espresso) */
+  --color-espresso: #241b11;
+  --color-espresso-soft: #3a2e1f;
+
+  /* Linien */
+  --color-line: rgb(36 28 18 / 0.16);
+  --color-line-dark: rgb(248 243 234 / 0.22);
+
+  --color-white: #ffffff;
+
+  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+
+  --tracking-eyebrow: 0.16em;
+
+  --transition-duration-fast: 180ms;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  @apply bg-cream text-ink font-sans antialiased;
+  font-feature-settings: "ss01" on;
+}
+
+/* Editoriale Serif-Headlines */
+.font-display {
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+  letter-spacing: -0.015em;
+}
+
+/* Sichtbarer Fokus für Tastaturnavigation */
+:focus-visible {
+  outline: 2px solid var(--color-saffron);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+
+/* Anker-Ziele nicht unter dem sticky Header verschwinden lassen */
+[id] {
+  scroll-margin-top: 6.5rem;
+}
+
+::selection {
+  background: var(--color-saffron);
+  color: var(--color-cream);
+}

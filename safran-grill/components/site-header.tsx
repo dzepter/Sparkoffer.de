@@ -17,18 +17,18 @@ export function SiteHeader() {
     // Kein backdrop-blur: backdrop-filter würde den fixed-Backdrop des
     // mobilen Menüs an den Header binden (containing block).
     <header className="sticky top-0 z-50 border-b border-line bg-cream">
-      <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+      <div className="relative mx-auto flex h-[4.5rem] max-w-[85rem] items-center justify-between px-5 sm:px-8 md:h-20">
         <Link href="/" className="py-2" aria-label="Safran Grill – Startseite">
           <Wordmark />
         </Link>
 
-        <nav aria-label="Hauptnavigation" className="hidden items-center gap-7 md:flex">
+        <nav aria-label="Hauptnavigation" className="hidden items-center gap-8 md:flex">
           <NavLinks items={navItems} />
           <a
             href={restaurant.links.lieferando}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-sm bg-saffron-deep px-4.5 py-2.5 text-[0.9rem] font-semibold text-cream transition-colors duration-fast hover:bg-saffron-deeper"
+            className="inline-flex min-h-11 items-center rounded-sm bg-saffron-deep px-6 text-[0.95rem] font-semibold text-paper transition-colors duration-fast hover:bg-saffron-deeper"
           >
             Online bestellen
             <NewTabHint />

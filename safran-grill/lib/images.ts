@@ -75,6 +75,22 @@ export const buffetStrecke: SiteImage = {
   alt: "Buffetstrecke im Safran Grill Neustadt mit Chafing-Dishes, Suppe und frischem Salat",
 };
 
+/** Breites Panorama des Gastraums – für Full-Width-Momente */
+export const gastraumPanorama: SiteImage = {
+  src: "/images/restaurant/gastraum-panorama-safran-grill.jpg",
+  width: 2200,
+  height: 972,
+  alt: "Blick durch den Gastraum des Safran Grill mit Holzwand und Tischen am Fenster",
+};
+
+/** Quadratisches Detail: gegrilltes Fleisch am Buffet */
+export const grillfleischDetail: SiteImage = {
+  src: "/images/restaurant/grillfleisch-detail-safran-grill.jpg",
+  width: 900,
+  height: 900,
+  alt: "Frisch gegrilltes Fleisch und Köfte in einer Buffetwanne im Safran Grill",
+};
+
 /** Open-Graph-Bild (1200x630) – absolute URL wird in den Metadaten gebildet */
 export const ogImagePath = "/images/og/safran-grill-neustadt.jpg";
 

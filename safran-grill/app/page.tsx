@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowLink, Cta, Eyebrow } from "@/components/cta";
+import { ArrowLink, BrandRule, Cta, Eyebrow } from "@/components/cta";
 import { fullAddress, restaurant } from "@/lib/restaurant-config";
+import { menuCategories } from "@/lib/menu-data";
 import { pageOpenGraph } from "@/lib/og";
 import {
+  buffetGerichte,
   buffetReisGrill,
+  buffetReisgericht,
   buffetStrecke,
   gastraumLandscape,
+  gastraumPanorama,
   gastraumPortrait,
+  logoWand,
 } from "@/lib/images";
 
 export const metadata: Metadata = {
@@ -21,32 +25,47 @@ export const metadata: Metadata = {
   }),
 };
 
+/** Ausgewählte Gerichte aus den echten Speisekarten-Daten */
+function signatureDishes() {
+  const wanted = [
+    "Kabuli Palau",
+    "Mantu Fleisch",
+    "Gegrillter Hähnchen Spieß",
+    "Chapli Kebab",
+  ];
+  const all = menuCategories.flatMap((c) => c.items);
+  return wanted
+    .map((name) => all.find((i) => i.name === name))
+    .filter((i): i is NonNullable<typeof i> => Boolean(i));
+}
+
 export default function HomePage() {
+  const dishes = signatureDishes();
+
   return (
     <>
-      {/* ————— Hero ————— */}
-      <section className="border-b border-line">
-        <div className="mx-auto max-w-6xl px-5 sm:px-8">
-          <div className="grid items-stretch gap-10 py-12 sm:py-16 lg:grid-cols-12 lg:gap-14 lg:py-0">
-            <div className="flex flex-col justify-center lg:col-span-7 lg:py-24">
-              <Eyebrow>
-                Afghanische Küche · Neustadt an der Weinstraße
-              </Eyebrow>
-              <h1 className="font-display text-[2.6rem] font-semibold leading-[1.06] sm:text-6xl lg:text-[4.25rem]">
-                Grillfeuer, Gewürze und echte Gastfreundschaft.
+      {/* ————— Hero: Text links, großes Foodfoto rechts bis an den Rand ————— */}
+      <section className="relative overflow-hidden">
+        <div className="mx-auto max-w-[85rem] px-5 sm:px-8">
+          <div className="grid lg:min-h-[82vh] lg:grid-cols-12 lg:items-stretch">
+            <div className="order-2 flex flex-col justify-center py-10 sm:py-14 lg:order-1 lg:col-span-6 lg:py-24 lg:pr-14">
+              <Eyebrow>Afghanische Küche · Neustadt</Eyebrow>
+              <h1 className="font-display display-black text-[2rem] font-bold leading-[0.98] min-[380px]:text-[2.35rem] min-[420px]:text-[2.55rem] sm:text-[3.4rem] lg:text-[3.8rem] xl:text-[4.4rem]">
+                Feuer. Gewürze.
+                <br />
+                Gastfreundschaft.
               </h1>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
-                Afghanische Spezialitäten, saftige Grillgerichte, aromatischer
-                Reis und ein vielfältiges Buffet – mitten in Neustadt an der
-                Weinstraße.
+              <p className="mt-6 max-w-md text-lg leading-relaxed text-ink-soft">
+                Afghanische Spezialitäten, saftige Grillgerichte und unser
+                All-you-can-eat-Buffet – mitten in Neustadt an der Weinstraße.
               </p>
-              <div className="mt-8 flex flex-wrap items-center gap-4">
+              <div className="mt-9 flex flex-wrap items-center gap-4">
                 <Cta href="/speisekarte">Speisekarte ansehen</Cta>
                 <Cta href="/buffet" variant="outline">
                   Buffet entdecken
                 </Cta>
               </div>
-              <p className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.95rem] text-ink-faint">
+              <p className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.95rem] text-ink-faint">
                 <ArrowLink href={restaurant.links.lieferando} external>
                   Online bestellen
                 </ArrowLink>
@@ -54,267 +73,321 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="relative lg:col-span-5">
-              <figure className="lg:absolute lg:inset-y-0 lg:left-0 lg:w-[calc(100%+((100vw-72rem)/2)+2rem)] lg:max-w-[40rem]">
-                <div className="relative aspect-3/4 h-full w-full overflow-hidden lg:aspect-auto">
-                  <Image
-                    src={gastraumPortrait.src}
-                    alt={gastraumPortrait.alt}
-                    fill
-                    priority
-                    sizes="(min-width: 1024px) 40rem, 100vw"
-                    className="object-cover"
-                  />
-                </div>
-                <figcaption className="mt-3 text-[0.85rem] text-ink-faint lg:sr-only">
-                  Unser Gastraum an der Hauptstraße 115
-                </figcaption>
-              </figure>
-              {/* Platzhalter, damit die absolute Figur auf Desktop Höhe bekommt */}
-              <div aria-hidden className="hidden lg:block lg:h-full lg:min-h-[36rem]" />
+            <div className="order-1 -mx-5 sm:-mx-8 lg:order-2 lg:col-span-6 lg:mx-0">
+              <div className="relative h-[46vh] min-h-72 lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[48vw] lg:max-w-[58rem]">
+                <Image
+                  src={buffetReisGrill.src}
+                  alt={buffetReisGrill.alt}
+                  fill
+                  priority
+                  fetchPriority="high"
+                  sizes="(min-width: 1024px) 48vw, 100vw"
+                  className="object-cover object-[35%_70%] [filter:saturate(1.08)]"
+                />
+                {/* Dezente warme Abdunklung, kaschiert das ausgefressene Fenster oben */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-gradient-to-b from-coal/25 via-transparent to-transparent"
+                />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ————— Info-Streifen ————— */}
-      <section aria-label="Auf einen Blick" className="border-b border-line bg-cream-deep/60">
-        <div className="mx-auto max-w-6xl px-5 sm:px-8">
-          <ul className="flex flex-wrap items-center gap-x-3 gap-y-1 py-4 text-[0.82rem] font-medium uppercase tracking-[0.07em] text-ink-soft sm:justify-between sm:gap-x-5">
-            <li>All-you-can-eat-Buffet</li>
+      {/* ————— Infozeile ————— */}
+      <section aria-label="Auf einen Blick" className="border-y border-line bg-paper">
+        <div className="mx-auto max-w-[85rem] px-5 sm:px-8">
+          <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 py-4 text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-ink-soft sm:gap-x-6">
+            <li>All you can eat</li>
+            {restaurant.buffet.enabled && (
+              <>
+                <li aria-hidden className="hidden text-saffron sm:block">·</li>
+                <li>{restaurant.buffet.price} pro Person</li>
+              </>
+            )}
             <li aria-hidden className="hidden text-saffron sm:block">·</li>
-            <li>Afghanische Spezialitäten</li>
-            <li aria-hidden className="hidden text-saffron sm:block">·</li>
-            <li>{restaurant.address.street}, Neustadt</li>
+            <li>{restaurant.address.street}</li>
             <li aria-hidden className="hidden text-saffron sm:block">·</li>
             <li>{restaurant.openingHoursShort}</li>
           </ul>
         </div>
       </section>
 
-      {/* ————— Unsere Küche ————— */}
-      <section className="border-b border-line">
-        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
-            <div className="lg:col-span-5">
-              <Eyebrow>Unsere Küche</Eyebrow>
-              <h2 className="font-display text-3xl font-semibold leading-tight sm:text-4xl">
-                Afghanische Küche.
-                <br />
-                Frisch vom Grill.
-              </h2>
-              <p className="mt-5 max-w-md leading-relaxed text-ink-soft">
-                Bei Safran Grill treffen aromatische Gewürze, Reis, Naan und
-                Grillgerichte auf eine unkomplizierte, herzliche Atmosphäre.
-                Hungrig kommen. Lieblingsgerichte entdecken.
-              </p>
-              <p className="mt-6">
-                <ArrowLink href="/speisekarte">Zur Speisekarte</ArrowLink>
-              </p>
-            </div>
-
-            <div className="lg:col-span-7">
-              <ol className="divide-y divide-line border-t border-line">
-                {[
-                  {
-                    n: "01",
-                    title: "Afghanische Spezialitäten",
-                    text: "Traditionelle Gerichte mit aromatischem Reis und Gewürzen – zubereitet, wie man sie aus der afghanischen Küche kennt.",
-                  },
-                  {
-                    n: "02",
-                    title: "Vom Grill",
-                    text: "Würzig mariniertes Fleisch, frisch gegrillt. Dazu Naan, hausgemachte Soßen und Salat.",
-                  },
-                  {
-                    n: "03",
-                    title: "Vegetarisch & vielfältig",
-                    text: "Vegetarische und vegane Gerichte, Salate und Beilagen – auch am Buffet immer dabei.",
-                  },
-                ].map((row) => (
-                  <li key={row.n} className="grid gap-2 py-6 sm:grid-cols-12 sm:gap-6">
-                    <span className="font-display text-lg text-saffron-deep sm:col-span-1">
-                      {row.n}
-                    </span>
-                    <h3 className="text-xl font-semibold sm:col-span-4">
-                      {row.title}
-                    </h3>
-                    <p className="leading-relaxed text-ink-soft sm:col-span-7">
-                      {row.text}
-                    </p>
-                  </li>
-                ))}
-              </ol>
-            </div>
+      {/* ————— Positionierung ————— */}
+      <section className="bg-cream">
+        <div className="mx-auto max-w-[85rem] px-5 py-20 sm:px-8 lg:py-32">
+          <div className="max-w-3xl">
+            <BrandRule />
+            <h2 className="mt-6 font-display text-4xl font-bold leading-[1.05] sm:text-5xl">
+              Afghanische Küche.
+              <br />
+              Frisch vom Grill.
+            </h2>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
+              Aromatischer Reis, Naan, würzig mariniertes Fleisch und
+              traditionelle Gerichte wie Kabuli Palau oder Mantu – ehrlich
+              gekocht, herzlich serviert. Hungrig kommen. Lieblingsgerichte
+              entdecken.
+            </p>
+            <p className="mt-7">
+              <ArrowLink href="/speisekarte">Zur Speisekarte</ArrowLink>
+            </p>
           </div>
         </div>
       </section>
 
-      {/* ————— Buffet-Highlight ————— */}
+      {/* ————— Food-Moment: volle Breite ————— */}
+      <section aria-label="Frisch aus der Küche">
+        <div className="relative max-h-[72vh] overflow-hidden">
+          <Image
+            src={buffetReisgericht.src}
+            alt={buffetReisgericht.alt}
+            width={buffetReisgericht.width}
+            height={buffetReisgericht.height}
+            sizes="100vw"
+            className="w-full object-cover"
+          />
+        </div>
+      </section>
+
+      {/* ————— Buffet-Highlight (dunkel) ————— */}
       {restaurant.buffet.enabled && (
-        <section className="border-b border-line bg-espresso text-cream">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
-            <div className="grid gap-12 lg:grid-cols-12 lg:gap-14">
-              <div className="lg:col-span-7">
-                <Eyebrow onDark>All you can eat</Eyebrow>
-                <h2 className="font-display text-4xl font-semibold leading-tight sm:text-5xl">
-                  Ein Buffet. Viele Lieblingsgerichte.
-                </h2>
-                <p className="mt-5 max-w-xl leading-relaxed text-cream/75">
-                  Nimm dir, worauf du Appetit hast: Reisgerichte, Fleisch- und
-                  Grillspezialitäten, vegetarische Gerichte, Salate und Dessert.
-                  Die Auswahl kann je nach Tag variieren.
-                </p>
-                <ul className="mt-8 grid max-w-xl grid-cols-1 divide-y divide-line-dark border-y border-line-dark text-[1.05rem] sm:grid-cols-2 sm:gap-x-10">
-                  {restaurant.buffet.includes.map((item) => (
-                    <li key={item} className="py-3 sm:border-line-dark [&:nth-child(2)]:sm:border-t-0">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-8">
-                  <ArrowLink href="/buffet" className="text-cream hover:text-cream/70">
-                    Mehr zum Buffet
-                  </ArrowLink>
-                </p>
-              </div>
-
-              <div className="flex flex-col justify-center lg:col-span-5">
-                <div className="border border-line-dark p-8 sm:p-10">
-                  <p className="text-[0.72rem] font-semibold uppercase tracking-eyebrow text-cream/60">
-                    Aktueller Aktionspreis
-                  </p>
-                  <p className="mt-4 font-display text-6xl font-semibold text-cream">
-                    {restaurant.buffet.price}
-                  </p>
-                  <p className="mt-1 text-cream/75">
-                    {restaurant.buffet.priceSuffix}
-                    {!restaurant.buffet.drinksIncluded && " · Getränke separat"}
-                  </p>
-                  <p className="mt-2 text-[0.85rem] text-cream/70">
-                    regulär {restaurant.buffet.regularPrice} · {restaurant.buffet.times}
-                  </p>
-                  <div className="mt-8 flex flex-col gap-3">
-                    <Cta href={restaurant.links.googleRoute} variant="primaryOnDark">
-                      Route öffnen
-                    </Cta>
-                    <Cta href={`tel:${restaurant.phone.e164}`} variant="outlineOnDark">
-                      Jetzt anrufen
-                    </Cta>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-14 grid gap-6 sm:grid-cols-2">
-              <figure>
-                <Image
-                  src={buffetReisGrill.src}
-                  alt={buffetReisGrill.alt}
-                  width={buffetReisGrill.width}
-                  height={buffetReisGrill.height}
-                  sizes="(min-width: 640px) 50vw, 100vw"
-                  className="w-full object-cover"
-                />
-                <figcaption className="mt-3 text-[0.85rem] text-cream/50">
-                  Reis und Frisches vom Grill – direkt am Buffet
-                </figcaption>
-              </figure>
-              <figure>
+        <section className="bg-coal text-paper">
+          <div className="mx-auto max-w-[85rem] px-5 py-20 sm:px-8 lg:py-32">
+            <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-16">
+              <figure className="lg:col-span-6">
                 <Image
                   src={buffetStrecke.src}
                   alt={buffetStrecke.alt}
                   width={buffetStrecke.width}
                   height={buffetStrecke.height}
-                  sizes="(min-width: 640px) 50vw, 100vw"
-                  className="w-full object-cover"
+                  sizes="(min-width: 1024px) 44vw, 100vw"
+                  className="w-full rounded-xs object-cover"
                 />
-                <figcaption className="mt-3 text-[0.85rem] text-cream/50">
-                  Suppe, Salate und warme Gerichte in Chafing-Dishes
+                <figcaption className="mt-3 text-[0.8rem] text-paper/50">
+                  Unsere Buffetstrecke – Suppe, Salate und warme Gerichte
                 </figcaption>
               </figure>
+
+              <div className="min-w-0 lg:col-span-6">
+                <Eyebrow onDark>All you can eat</Eyebrow>
+                <h2 className="font-display text-[2rem] font-bold leading-[1.05] min-[380px]:text-4xl xl:text-5xl">
+                  Ein Buffet.
+                  <br />
+                  Viele Lieblingsgerichte.
+                </h2>
+                <p className="mt-5 max-w-md text-lg leading-relaxed text-paper/75">
+                  Reisgerichte, Grill- und Fleischgerichte, vegetarische
+                  Auswahl, Salate und Dessert. Nimm dir, worauf du Appetit
+                  hast – so oft du magst.
+                </p>
+
+                <p className="mt-10 flex flex-wrap items-end gap-x-4 gap-y-1">
+                  <span className="font-display display-black text-[3.6rem] font-bold leading-none text-saffron-bright min-[380px]:text-[4.6rem] sm:text-[5.4rem]">
+                    {restaurant.buffet.price}
+                  </span>
+                  <span className="pb-2 text-[0.95rem] leading-snug text-paper/70">
+                    {restaurant.buffet.priceSuffix}
+                    <br />
+                    Getränke separat
+                  </span>
+                </p>
+                <p className="mt-2 text-[0.85rem] text-paper/60 first-letter:uppercase">
+                  {restaurant.buffet.times}
+                </p>
+
+                <div className="mt-9 flex flex-wrap gap-4">
+                  <Cta href="/buffet" variant="primaryOnDark">
+                    Buffet entdecken
+                  </Cta>
+                  <Cta href={restaurant.links.googleRoute} variant="outlineOnDark">
+                    Route öffnen
+                  </Cta>
+                </div>
+              </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* ————— Was auf den Tisch kommt ————— */}
-      <section className="border-b border-line">
-        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
-          <div className="max-w-2xl">
-            <Eyebrow>Die Karte</Eyebrow>
-            <h2 className="font-display text-3xl font-semibold leading-tight sm:text-4xl">
-              Was auf den Tisch kommt
-            </h2>
-            <p className="mt-5 leading-relaxed text-ink-soft">
-              Kabuli Palau, Mantu, Chapli Kebab, frisch gegrillte Spieße und
-              orientalische Pizzen – die vollständige Karte mit allen Gerichten
-              und Preisen findest du auf unserer Speisekarte.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { title: "Grill-Spezialitäten", href: "/speisekarte#grill-spezialitaeten", text: "Hähnchen- und Kalbspieße, Chapli Kebab, Lammkotelett" },
-              { title: "Afghanische Speisen", href: "/speisekarte#afghanische-speisen", text: "Kabuli Palau, Mantu, Bolani und mehr" },
-              { title: "Vegetarisch & Salate", href: "/speisekarte#salate", text: "Frische Salate und viele vegetarische Gerichte" },
-              { title: "Orientalische Pizzen", href: "/speisekarte#orientalische-pizzen", text: "Pizza mit frisch gegrilltem Spieß" },
-            ].map((card) => (
-              <Link
-                key={card.title}
-                href={card.href}
-                className="group bg-cream p-7 transition-colors duration-fast hover:bg-cream-deep/70"
-              >
-                <h3 className="text-lg font-semibold">{card.title}</h3>
-                <p className="mt-2 text-[0.95rem] text-ink-soft">{card.text}</p>
-                <span aria-hidden className="mt-5 block text-saffron-deep transition-transform duration-fast group-hover:translate-x-1">
-                  →
-                </span>
-              </Link>
-            ))}
+      {/* ————— Aus unserer Küche: echte Gerichte ————— */}
+      <section className="bg-cream">
+        <div className="mx-auto max-w-[85rem] px-5 py-20 sm:px-8 lg:py-32">
+          <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-5">
+              <Eyebrow>Aus unserer Küche</Eyebrow>
+              <h2 className="font-display text-4xl font-bold leading-[1.05] sm:text-5xl">
+                Vier Gerichte,
+                <br />
+                die du probieren
+                <br />
+                solltest.
+              </h2>
+              <p className="mt-6 max-w-sm leading-relaxed text-ink-soft">
+                Von der kompletten Karte mit Vorspeisen, Suppen, Pizzen und
+                hausgemachten Soßen – das hier sind die Klassiker.
+              </p>
+              <p className="mt-7">
+                <ArrowLink href="/speisekarte">Die ganze Karte</ArrowLink>
+              </p>
+            </div>
+
+            <div className="lg:col-span-7">
+              <ul>
+                {dishes.map((dish, i) => (
+                  <li key={dish.name} className="border-b border-line py-6 first:border-t">
+                    <div className="flex items-baseline gap-5">
+                      <span aria-hidden className="text-[0.7rem] font-semibold tabular-nums text-saffron-deep">
+                        0{i + 1}
+                      </span>
+                      <h3 className="font-display text-2xl font-semibold sm:text-[1.7rem]">
+                        {dish.name}
+                      </h3>
+                      <span aria-hidden className="mx-1 hidden h-px flex-1 bg-line sm:block" />
+                      {dish.price && (
+                        <span className="ml-auto shrink-0 font-semibold tabular-nums text-saffron-deep sm:ml-0">
+                          {dish.price}
+                        </span>
+                      )}
+                    </div>
+                    {dish.description && (
+                      <p className="mt-2 max-w-xl pl-8 text-[0.95rem] leading-relaxed text-ink-soft">
+                        {dish.description}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ————— Atmosphäre ————— */}
-      <section className="border-b border-line">
-        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
-          <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
+      {/* ————— Vom Grill (dunkel) ————— */}
+      <section className="bg-coal-soft text-paper">
+        <div className="mx-auto max-w-[85rem] px-5 py-20 sm:px-8 lg:py-32">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
+            <div className="flex flex-col justify-center lg:col-span-5">
+              <h2 className="font-display display-black text-5xl font-bold leading-[0.98] sm:text-6xl">
+                Vom Grill.
+                <br />
+                Auf den Tisch.
+              </h2>
+              <p className="mt-6 max-w-sm text-lg leading-relaxed text-paper/70">
+                Hähnchen- und Kalbspieße, Chapli Kebab, Lammkoteletts:
+                mariniert, gegrillt und mit Naan, Salat und hausgemachten
+                Soßen serviert.
+              </p>
+              <p className="mt-7">
+                <ArrowLink
+                  href="/speisekarte#grill-spezialitaeten"
+                  className="text-saffron-bright hover:text-paper"
+                >
+                  Grill-Spezialitäten ansehen
+                </ArrowLink>
+              </p>
+            </div>
             <figure className="lg:col-span-7">
+              <Image
+                src={buffetGerichte.src}
+                alt={buffetGerichte.alt}
+                width={buffetGerichte.width}
+                height={buffetGerichte.height}
+                sizes="(min-width: 1024px) 48vw, 100vw"
+                className="w-full rounded-xs object-cover"
+              />
+              <figcaption className="mt-3 text-[0.8rem] text-paper/50">
+                Warme Gerichte, frisch aus unserer Küche
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      {/* ————— Atmosphäre: Panorama mit überlappender Textfläche ————— */}
+      <section className="bg-cream">
+        <div className="mx-auto max-w-[85rem] px-5 pt-20 sm:px-8 lg:pt-32">
+          <div className="relative">
+            <figure className="lg:w-[78%]">
+              <Image
+                src={gastraumPanorama.src}
+                alt={gastraumPanorama.alt}
+                width={gastraumPanorama.width}
+                height={gastraumPanorama.height}
+                sizes="(min-width: 1024px) 62vw, 100vw"
+                className="w-full object-cover"
+              />
+            </figure>
+            <div className="mt-8 max-w-xl border-l-2 border-saffron bg-paper p-8 sm:p-10 lg:absolute lg:-bottom-12 lg:right-0 lg:mt-0 lg:w-[38%] lg:border-l-0 lg:shadow-[0_1px_0_var(--color-line)]">
+              <Eyebrow>Vor Ort</Eyebrow>
+              <h2 className="font-display text-3xl font-bold leading-[1.05] sm:text-4xl">
+                Klein, warm und mitten in Neustadt.
+              </h2>
+              <p className="mt-4 leading-relaxed text-ink-soft">
+                Helles Holz, bequeme Stühle, Blick auf die Hauptstraße.
+                Vorbeikommen, Platz nehmen, genießen.
+              </p>
+              <p className="mt-6 text-[0.95rem] leading-relaxed">
+                <a
+                  href={restaurant.links.googleReviews}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-ink underline decoration-saffron decoration-2 underline-offset-4 transition-colors duration-fast hover:text-saffron-deep"
+                >
+                  {restaurant.googleRating.value} / 5 bei Google
+                </a>
+                <span className="text-ink-faint">
+                  {" "}
+                  · {restaurant.googleRating.count} Bewertungen · Stand{" "}
+                  {restaurant.googleRating.asOf}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* ————— Galerie: kuratiert, unterschiedliche Formate ————— */}
+        <div className="mx-auto max-w-[85rem] px-5 pb-20 pt-16 sm:px-8 lg:pb-32 lg:pt-36">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-12">
+            <figure className="col-span-2 lg:col-span-8">
               <Image
                 src={gastraumLandscape.src}
                 alt={gastraumLandscape.alt}
                 width={gastraumLandscape.width}
                 height={gastraumLandscape.height}
-                sizes="(min-width: 1024px) 38rem, 100vw"
-                className="w-full object-cover"
+                sizes="(min-width: 1024px) 60vw, 100vw"
+                className="h-full w-full object-cover"
               />
-              <figcaption className="mt-3 text-[0.85rem] text-ink-faint">
-                Tische am Fenster – mitten in der Neustadter Altstadt
-              </figcaption>
             </figure>
-            <div className="lg:col-span-5">
-              <Eyebrow>Vor Ort</Eyebrow>
-              <h2 className="font-display text-3xl font-semibold leading-tight sm:text-4xl">
-                Klein, warm und mitten in der Stadt
-              </h2>
-              <p className="mt-5 leading-relaxed text-ink-soft">
-                Helles Holz, bequeme Stühle und der Blick auf die Hauptstraße:
-                Unser Gastraum ist unkompliziert und gastfreundlich – zum
-                schnellen Mittagessen genauso wie zum entspannten Abend.
-                Vorbeikommen, Platz nehmen, genießen.
+            <figure className="lg:col-span-4">
+              <Image
+                src={gastraumPortrait.src}
+                alt={gastraumPortrait.alt}
+                width={gastraumPortrait.width}
+                height={gastraumPortrait.height}
+                sizes="(min-width: 1024px) 28vw, 50vw"
+                className="h-full w-full object-cover"
+              />
+            </figure>
+            <figure className="lg:col-span-4">
+              <Image
+                src={logoWand.src}
+                alt={logoWand.alt}
+                width={logoWand.width}
+                height={logoWand.height}
+                sizes="(min-width: 1024px) 28vw, 50vw"
+                className="aspect-square w-full object-cover"
+              />
+            </figure>
+            <div className="col-span-2 flex flex-col justify-end pb-2 lg:col-span-8 lg:pl-6">
+              <BrandRule />
+              <p className="mt-5 max-w-md text-lg leading-relaxed text-ink-soft">
+                Ein kleiner Gastraum, ein großes Buffet und eine Küche, die
+                nach Safran und Grillfeuer duftet.
               </p>
-              <p className="mt-6 border-l-2 border-saffron pl-4 text-[0.95rem] leading-relaxed text-ink-soft">
-                <a
-                  href={restaurant.links.googleReviews}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold text-ink underline-offset-4 hover:underline"
-                >
-                  {restaurant.googleRating.value} von 5 Sternen bei Google
-                </a>
-                <br />
-                {restaurant.googleRating.count} Bewertungen · Stand{" "}
-                {restaurant.googleRating.asOf}
+              <p className="mt-5">
+                <ArrowLink href="/ueber-uns">Mehr über uns</ArrowLink>
               </p>
             </div>
           </div>
@@ -322,22 +395,22 @@ export default function HomePage() {
       </section>
 
       {/* ————— Besuch planen ————— */}
-      <section className="border-b border-line">
-        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
-          <div className="grid gap-12 lg:grid-cols-12 lg:gap-14">
-            <div className="lg:col-span-5">
+      <section className="border-t border-line bg-paper">
+        <div className="mx-auto max-w-[85rem] px-5 py-20 sm:px-8 lg:py-32">
+          <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-6">
               <Eyebrow>Besuch planen</Eyebrow>
-              <h2 className="font-display text-3xl font-semibold leading-tight sm:text-4xl">
-                Wir sind für dich da
+              <h2 className="font-display display-black text-5xl font-bold leading-[0.98] sm:text-6xl">
+                Komm hungrig.
               </h2>
-              <address className="mt-6 text-lg not-italic leading-relaxed">
+              <address className="mt-7 text-lg not-italic leading-relaxed">
                 {restaurant.name}
                 <br />
                 {restaurant.address.street}
                 <br />
                 {restaurant.address.zip} {restaurant.address.city}
               </address>
-              <p className="mt-4 text-lg">
+              <p className="mt-3 text-lg">
                 <a
                   href={`tel:${restaurant.phone.e164}`}
                   className="font-semibold text-saffron-deep transition-colors duration-fast hover:text-ink"
@@ -353,8 +426,8 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="lg:col-span-4">
-              <h3 className="text-[0.72rem] font-semibold uppercase tracking-eyebrow text-ink-faint">
+            <div className="lg:col-span-3">
+              <h3 className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-ink-faint">
                 Öffnungszeiten
               </h3>
               <table className="mt-4 w-full text-[0.95rem]">
@@ -365,7 +438,7 @@ export default function HomePage() {
                         {d.day}
                       </th>
                       <td className="py-2.5 text-right text-ink-soft">
-                        {d.opens ? `${d.opens}–${d.closes} Uhr` : "Ruhetag"}
+                        {d.opens ? `${d.opens}–${d.closes}` : "Ruhetag"}
                       </td>
                     </tr>
                   ))}
@@ -374,18 +447,18 @@ export default function HomePage() {
             </div>
 
             <div className="lg:col-span-3">
-              <div className="border border-line bg-cream-deep/50 p-7">
-                <h3 className="text-lg font-semibold">Lieber zuhause?</h3>
-                <p className="mt-2 text-[0.95rem] leading-relaxed text-ink-soft">
-                  Unsere Gerichte gibt es auch zum Liefern und Abholen – die
-                  Bestellung läuft über Lieferando.
-                </p>
-                <p className="mt-5">
-                  <ArrowLink href={restaurant.links.lieferando} external>
-                    Bei Lieferando bestellen
-                  </ArrowLink>
-                </p>
-              </div>
+              <h3 className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-ink-faint">
+                Lieber zuhause?
+              </h3>
+              <p className="mt-4 leading-relaxed text-ink-soft">
+                Liefern lassen oder abholen – die Bestellung läuft über
+                Lieferando.
+              </p>
+              <p className="mt-5">
+                <ArrowLink href={restaurant.links.lieferando} external>
+                  Bei Lieferando bestellen
+                </ArrowLink>
+              </p>
             </div>
           </div>
         </div>

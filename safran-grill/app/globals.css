@@ -1,38 +1,41 @@
 @import "tailwindcss";
 
 /*
- * Design-Tokens Safran Grill
- * Warm, ruhig, editorial: Creme-Grund, Espresso-Text, tiefer Safranton
- * als Akzent, dezentes Terrakotta/Oliv als Nebenfarben.
+ * Design-Tokens Safran Grill – Redesign.
+ *
+ * Formel: warme helle Flächen + sehr dunkle Kontrastflächen + wenige
+ * präzise Safran-Akzente. Safran (#C87918) ist dekorativ (Linien, Punkte,
+ * große Ziffern auf Dunkel als saffron-bright); Text und Buttons auf Creme
+ * nutzen saffron-deep (>= 4,5:1 Kontrast).
  */
 @theme {
   --color-*: initial;
 
-  /* Grundflächen */
-  --color-cream: #f8f3ea;
-  --color-cream-deep: #f0e8d9;
-  --color-paper: #fdfbf6;
+  /* Helle Flächen */
+  --color-cream: #f3eee4;
+  --color-paper: #faf7f0;
+  --color-cream-deep: #eae2d2;
 
-  /* Text */
-  --color-ink: #241c12;
-  --color-ink-soft: #5c4f3f;
-  --color-ink-faint: #6f6353;
+  /* Dunkle Flächen */
+  --color-coal: #19130d;
+  --color-coal-soft: #282017;
 
-  /* Akzente – saffron nur dekorativ (Linien, Punkte), für Text und
-     Button-Flächen saffron-deep verwenden (>= 4,5:1 auf Creme) */
-  --color-saffron: #b56812;
+  /* Text auf Creme */
+  --color-ink: #1c1712;
+  --color-ink-soft: #54493c;
+  --color-ink-faint: #6e6355;
+
+  /* Safran-Akzente */
+  --color-saffron: #c87918;
+  --color-saffron-bright: #d89429;
   --color-saffron-deep: #94530c;
   --color-saffron-deeper: #7c450a;
-  --color-terracotta: #a34a2e;
+
   --color-olive: #5f5b3a;
 
-  /* Dunkle Sektion (Espresso) */
-  --color-espresso: #241b11;
-  --color-espresso-soft: #3a2e1f;
-
   /* Linien */
-  --color-line: rgb(36 28 18 / 0.16);
-  --color-line-dark: rgb(248 243 234 / 0.22);
+  --color-line: rgb(28 23 18 / 0.14);
+  --color-line-dark: rgb(250 247 240 / 0.16);
 
   --color-white: #ffffff;
 
@@ -40,9 +43,9 @@
   --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
 
   --radius-xs: 0.125rem;
-  --radius-sm: 0.25rem;
+  --radius-sm: 0.375rem;
 
-  --tracking-eyebrow: 0.16em;
+  --tracking-eyebrow: 0.18em;
 
   --transition-duration-fast: 180ms;
 }
@@ -70,28 +73,42 @@ html {
 
 body {
   @apply bg-cream text-ink font-sans antialiased;
-  font-feature-settings: "ss01" on;
 }
 
-/* Editoriale Serif-Headlines */
+/*
+ * Display-Typografie: Fraunces kräftig, eng geführt.
+ * .font-display für Headlines, .display-black für die schwersten Schnitte
+ * (Hero, große Preise, Wortmarke).
+ */
 .font-display {
   font-variation-settings: "SOFT" 0, "WONK" 0;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
+}
+
+.display-black {
+  font-variation-settings: "SOFT" 0, "WONK" 1;
+  letter-spacing: -0.025em;
 }
 
 /* Sichtbarer Fokus für Tastaturnavigation */
 :focus-visible {
-  outline: 2px solid var(--color-saffron);
+  outline: 2px solid var(--color-saffron-deep);
   outline-offset: 3px;
   border-radius: var(--radius-xs);
 }
 
 /* Anker-Ziele nicht unter dem sticky Header verschwinden lassen */
 [id] {
-  scroll-margin-top: 6.5rem;
+  scroll-margin-top: 7.5rem;
 }
 
 ::selection {
-  background: var(--color-saffron);
+  background: var(--color-saffron-deep);
   color: var(--color-cream);
+}
+
+/* Dünne Scrollbar für horizontale Kategorie-Navigation */
+.scrollbar-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
 }

@@ -1,17 +1,39 @@
 /**
- * Typografische Wortmarke "Safran Grill" mit dezentem Safran-Punkt.
- * Funktioniert im Header, im Footer (invertiert) und skaliert sauber.
+ * Gestapelte typografische Wortmarke:
+ *
+ *   SAFRAN            (Fraunces, schwer, mit WONK-Charakter)
+ *   GRILL · NEUSTADT  (Sans, gesperrt)
+ *
+ * Funktioniert im Header, im dunklen Footer (onDark) und skaliert
+ * über die size-Prop.
  */
-export function Wordmark({ onDark = false }: { onDark?: boolean }) {
+export function Wordmark({
+  onDark = false,
+  size = "header",
+}: {
+  onDark?: boolean;
+  size?: "header" | "footer";
+}) {
+  const main = onDark ? "text-paper" : "text-ink";
+  const sub = onDark ? "text-paper/60" : "text-ink-faint";
+  const isFooter = size === "footer";
   return (
-    <span
-      className={`font-display text-[1.35rem] font-semibold leading-none tracking-tight ${
-        onDark ? "text-cream" : "text-ink"
-      }`}
-    >
-      Safran Grill
-      <span aria-hidden className="text-saffron">
-        .
+    <span className="inline-flex flex-col">
+      <span
+        className={`font-display display-black font-bold uppercase leading-none ${main} ${
+          isFooter ? "text-4xl" : "text-[1.45rem]"
+        }`}
+      >
+        Safran
+      </span>
+      <span
+        className={`font-sans font-semibold uppercase leading-none ${sub} ${
+          isFooter
+            ? "mt-2 text-[0.78rem] tracking-[0.3em]"
+            : "mt-1 text-[0.55rem] tracking-[0.28em]"
+        }`}
+      >
+        Grill <span aria-hidden className="text-saffron">·</span> Neustadt
       </span>
     </span>
   );

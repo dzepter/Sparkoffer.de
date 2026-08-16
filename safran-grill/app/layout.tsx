@@ -38,7 +38,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="de" className={`${fraunces.variable} ${instrumentSans.variable}`}>
-      <body className="flex min-h-svh flex-col pb-14 md:pb-0">
+      {/* Padding unten = exakte Höhe der Sticky-Action-Bar (52px + 1px Border)
+          plus Safe-Area, damit zwischen Footer und Bar kein heller Streifen bleibt */}
+      <body className="flex min-h-svh flex-col pb-[calc(3.3125rem+env(safe-area-inset-bottom))] md:pb-0">
         <a
           href="#inhalt"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-sm focus:bg-ink focus:px-4 focus:py-2 focus:text-cream"

@@ -2,20 +2,22 @@ import Link from "next/link";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 
 /**
- * Schaltflächen und Textlinks des kleinen Design-Systems.
- * Bewusst zurückhaltend: kaum Radius, feine Übergänge, keine Schatten.
+ * Schaltflächen und Textlinks des Design-Systems.
+ * Kräftiger als vorher: 48px Höhe, 6px Radius, klare Typografie.
  * Externe Links kündigen das neue Tab für Screenreader an.
  */
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-sm px-6 py-3 text-[0.95rem] font-medium transition-colors duration-fast";
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-sm px-7 text-[1rem] font-semibold transition-colors duration-fast";
 
 const styles = {
-  primary: `${base} bg-saffron-deep text-cream hover:bg-saffron-deeper`,
-  outline: `${base} border border-ink/30 text-ink hover:border-ink hover:bg-ink/5`,
-  /* Varianten für die dunkle Espresso-Sektion */
-  primaryOnDark: `${base} bg-cream text-espresso hover:bg-cream-deep`,
-  outlineOnDark: `${base} border border-cream/40 text-cream hover:border-cream hover:bg-cream/10`,
+  /* auf Creme */
+  primary: `${base} bg-saffron-deep text-paper hover:bg-saffron-deeper`,
+  dark: `${base} bg-ink text-paper hover:bg-coal-soft`,
+  outline: `${base} border border-ink/35 text-ink hover:border-ink hover:bg-ink/5`,
+  /* auf dunklen Flächen */
+  primaryOnDark: `${base} bg-saffron-bright text-coal hover:bg-saffron`,
+  outlineOnDark: `${base} border border-paper/40 text-paper hover:border-paper hover:bg-paper/10`,
 } as const;
 
 type Variant = keyof typeof styles;
@@ -67,7 +69,7 @@ export function ArrowLink({
   external?: boolean;
   className?: string;
 }) {
-  const cls = `group inline-flex items-center gap-1.5 font-medium text-saffron-deep transition-colors duration-fast hover:text-ink ${className}`;
+  const cls = `group inline-flex items-center gap-1.5 font-semibold text-saffron-deep transition-colors duration-fast hover:text-ink ${className}`;
   const arrow = (
     <span aria-hidden className="transition-transform duration-fast group-hover:translate-x-0.5">
       {external ? "↗" : "→"}
@@ -92,12 +94,27 @@ export function ArrowLink({
 export function Eyebrow({ children, onDark = false }: { children: ReactNode; onDark?: boolean }) {
   return (
     <p
-      className={`mb-4 flex items-center gap-3 text-[0.72rem] font-semibold uppercase tracking-eyebrow ${
-        onDark ? "text-cream/70" : "text-saffron-deep"
+      className={`mb-5 flex items-center gap-3 text-[0.72rem] font-semibold uppercase tracking-eyebrow ${
+        onDark ? "text-saffron-bright" : "text-saffron-deep"
       }`}
     >
-      <span aria-hidden className={`h-px w-8 ${onDark ? "bg-cream/40" : "bg-saffron"}`} />
+      <span aria-hidden className={`h-px w-9 ${onDark ? "bg-saffron-bright" : "bg-saffron"}`} />
       {children}
+    </p>
+  );
+}
+
+/** Feines wiederkehrendes Markenelement: — SAFRAN GRILL */
+export function BrandRule({ onDark = false }: { onDark?: boolean }) {
+  return (
+    <p
+      aria-hidden
+      className={`flex items-center gap-3 text-[0.66rem] font-semibold uppercase tracking-[0.3em] ${
+        onDark ? "text-paper/40" : "text-ink-faint/80"
+      }`}
+    >
+      <span className={`h-px w-12 ${onDark ? "bg-saffron-bright/60" : "bg-saffron/70"}`} />
+      Safran Grill
     </p>
   );
 }

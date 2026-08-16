@@ -2,9 +2,9 @@ import { restaurant } from "@/lib/restaurant-config";
 import { NewTabHint } from "./cta";
 
 /**
- * Mobile Sticky Action Bar am unteren Rand: Anrufen, Route, Bestellen.
- * Reine Links, kein JavaScript. Der zugehörige Platzhalter (padding-bottom)
- * liegt im Layout, damit kein Inhalt verdeckt wird.
+ * Mobile Sticky Action Bar: Anrufen, Route, Bestellen.
+ * Dunkel und markant, wie ein Teil der Restaurantmarke.
+ * Reine Links, kein JavaScript.
  */
 export function StickyActionBar() {
   const actions = [
@@ -45,9 +45,9 @@ export function StickyActionBar() {
   return (
     <nav
       aria-label="Schnellaktionen"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-line-dark bg-coal pb-[env(safe-area-inset-bottom)] md:hidden"
     >
-      <ul className="grid grid-cols-3 divide-x divide-line">
+      <ul className="grid grid-cols-3 divide-x divide-line-dark">
         {actions.map((a) => (
           <li key={a.label}>
             <a
@@ -55,9 +55,9 @@ export function StickyActionBar() {
               {...(a.external
                 ? { target: "_blank", rel: "noopener noreferrer" }
                 : {})}
-              className="flex min-h-12 items-center justify-center gap-2 py-3 text-[0.85rem] font-semibold text-ink transition-colors duration-fast active:bg-cream-deep"
+              className="flex min-h-13 items-center justify-center gap-2 py-3.5 text-[0.85rem] font-semibold text-paper transition-colors duration-fast active:bg-coal-soft"
             >
-              <span className="text-saffron-deep">{a.icon}</span>
+              <span className="text-saffron-bright">{a.icon}</span>
               {a.label}
               {a.external && <NewTabHint />}
             </a>

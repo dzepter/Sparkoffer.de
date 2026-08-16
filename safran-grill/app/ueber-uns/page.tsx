@@ -4,11 +4,7 @@ import { ArrowLink, Cta } from "@/components/cta";
 import { PageIntro } from "@/components/page-intro";
 import { restaurant } from "@/lib/restaurant-config";
 import { pageOpenGraph } from "@/lib/og";
-import {
-  buffetReisGrill,
-  gastraumLandscape,
-  logoWand,
-} from "@/lib/images";
+import { gastraumLandscape, logoWand } from "@/lib/images";
 
 export const metadata: Metadata = {
   title: "Über uns",
@@ -29,7 +25,7 @@ export default function UeberUnsPage() {
       <PageIntro
         crumbs={[{ name: "Über uns", path: "/ueber-uns" }]}
         eyebrow="Das Restaurant"
-        title="Gutes Essen, ehrlich gemacht"
+        title="Gutes Essen, ehrlich gemacht."
       >
         <p>
           Safran Grill ist ein kleines Restaurant an der Hauptstraße in
@@ -48,6 +44,7 @@ export default function UeberUnsPage() {
             sizes="(min-width: 1280px) 72rem, 100vw"
             className="w-full object-cover"
             priority
+            fetchPriority="high"
           />
           <figcaption className="mt-3 text-[0.85rem] text-ink-faint">
             Unser Gastraum mit Blick auf die Hauptstraße
@@ -100,28 +97,19 @@ export default function UeberUnsPage() {
           </div>
 
           <aside className="lg:col-span-5">
-            <div className="mb-8 grid grid-cols-2 gap-4">
-              <figure>
-                <Image
-                  src={logoWand.src}
-                  alt={logoWand.alt}
-                  width={logoWand.width}
-                  height={logoWand.height}
-                  sizes="(min-width: 1024px) 14rem, 50vw"
-                  className="w-full object-cover"
-                />
-              </figure>
-              <figure>
-                <Image
-                  src={buffetReisGrill.src}
-                  alt={buffetReisGrill.alt}
-                  width={buffetReisGrill.width}
-                  height={buffetReisGrill.height}
-                  sizes="(min-width: 1024px) 14rem, 50vw"
-                  className="aspect-square w-full object-cover"
-                />
-              </figure>
-            </div>
+            <figure className="mb-8">
+              <Image
+                src={logoWand.src}
+                alt={logoWand.alt}
+                width={logoWand.width}
+                height={logoWand.height}
+                sizes="(min-width: 1024px) 34vw, 100vw"
+                className="w-full object-cover"
+              />
+              <figcaption className="mt-3 text-[0.8rem] text-ink-faint">
+                Unsere Wand mit Bildern der Neustadter Altstadt
+              </figcaption>
+            </figure>
             <div className="border border-line bg-cream-deep/50 p-7">
               <h2 className="text-[0.72rem] font-semibold uppercase tracking-eyebrow text-ink-faint">
                 Das sagen unsere Gäste

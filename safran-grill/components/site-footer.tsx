@@ -5,12 +5,12 @@ import { Wordmark } from "./wordmark";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-line-dark bg-espresso text-cream">
-      <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <Wordmark onDark />
-            <address className="mt-4 text-[0.95rem] not-italic leading-relaxed text-cream/75">
+    <footer className="bg-coal text-paper">
+      <div className="mx-auto max-w-[85rem] px-5 pb-12 pt-16 sm:px-8 sm:pt-20">
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+          <div className="lg:col-span-5">
+            <Wordmark onDark size="footer" />
+            <address className="mt-6 max-w-xs text-[0.95rem] not-italic leading-relaxed text-paper/70">
               {restaurant.address.street}
               <br />
               {restaurant.address.zip} {restaurant.address.city}
@@ -18,37 +18,37 @@ export function SiteFooter() {
             <p className="mt-3 text-[0.95rem]">
               <a
                 href={`tel:${restaurant.phone.e164}`}
-                className="text-cream/90 underline-offset-4 transition-colors duration-fast hover:text-cream hover:underline"
+                className="font-semibold text-paper underline-offset-4 transition-colors duration-fast hover:underline"
               >
                 {restaurant.phone.display}
               </a>
             </p>
           </div>
 
-          <div>
-            <h2 className="text-[0.72rem] font-semibold uppercase tracking-eyebrow text-cream/60">
+          <div className="lg:col-span-3">
+            <h2 className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-saffron-bright">
               Öffnungszeiten
             </h2>
-            <ul className="mt-4 space-y-1 text-[0.95rem] text-cream/75">
+            <ul className="mt-4 space-y-1 text-[0.95rem] text-paper/70">
               {restaurant.openingHoursCompact.split(" · ").map((line) => (
                 <li key={line}>{line}</li>
               ))}
             </ul>
           </div>
 
-          <div>
-            <h2 className="text-[0.72rem] font-semibold uppercase tracking-eyebrow text-cream/60">
+          <div className="lg:col-span-2">
+            <h2 className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-saffron-bright">
               Entdecken
             </h2>
-            <ul className="mt-4 space-y-2 text-[0.95rem]">
+            <ul className="mt-4 space-y-2.5 text-[0.95rem]">
               <li>
-                <Link href="/speisekarte" className="text-cream/75 transition-colors duration-fast hover:text-cream">
+                <Link href="/speisekarte" className="inline-block py-1 text-paper/70 transition-colors duration-fast hover:text-paper">
                   Speisekarte
                 </Link>
               </li>
               <li>
-                <Link href="/buffet" className="text-cream/75 transition-colors duration-fast hover:text-cream">
-                  All-you-can-eat-Buffet
+                <Link href="/buffet" className="inline-block py-1 text-paper/70 transition-colors duration-fast hover:text-paper">
+                  Buffet
                 </Link>
               </li>
               <li>
@@ -56,9 +56,9 @@ export function SiteFooter() {
                   href={restaurant.links.lieferando}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-cream/75 transition-colors duration-fast hover:text-cream"
+                  className="inline-block py-1 text-paper/70 transition-colors duration-fast hover:text-paper"
                 >
-                  Bei Lieferando bestellen <span aria-hidden>↗</span>
+                  Lieferando <span aria-hidden>↗</span>
                   <NewTabHint />
                 </a>
               </li>
@@ -67,27 +67,27 @@ export function SiteFooter() {
                   href={restaurant.links.googleRoute}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-cream/75 transition-colors duration-fast hover:text-cream"
+                  className="inline-block py-1 text-paper/70 transition-colors duration-fast hover:text-paper"
                 >
-                  Route öffnen <span aria-hidden>↗</span>
+                  Route <span aria-hidden>↗</span>
                   <NewTabHint />
                 </a>
               </li>
             </ul>
           </div>
 
-          <div>
-            <h2 className="text-[0.72rem] font-semibold uppercase tracking-eyebrow text-cream/60">
+          <div className="lg:col-span-2">
+            <h2 className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-saffron-bright">
               Rechtliches
             </h2>
-            <ul className="mt-4 space-y-2 text-[0.95rem]">
+            <ul className="mt-4 space-y-2.5 text-[0.95rem]">
               <li>
-                <Link href="/impressum" className="text-cream/75 transition-colors duration-fast hover:text-cream">
+                <Link href="/impressum" className="inline-block py-1 text-paper/70 transition-colors duration-fast hover:text-paper">
                   Impressum
                 </Link>
               </li>
               <li>
-                <Link href="/datenschutz" className="text-cream/75 transition-colors duration-fast hover:text-cream">
+                <Link href="/datenschutz" className="inline-block py-1 text-paper/70 transition-colors duration-fast hover:text-paper">
                   Datenschutz
                 </Link>
               </li>
@@ -95,9 +95,12 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <p className="mt-12 border-t border-line-dark pt-6 text-[0.85rem] text-cream/60">
-          Safran Grill · {fullAddress}
-        </p>
+        <div className="mt-14 flex flex-wrap items-center justify-between gap-3 border-t border-line-dark pt-6 text-[0.8rem] text-paper/50">
+          <p>Safran Grill · {fullAddress}</p>
+          <p aria-hidden className="uppercase tracking-[0.25em]">
+            Neustadt <span className="text-saffron-bright">·</span> 67433
+          </p>
+        </div>
       </div>
     </footer>
   );

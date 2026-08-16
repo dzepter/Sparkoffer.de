@@ -23,7 +23,7 @@ export default function KontaktPage() {
       <PageIntro
         crumbs={[{ name: "Kontakt", path: "/kontakt" }]}
         eyebrow="Kontakt & Anfahrt"
-        title="So findest du uns"
+        title="So findest du uns."
       >
         <p>
           Mitten in der Neustadter Altstadt, wenige Gehminuten vom Marktplatz:{" "}

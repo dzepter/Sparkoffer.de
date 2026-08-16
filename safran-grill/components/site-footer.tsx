@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { fullAddress, restaurant } from "@/lib/restaurant-config";
+import { NewTabHint } from "./cta";
 import { Wordmark } from "./wordmark";
 
 export function SiteFooter() {
@@ -25,17 +26,18 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <h2 className="text-[0.72rem] font-semibold uppercase tracking-eyebrow text-cream/50">
+            <h2 className="text-[0.72rem] font-semibold uppercase tracking-eyebrow text-cream/60">
               Öffnungszeiten
             </h2>
             <ul className="mt-4 space-y-1 text-[0.95rem] text-cream/75">
-              <li>Mo &amp; Mi–So: 11:00–22:00 Uhr</li>
-              <li>Dienstag: Ruhetag</li>
+              {restaurant.openingHoursCompact.split(" · ").map((line) => (
+                <li key={line}>{line}</li>
+              ))}
             </ul>
           </div>
 
           <div>
-            <h2 className="text-[0.72rem] font-semibold uppercase tracking-eyebrow text-cream/50">
+            <h2 className="text-[0.72rem] font-semibold uppercase tracking-eyebrow text-cream/60">
               Entdecken
             </h2>
             <ul className="mt-4 space-y-2 text-[0.95rem]">
@@ -57,6 +59,7 @@ export function SiteFooter() {
                   className="text-cream/75 transition-colors duration-fast hover:text-cream"
                 >
                   Bei Lieferando bestellen <span aria-hidden>↗</span>
+                  <NewTabHint />
                 </a>
               </li>
               <li>
@@ -67,13 +70,14 @@ export function SiteFooter() {
                   className="text-cream/75 transition-colors duration-fast hover:text-cream"
                 >
                   Route öffnen <span aria-hidden>↗</span>
+                  <NewTabHint />
                 </a>
               </li>
             </ul>
           </div>
 
           <div>
-            <h2 className="text-[0.72rem] font-semibold uppercase tracking-eyebrow text-cream/50">
+            <h2 className="text-[0.72rem] font-semibold uppercase tracking-eyebrow text-cream/60">
               Rechtliches
             </h2>
             <ul className="mt-4 space-y-2 text-[0.95rem]">
@@ -91,7 +95,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <p className="mt-12 border-t border-line-dark pt-6 text-[0.85rem] text-cream/50">
+        <p className="mt-12 border-t border-line-dark pt-6 text-[0.85rem] text-cream/60">
           Safran Grill · {fullAddress}
         </p>
       </div>

@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
 import { PageIntro } from "@/components/page-intro";
 import { fullAddress, restaurant } from "@/lib/restaurant-config";
+import { pageOpenGraph } from "@/lib/og";
 
 export const metadata: Metadata = {
   title: "Impressum",
   description: "Impressum des Safran Grill in Neustadt an der Weinstraße.",
   alternates: { canonical: "/impressum" },
+  openGraph: pageOpenGraph({
+    url: "/impressum",
+    title: "Impressum | Safran Grill Neustadt",
+    description: "Impressum des Safran Grill in Neustadt an der Weinstraße.",
+  }),
 };
 
 /*
@@ -68,20 +74,10 @@ export default function ImpressumPage() {
 
           <section>
             <h2 className="font-display text-xl font-semibold">
-              Streitschlichtung
+              Verbraucherstreitbeilegung
             </h2>
             <p className="mt-3 text-ink-soft">
-              Die Europäische Kommission stellt eine Plattform zur
-              Online-Streitbeilegung (OS) bereit:{" "}
-              <a
-                href="https://ec.europa.eu/consumers/odr/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-saffron-deep underline underline-offset-4 hover:text-ink"
-              >
-                https://ec.europa.eu/consumers/odr/
-              </a>
-              . Wir sind nicht bereit oder verpflichtet, an
+              Wir sind nicht bereit oder verpflichtet, an
               Streitbeilegungsverfahren vor einer
               Verbraucherschlichtungsstelle teilzunehmen.
             </p>

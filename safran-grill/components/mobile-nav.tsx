@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { NewTabHint } from "./cta";
 
 interface NavItem {
   href: string;
@@ -10,9 +11,8 @@ interface NavItem {
 }
 
 /**
- * Mobiles Menü – einzige Client-Komponente der Website.
- * Öffnet ein kompaktes Overlay unter dem Header; schließt bei
- * Navigation und bei Escape.
+ * Mobiles Menü – Overlay unter dem Header mit abdunkelndem Backdrop
+ * und Scroll-Lock. Schließt bei Navigation, Backdrop-Klick und Escape.
  */
 export function MobileNav({
   items,
@@ -29,6 +29,9 @@ export function MobileNav({
 
   useEffect(() => {
     if (!open) return;
+    // Seiteninhalt hinter dem offenen Menü nicht scrollen lassen
+    const previous = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setOpen(false);
@@ -36,7 +39,10 @@ export function MobileNav({
       }
     };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      document.documentElement.style.overflow = previous;
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   return (
@@ -70,40 +76,50 @@ export function MobileNav({
       </button>
 
       {open && (
-        <div
-          id={panelId}
-          className="absolute inset-x-0 top-full border-b border-line bg-cream"
-        >
-          <nav aria-label="Hauptnavigation mobil" className="px-5 py-4">
-            <ul className="divide-y divide-line">
-              {items.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
+        <>
+          {/* Backdrop: dunkelt Seite und Bottom-Bar ab, Klick schließt */}
+          <div
+            aria-hidden
+            onClick={close}
+            className="fixed inset-0 top-16 bg-ink/40"
+          />
+          <div
+            id={panelId}
+            className="absolute inset-x-0 top-full border-b border-line bg-cream"
+          >
+            <nav aria-label="Hauptnavigation mobil" className="px-5 py-4">
+              <ul className="divide-y divide-line">
+                {items.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      onClick={close}
+                      className="block py-3.5 text-lg font-medium text-ink"
+                      aria-current={pathname === item.href ? "page" : undefined}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <a
+                    href={orderHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={close}
-                    className="block py-3.5 text-lg font-medium text-ink"
-                    aria-current={pathname === item.href ? "page" : undefined}
+                    className="block py-3.5 text-lg font-medium text-saffron-deep"
                   >
-                    {item.label}
-                  </Link>
+                    Online bestellen{" "}
+                    <span aria-hidden className="text-base">
+                      ↗
+                    </span>
+                    <NewTabHint />
+                  </a>
                 </li>
-              ))}
-              <li>
-                <a
-                  href={orderHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block py-3.5 text-lg font-medium text-saffron-deep"
-                >
-                  Online bestellen{" "}
-                  <span aria-hidden className="text-base">
-                    ↗
-                  </span>
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
+              </ul>
+            </nav>
+          </div>
+        </>
       )}
     </div>
   );

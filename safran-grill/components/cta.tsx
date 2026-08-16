@@ -4,13 +4,14 @@ import type { AnchorHTMLAttributes, ReactNode } from "react";
 /**
  * Schaltflächen und Textlinks des kleinen Design-Systems.
  * Bewusst zurückhaltend: kaum Radius, feine Übergänge, keine Schatten.
+ * Externe Links kündigen das neue Tab für Screenreader an.
  */
 
 const base =
   "inline-flex items-center justify-center gap-2 rounded-sm px-6 py-3 text-[0.95rem] font-medium transition-colors duration-fast";
 
 const styles = {
-  primary: `${base} bg-saffron text-cream hover:bg-saffron-deep`,
+  primary: `${base} bg-saffron-deep text-cream hover:bg-saffron-deeper`,
   outline: `${base} border border-ink/30 text-ink hover:border-ink hover:bg-ink/5`,
   /* Varianten für die dunkle Espresso-Sektion */
   primaryOnDark: `${base} bg-cream text-espresso hover:bg-cream-deep`,
@@ -18,6 +19,11 @@ const styles = {
 } as const;
 
 type Variant = keyof typeof styles;
+
+/** Screenreader-Hinweis für Links, die ein neues Tab öffnen */
+export function NewTabHint() {
+  return <span className="sr-only"> (öffnet in neuem Tab)</span>;
+}
 
 interface CtaProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   href: string;
@@ -35,16 +41,16 @@ export function Cta({ href, variant = "primary", children, ...rest }: CtaProps) 
       </Link>
     );
   }
+  const external = href.startsWith("http");
   return (
     <a
       href={href}
       className={className}
-      {...(href.startsWith("http")
-        ? { target: "_blank", rel: "noopener noreferrer" }
-        : {})}
+      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       {...rest}
     >
       {children}
+      {external && <NewTabHint />}
     </a>
   );
 }
@@ -70,7 +76,8 @@ export function ArrowLink({
   if (external) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>
-        {children} {arrow}
+        {children}
+        <NewTabHint /> {arrow}
       </a>
     );
   }

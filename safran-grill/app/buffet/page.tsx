@@ -3,11 +3,11 @@ import Image from "next/image";
 import { Cta, Eyebrow } from "@/components/cta";
 import { PageIntro } from "@/components/page-intro";
 import { fullAddress, restaurant } from "@/lib/restaurant-config";
+import { pageOpenGraph } from "@/lib/og";
 import {
   buffetGerichte,
   buffetReisgericht,
   buffetStrecke,
-  ogImage,
 } from "@/lib/images";
 
 export const metadata: Metadata = {
@@ -15,13 +15,12 @@ export const metadata: Metadata = {
   description:
     "All-you-can-eat bei Safran Grill in Neustadt an der Weinstraße: Reis, Fleischgerichte, vegetarische Auswahl, Salate und Dessert entdecken.",
   alternates: { canonical: "/buffet" },
-  openGraph: {
-    images: [ogImage],
+  openGraph: pageOpenGraph({
     url: "/buffet",
     title: "All-you-can-eat-Buffet Neustadt | Safran Grill",
     description:
       "Reisgerichte, Fleisch- und Grillspezialitäten, vegetarische Gerichte, Salate und Dessert – das Buffet im Safran Grill.",
-  },
+  }),
 };
 
 export default function BuffetPage() {
@@ -144,7 +143,7 @@ export default function BuffetPage() {
                   {buffet.priceSuffix}
                   {!buffet.drinksIncluded && " · Getränke separat"}
                 </p>
-                <p className="mt-2 text-[0.85rem] text-cream/50">
+                <p className="mt-2 text-[0.85rem] text-cream/70">
                   regulär {buffet.regularPrice}
                 </p>
                 <div className="mt-8 flex flex-col gap-3">
@@ -166,10 +165,9 @@ export default function BuffetPage() {
                   <br />
                   {fullAddress}
                 </address>
-                <ul className="mt-4 space-y-1 text-[0.95rem] text-ink-soft">
-                  <li>Buffet: {restaurant.buffet.times}</li>
-                  <li>Dienstag: Ruhetag</li>
-                </ul>
+                <p className="mt-4 text-[0.95rem] text-ink-soft">
+                  Buffet: {restaurant.buffet.times}
+                </p>
               </div>
             </div>
           </aside>

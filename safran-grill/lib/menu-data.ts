@@ -95,8 +95,8 @@ export const menuCategories: MenuCategory[] = [
         tags: ["vegetarisch"],
       },
       {
-        name: "Großer Salat mit Hähnchen-Spieß",
-        description: "Salat mit mariniertem Hähnchen-Spieß",
+        name: "Großer Salat mit Hähnchen Spieß",
+        description: "Salat mit mariniertem Hähnchenspieß",
         price: "11,99 €",
       },
       {
@@ -118,7 +118,7 @@ export const menuCategories: MenuCategory[] = [
     items: [
       {
         name: "Safran Reis",
-        description: "Basmati-Reis mit Safran",
+        description: "Basmati Reis mit Safran",
         price: "4,50 €",
         tags: ["vegetarisch"],
       },
@@ -134,7 +134,7 @@ export const menuCategories: MenuCategory[] = [
       "Frisch gegrillt und würzig mariniert – das Herzstück unserer Küche.",
     items: [
       {
-        name: "Gegrillter Hähnchen-Spieß",
+        name: "Gegrillter Hähnchen Spieß",
         description:
           "Saftiger Hähnchenspieß, mariniert mit orientalischen Gewürzen und Milch, serviert mit Salat und Naan",
         price: "14,50 €",
@@ -166,13 +166,13 @@ export const menuCategories: MenuCategory[] = [
       {
         name: "Grillteller",
         description:
-          "Ein saftiger Hähnchenspieß und ein Kalbspieß, serviert mit Safran-Reis, Salat und Naan",
+          "Ein saftiger Hähnchenspieß und ein Kalbfleischspieß, serviert mit Safran Reis, Salat und Naan",
         price: "20,00 €",
       },
       {
         name: "Safran Grill Teller",
         description:
-          "Gemischte Grillplatte mit Hähnchen-Spieß, Kalbfleisch-Spieß und Lammkotelett",
+          "Gemischte Grillplatte mit Hähnchenspieß, Kalbfleischspieß und Lammkotelett",
         price: "26,99 €",
       },
       {
@@ -189,7 +189,7 @@ export const menuCategories: MenuCategory[] = [
     items: [
       { name: "Safran Sauce Mild", price: "1,50 €" },
       { name: "Safran Sauce Scharf", price: "1,50 €" },
-      { name: "Afghanisches Chutney", price: "1,50 €" },
+      { name: "Afghanische Chutney", price: "1,50 €" },
       { name: "Joghurt-Knoblauch-Sauce", price: "1,50 €" },
     ],
   },
@@ -202,26 +202,26 @@ export const menuCategories: MenuCategory[] = [
       {
         name: "Kabuli Palau",
         description:
-          "Afghanisches Nationalgericht: gedämpfter Basmatireis mit Kalbfleisch, Karotten, Rosinen und orientalischen Gewürzen",
+          "Afghanisches Nationalgericht: gedämpfter Basmati Reis mit Kalbfleisch, Karotten, Rosinen und orientalischen Gewürzen",
         price: "14,50 €",
       },
       {
         name: "Mantu Fleisch",
         description:
-          "Gedämpfte afghanische Teigtaschen mit Hackfleischfüllung, serviert mit Joghurt-Knoblauch-Sauce, Tomatensoße und Minze",
+          "Gedämpfte afghanische Teigtaschen mit Hackfleischfüllung, serviert mit Joghurt-Knoblauch-Sauce, Tomatensauce und Minze",
         price: "14,50 €",
       },
       {
         name: "Mantu Vegetarisch",
         description:
-          "Gedämpfte afghanische Teigtaschen mit Gemüse, serviert mit Joghurt-Knoblauch-Sauce, Tomatensoße und Minze",
+          "Gedämpfte afghanische Teigtaschen mit Gemüse, serviert mit Joghurt-Knoblauch-Sauce, Tomatensauce und Minze",
         price: "12,50 €",
         tags: ["vegetarisch"],
       },
       {
         name: "Chicken Curry",
         description:
-          "Hähnchenfleisch in cremiger Tomaten-Sahne-Curry-Sauce mit orientalischen Gewürzen, serviert mit Safran-Reis",
+          "Hähnchenfleisch in cremiger Tomaten-Sahne-Curry-Sauce mit orientalischen Gewürzen, serviert mit Safran Reis",
         price: "14,50 €",
       },
       {
@@ -247,12 +247,12 @@ export const menuCategories: MenuCategory[] = [
       {
         name: "Qurma Lubia",
         description:
-          "Rote Bohnen in Tomaten-Sahne-Sauce, serviert mit Basmati-Reis",
+          "Rote Bohnen in Tomaten-Sahne-Sauce, serviert mit Basmati Reis",
         price: "13,50 €",
         tags: ["vegetarisch"],
       },
       {
-        name: "Qurma Dal Nakhod",
+        name: "Qurma dal nakhod",
         description:
           "Halbe Kichererbsen (Dal Nakhod) in cremiger Tomatensauce mit Sahne und orientalischen Gewürzen",
         price: "10,00 €",
@@ -261,7 +261,7 @@ export const menuCategories: MenuCategory[] = [
       {
         name: "Qurma Nakhod",
         description:
-          "Kichererbsen in cremiger Tomatensauce mit Sahne und orientalischen Gewürzen, serviert mit duftendem Basmatireis",
+          "Kichererbsen in cremiger Tomatensauce mit Sahne und orientalischen Gewürzen, serviert mit duftendem Basmati Reis",
         price: "10,00 €",
         tags: ["vegetarisch"],
       },
@@ -274,21 +274,21 @@ export const menuCategories: MenuCategory[] = [
       {
         name: "Bolani Kartoffel",
         description:
-          "Frittierte afghanische Teigtaschen mit Kartoffel-Paprika-Füllung, verfeinert mit orientalischen Gewürzen, serviert mit Knoblauch-Joghurt-Sauce",
+          "Frittierte afghanische Teigtaschen mit Kartoffel-Paprika-Füllung, verfeinert mit orientalischen Gewürzen, serviert mit Joghurt-Knoblauch-Sauce",
         price: "7,99 €",
         tags: ["vegetarisch"],
       },
       {
         name: "Bolani Spinat",
         description:
-          "Frittierte afghanische Teigtaschen mit Spinat und Gemüse, verfeinert mit orientalischen Gewürzen, serviert mit Knoblauch-Joghurt-Sauce",
+          "Frittierte afghanische Teigtaschen mit Spinat und Gemüse, verfeinert mit orientalischen Gewürzen, serviert mit Joghurt-Knoblauch-Sauce",
         price: "7,99 €",
         tags: ["vegetarisch"],
       },
       {
         name: "Bolani Hähnchen",
         description:
-          "Gebackene afghanische Teigtaschen mit Hähnchen und Gemüse, serviert mit Knoblauch-Joghurt-Sauce",
+          "Gebackene afghanische Teigtaschen mit Hähnchen und Gemüse, serviert mit Joghurt-Knoblauch-Sauce",
         price: "9,99 €",
       },
       {
@@ -306,7 +306,7 @@ export const menuCategories: MenuCategory[] = [
       {
         name: "Kofta",
         description:
-          "Bällchen aus Rinderhackfleisch und Gemüse in cremiger Tomatensoße mit gelben Kichererbsen, dazu Basmatireis und frischer Salat",
+          "Bällchen aus Rinderhackfleisch und Gemüse in cremiger Tomatensauce mit gelben Kichererbsen, dazu Basmati Reis und frischer Salat",
         available: false,
       },
     ],
@@ -343,34 +343,34 @@ export const menuCategories: MenuCategory[] = [
       },
       {
         name: "Pizza Margherita",
-        description: "28 cm – Tomatensoße und Käse",
+        description: "28 cm – Tomatensauce und Käse",
         price: "7,50 €",
         tags: ["vegetarisch"],
       },
       {
         name: "Pizza Salami",
-        description: "Tomatensoße, Käse und Rindersalami",
+        description: "Tomatensauce, Käse und Rindersalami",
         price: "9,00 €",
       },
       {
         name: "Pizza Schinken",
-        description: "Tomatensoße, Käse und Putenschinken",
+        description: "Tomatensauce, Käse und Putenschinken",
         price: "9,00 €",
       },
       {
         name: "Pizza Tonno",
-        description: "Tomatensoße, Käse, Zwiebeln und Thunfisch",
+        description: "Tomatensauce, Käse, Zwiebeln und Thunfisch",
         price: "9,50 €",
       },
       {
         name: "Pizza Pilze",
-        description: "Tomatensoße, Käse und Champignons",
+        description: "Tomatensauce, Käse und Champignons",
         price: "9,50 €",
         tags: ["vegetarisch"],
       },
       {
         name: "Pizza Gemüse",
-        description: "Tomatensoße, Käse, Spinat, Paprika, Pilze und Zwiebeln",
+        description: "Tomatensauce, Käse, Spinat, Paprika, Pilze und Zwiebeln",
         price: "8,99 €",
         tags: ["vegetarisch"],
       },
@@ -382,21 +382,21 @@ export const menuCategories: MenuCategory[] = [
     description: "Pizza trifft Grillspieß – eine Spezialität des Hauses.",
     items: [
       {
-        name: "Pizza Hähnchen-Spieß",
+        name: "Pizza Hähnchen Spieß",
         description:
-          "Pizza mit Tomatensoße und Käse, nach dem Backen mit Rucola, Olivenöl und einem Hähnchen-Spieß serviert",
+          "Pizza mit Tomatensauce und Käse, nach dem Backen mit Rucola, Olivenöl und einem Hähnchenspieß serviert",
         price: "11,99 €",
       },
       {
         name: "Pizza mit Kalbfleischspieß",
         description:
-          "Pizza mit Tomatensoße und Käse, nach dem Backen mit Rucola, Olivenöl und einem Kalbfleischspieß serviert",
+          "Pizza mit Tomatensauce und Käse, nach dem Backen mit Rucola, Olivenöl und einem Kalbfleischspieß serviert",
         price: "13,50 €",
       },
       {
         name: "Pizza mit Lachsspieß",
         description:
-          "Pizza mit Tomatensoße und Käse, nach dem Backen mit Rucola, Olivenöl und einem Lachsspieß serviert",
+          "Pizza mit Tomatensauce und Käse, nach dem Backen mit Rucola, Olivenöl und einem Lachsspieß serviert",
         price: "ab 12,50 €",
       },
     ],

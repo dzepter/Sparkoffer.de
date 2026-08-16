@@ -3,23 +3,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLink, Cta, Eyebrow } from "@/components/cta";
 import { fullAddress, restaurant } from "@/lib/restaurant-config";
+import { pageOpenGraph } from "@/lib/og";
 import {
   buffetReisGrill,
   buffetStrecke,
   gastraumLandscape,
   gastraumPortrait,
-  ogImage,
 } from "@/lib/images";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
-  openGraph: {
-    images: [ogImage],
+  openGraph: pageOpenGraph({
     url: "/",
     title: "Safran Grill Neustadt | Afghanische Küche & Buffet",
     description:
       "Afghanische Spezialitäten, Grillgerichte und Buffet bei Safran Grill in Neustadt an der Weinstraße.",
-  },
+  }),
 };
 
 export default function HomePage() {
@@ -83,12 +82,12 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <ul className="flex flex-wrap items-center gap-x-3 gap-y-1 py-4 text-[0.82rem] font-medium uppercase tracking-[0.07em] text-ink-soft sm:justify-between sm:gap-x-5">
             <li>All-you-can-eat-Buffet</li>
-            <li aria-hidden className="text-saffron">·</li>
+            <li aria-hidden className="hidden text-saffron sm:block">·</li>
             <li>Afghanische Spezialitäten</li>
-            <li aria-hidden className="text-saffron">·</li>
-            <li>Hauptstraße 115, Neustadt</li>
-            <li aria-hidden className="text-saffron">·</li>
-            <li>11–22 Uhr, Di Ruhetag</li>
+            <li aria-hidden className="hidden text-saffron sm:block">·</li>
+            <li>{restaurant.address.street}, Neustadt</li>
+            <li aria-hidden className="hidden text-saffron sm:block">·</li>
+            <li>{restaurant.openingHoursShort}</li>
           </ul>
         </div>
       </section>
@@ -134,7 +133,7 @@ export default function HomePage() {
                   },
                 ].map((row) => (
                   <li key={row.n} className="grid gap-2 py-6 sm:grid-cols-12 sm:gap-6">
-                    <span className="font-display text-lg text-saffron sm:col-span-1">
+                    <span className="font-display text-lg text-saffron-deep sm:col-span-1">
                       {row.n}
                     </span>
                     <h3 className="text-xl font-semibold sm:col-span-4">
@@ -192,7 +191,7 @@ export default function HomePage() {
                     {restaurant.buffet.priceSuffix}
                     {!restaurant.buffet.drinksIncluded && " · Getränke separat"}
                   </p>
-                  <p className="mt-2 text-[0.85rem] text-cream/50">
+                  <p className="mt-2 text-[0.85rem] text-cream/70">
                     regulär {restaurant.buffet.regularPrice} · {restaurant.buffet.times}
                   </p>
                   <div className="mt-8 flex flex-col gap-3">
@@ -257,7 +256,7 @@ export default function HomePage() {
             {[
               { title: "Grill-Spezialitäten", href: "/speisekarte#grill-spezialitaeten", text: "Hähnchen- und Kalbspieße, Chapli Kebab, Lammkotelett" },
               { title: "Afghanische Speisen", href: "/speisekarte#afghanische-speisen", text: "Kabuli Palau, Mantu, Bolani und mehr" },
-              { title: "Vegetarisch & Salate", href: "/speisekarte#salate", text: "Von Sabzi Chalau bis zum großen Salat" },
+              { title: "Vegetarisch & Salate", href: "/speisekarte#salate", text: "Frische Salate und viele vegetarische Gerichte" },
               { title: "Orientalische Pizzen", href: "/speisekarte#orientalische-pizzen", text: "Pizza mit frisch gegrilltem Spieß" },
             ].map((card) => (
               <Link

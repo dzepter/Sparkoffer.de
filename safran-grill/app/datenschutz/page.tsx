@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import { PageIntro } from "@/components/page-intro";
 import { fullAddress, restaurant } from "@/lib/restaurant-config";
+import { pageOpenGraph } from "@/lib/og";
 
 export const metadata: Metadata = {
   title: "Datenschutzerklärung",
   description:
     "Datenschutzerklärung des Safran Grill in Neustadt an der Weinstraße.",
   alternates: { canonical: "/datenschutz" },
+  openGraph: pageOpenGraph({
+    url: "/datenschutz",
+    title: "Datenschutzerklärung | Safran Grill Neustadt",
+    description:
+      "Datenschutzerklärung des Safran Grill in Neustadt an der Weinstraße.",
+  }),
 };
 
 /*

@@ -1,4 +1,5 @@
 import { restaurant } from "@/lib/restaurant-config";
+import { NewTabHint } from "./cta";
 
 /**
  * Mobile Sticky Action Bar am unteren Rand: Anrufen, Route, Bestellen.
@@ -58,6 +59,7 @@ export function StickyActionBar() {
             >
               <span className="text-saffron-deep">{a.icon}</span>
               {a.label}
+              {a.external && <NewTabHint />}
             </a>
           </li>
         ))}

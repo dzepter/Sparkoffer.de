@@ -85,6 +85,9 @@ export const restaurant = {
   /** Kompakte Anzeige der Öffnungszeiten, z. B. im Footer */
   openingHoursCompact: "Mo & Mi–So 11:00–22:00 Uhr · Dienstag Ruhetag",
 
+  /** Sehr kurze Variante für schmale Flächen (Info-Streifen) */
+  openingHoursShort: "11–22 Uhr, Di Ruhetag",
+
   buffet: {
     enabled: true,
     /**

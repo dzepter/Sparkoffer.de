@@ -3,20 +3,19 @@ import { ArrowLink, Cta } from "@/components/cta";
 import { PageIntro } from "@/components/page-intro";
 import { menuCategories } from "@/lib/menu-data";
 import { restaurant } from "@/lib/restaurant-config";
-import { ogImage } from "@/lib/images";
+import { pageOpenGraph } from "@/lib/og";
 
 export const metadata: Metadata = {
   title: "Speisekarte",
   description:
     "Die Speisekarte des Safran Grill in Neustadt an der Weinstraße: Vorspeisen, Grill-Spezialitäten, afghanische Speisen, Salate, orientalische Pizzen und mehr.",
   alternates: { canonical: "/speisekarte" },
-  openGraph: {
-    images: [ogImage],
+  openGraph: pageOpenGraph({
     url: "/speisekarte",
     title: "Speisekarte | Safran Grill Neustadt",
     description:
       "Vorspeisen, Grill-Spezialitäten, afghanische Speisen, Salate, orientalische Pizzen und mehr – die Karte des Safran Grill.",
-  },
+  }),
 };
 
 export default function SpeisekartePage() {
@@ -29,8 +28,8 @@ export default function SpeisekartePage() {
       >
         <p>
           Afghanische Speisen, Frisches vom Grill, Salate, Beilagen und
-          orientalische Pizzen. Zum Hieressen, Abholen – oder liefern lassen
-          über Lieferando.
+          orientalische Pizzen. Hier essen, abholen – oder über Lieferando
+          liefern lassen.
         </p>
       </PageIntro>
 
@@ -39,8 +38,8 @@ export default function SpeisekartePage() {
         aria-label="Speisekarten-Kategorien"
         className="sticky top-16 z-30 border-b border-line bg-cream/95 backdrop-blur-sm"
       >
-        <div className="mx-auto max-w-6xl overflow-x-auto px-5 sm:px-8">
-          <ul className="flex gap-6 whitespace-nowrap py-3 text-[0.9rem] font-medium text-ink-soft">
+        <div className="mx-auto max-w-6xl overflow-x-auto px-5 sm:px-8 lg:overflow-visible">
+          <ul className="flex gap-x-6 gap-y-1 whitespace-nowrap py-3 text-[0.9rem] font-medium text-ink-soft lg:flex-wrap">
             {menuCategories.map((cat) => (
               <li key={cat.id}>
                 <a
@@ -69,8 +68,8 @@ export default function SpeisekartePage() {
                 {cat.items.length > 0 && (
                   <ul className="mt-6 divide-y divide-line border-t border-line">
                     {cat.items.map((item) => (
-                      <li key={item.name} className="flex items-baseline justify-between gap-6 py-3.5">
-                        <div>
+                      <li key={item.name} className="py-3.5">
+                        <div className="flex items-baseline justify-between gap-6">
                           <h3 className="font-semibold">
                             {item.name}
                             {item.tags?.map((tag) => (
@@ -78,24 +77,25 @@ export default function SpeisekartePage() {
                                 key={tag}
                                 className="ml-2 align-middle text-[0.72rem] font-medium uppercase tracking-[0.08em] text-olive"
                               >
+                                {" "}
                                 {tag}
                               </span>
                             ))}
                           </h3>
-                          {item.description && (
-                            <p className="mt-1 max-w-lg text-[0.95rem] leading-relaxed text-ink-soft">
-                              {item.description}
+                          {item.available === false ? (
+                            <p className="shrink-0 text-[0.85rem] text-ink-faint">
+                              zurzeit nicht verfügbar
                             </p>
+                          ) : (
+                            item.price && (
+                              <p className="shrink-0 font-medium tabular-nums">{item.price}</p>
+                            )
                           )}
                         </div>
-                        {item.available === false ? (
-                          <p className="shrink-0 text-[0.85rem] text-ink-faint">
-                            zurzeit nicht verfügbar
+                        {item.description && (
+                          <p className="mt-1 max-w-lg text-[0.95rem] leading-relaxed text-ink-soft">
+                            {item.description}
                           </p>
-                        ) : (
-                          item.price && (
-                            <p className="shrink-0 font-medium tabular-nums">{item.price}</p>
-                          )
                         )}
                       </li>
                     ))}

@@ -3,11 +3,11 @@ import Image from "next/image";
 import { ArrowLink, Cta } from "@/components/cta";
 import { PageIntro } from "@/components/page-intro";
 import { restaurant } from "@/lib/restaurant-config";
+import { pageOpenGraph } from "@/lib/og";
 import {
   buffetReisGrill,
   gastraumLandscape,
   logoWand,
-  ogImage,
 } from "@/lib/images";
 
 export const metadata: Metadata = {
@@ -15,13 +15,12 @@ export const metadata: Metadata = {
   description:
     "Safran Grill in Neustadt an der Weinstraße: afghanische Küche, Grillgerichte und ein warmer, unkomplizierter Gastraum mitten in der Altstadt.",
   alternates: { canonical: "/ueber-uns" },
-  openGraph: {
-    images: [ogImage],
+  openGraph: pageOpenGraph({
     url: "/ueber-uns",
     title: "Über uns | Safran Grill Neustadt",
     description:
       "Afghanische Küche, Grillgerichte und ein warmer, unkomplizierter Gastraum mitten in der Neustadter Altstadt.",
-  },
+  }),
 };
 
 export default function UeberUnsPage() {

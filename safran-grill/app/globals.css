@@ -16,11 +16,13 @@
   /* Text */
   --color-ink: #241c12;
   --color-ink-soft: #5c4f3f;
-  --color-ink-faint: #8a7b68;
+  --color-ink-faint: #6f6353;
 
-  /* Akzente */
+  /* Akzente – saffron nur dekorativ (Linien, Punkte), für Text und
+     Button-Flächen saffron-deep verwenden (>= 4,5:1 auf Creme) */
   --color-saffron: #b56812;
   --color-saffron-deep: #94530c;
+  --color-saffron-deeper: #7c450a;
   --color-terracotta: #a34a2e;
   --color-olive: #5f5b3a;
 

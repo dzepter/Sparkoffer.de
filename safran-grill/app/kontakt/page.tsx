@@ -2,20 +2,19 @@ import type { Metadata } from "next";
 import { ArrowLink, Cta } from "@/components/cta";
 import { PageIntro } from "@/components/page-intro";
 import { fullAddress, restaurant } from "@/lib/restaurant-config";
-import { ogImage } from "@/lib/images";
+import { pageOpenGraph } from "@/lib/og";
 
 export const metadata: Metadata = {
   title: "Kontakt & Öffnungszeiten",
   description:
     "Safran Grill, Hauptstraße 115, 67433 Neustadt an der Weinstraße. Telefon 06321 9547657. Öffnungszeiten und Route – wir freuen uns auf deinen Besuch.",
   alternates: { canonical: "/kontakt" },
-  openGraph: {
-    images: [ogImage],
+  openGraph: pageOpenGraph({
     url: "/kontakt",
     title: "Kontakt & Öffnungszeiten | Safran Grill Neustadt",
     description:
       "Hauptstraße 115, 67433 Neustadt an der Weinstraße · Telefon 06321 9547657 · Mo & Mi–So 11–22 Uhr, Dienstag Ruhetag.",
-  },
+  }),
 };
 
 export default function KontaktPage() {

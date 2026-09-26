@@ -1,9 +1,59 @@
-# Sicherheitskonzept – Handel Offensiv Learning App
+# Sicherheitskonzept – Aigner Offensiv Digital (Website · Campus · Admin)
 
 Dieses Dokument beschreibt das Sicherheitskonzept der Handel Offensiv Learning App
 (Mobile App für Teilnehmer und Trainer, Admin-Oberfläche, Supabase-Backend).
 Es richtet sich an Entwickler; die Kapitel 1 und 2 sind bewusst so geschrieben,
 dass sie auch ohne IT-Hintergrund verständlich sind.
+
+---
+
+## 0. Version 2 – Änderungen und Befunde (Entwurf zur Freigabe, 26.09.2026)
+
+Das Sicherheitskonzept der Kapitel 1–15 gilt weiter. Mit dem Web-Campus, der Website aus der Datenbank und dem Admin-Cockpit unter `admin.aigner-offensiv.de` kommen neue Angriffsflächen hinzu; zugleich hat die Bestandsanalyse (§45-Lens) konkrete Schwachstellen im vorhandenen Code gefunden. Beides ist hier verbindlich festgehalten und in `IMPLEMENTATION_PLAN.md` terminiert.
+
+### 0.1 Befunde im Bestand (zu beheben vor dem Vertical Slice)
+
+| Nr. | Befund | Schwere | Maßnahme |
+|---|---|---|---|
+| S‑1 | **Freischaltzeit nicht in der DB erzwungen.** `app.can_read_lesson()` prüft nur, ob eine `lesson_releases`-Zeile existiert; `release_at`, Offsets, Voraussetzungen, `released_at` werden allein in der App bewertet. Gesperrte Lektionen sind per API lesbar. | hoch | `app.lesson_is_released(lesson_id, profile_id)` in SQL; Einsatz in RLS von `lessons`, `content_blocks`, `quizzes`; pgTAP-Tests „gesperrt → 0 Zeilen". |
+| S‑2 | **IDOR in Admin-Server-Actions.** `setMembershipStatusAction` und `changeCohortAction` prüfen `can()` gegen eine Formular-`organizationId`, ändern dann nur nach `id`. | hoch | Scope-Bindung in jeder Mutation (`RBAC.md` 0.3); Regressionstests. |
+| S‑3 | **Quiz manipulierbar.** `quiz_options.is_correct` für Teilnehmer lesbar; `quiz_attempts.score/passed` vom Client schreibbar. | mittel | View ohne `is_correct`; Bewertung per RPC `app.grade_quiz_attempt` (SECURITY DEFINER); Client schreibt nur Antworten. |
+| S‑4 | **Admin arbeitet vollständig mit Service Role (BYPASSRLS).** Mandantentrennung im Cockpit hängt allein am Code. | mittel | Lesezugriffe im Admin über die Nutzersitzung (RLS) wo möglich; Service Role nur für privilegierte Schreibvorgänge nach `can()` + Scope-Bindung; E2E-Tests Org A/Org B. |
+| S‑5 | **Deaktivierung unvollständig.** Nur `organization_memberships.status`; `profiles.status`, Sitzungen, Cohort-Mitgliedschaft bleiben aktiv. | mittel | `RBAC.md` 0.5: Status kaskadieren, `auth.admin.signOut(…,'global')`, RLS-Helfer prüfen `profiles.status`. |
+| S‑6 | **Keine Security-Header, kein Rate Limiting im Admin** (Login, Einladungsversand); `robots` nur per Metadaten, kein `X-Robots-Tag`. | mittel | `next.config` `headers()` mit CSP, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `X-Robots-Tag: noindex` für Campus/Admin; Rate Limit (Upstash/DB-basiert) auf Login, Reset, Einladung, Anfrageformular. |
+| S‑7 | **MFA nur für Super Admin erreichbar, nicht erzwungen.** | mittel | AAL2-Pflicht für Admin/Trainer/Org-Admin (`RBAC.md` 0.4). |
+| S‑8 | **Storage ohne MIME-/Größenlimits je Bucket**; kein Bucket für Teilnehmer-Uploads. | mittel | Bucket-Limits per Migration; `participant-uploads` mit RLS; serverseitige Typprüfung (Magic Bytes) für Uploads. |
+| S‑9 | **Seed schreibt `auth.users` direkt** mit Klartext-Demo-Passwort im Repo; technisch in Staging/Prod importierbar. | mittel | Demo-Nutzer nur per Skript mit Passwort aus Umgebungsvariable; Seed-Guard (bricht ab, wenn `app.environment <> 'local|staging'`). |
+| S‑10 | **Teilnehmerliste lädt alle `auth.users`** (bis 10.000) organisationsübergreifend in den Serverprozess. | niedrig | Paginierte, org-gefilterte Abfrage über `profiles`/Memberships. |
+| S‑11 | `lint` in der CI mit `|| true` – Fehler werden verschluckt. | niedrig | Lint verbindlich machen. |
+| S‑12 | `config.toml`: `site_url` localhost, `additional_redirect_urls` leer – Einladungs-/Reset-Links funktionieren nur lokal. | niedrig | Pro Umgebung setzen (Campus-/Admin-URLs). |
+| S‑13 | Alte WordPress-Site (PHP 7.4, ungepatcht) läuft unter der Hauptdomain. | hoch (organisatorisch) | Bis zum Relaunch: PHP-Version im Strato-Panel anheben, WordPress/Plugins aktualisieren oder Site read-only stellen; nach Cutover abschalten. |
+| S‑14 | **Admin → Edge Functions authentifiziert mit Service-Role-Key** statt mit der Nutzersitzung; `requireActor` kann keinen Akteur ermitteln – Aufrufe scheitern; würde man die Prüfung lockern, entfiele die Rechteprüfung ganz. | hoch | Admin ruft Functions mit dem **Nutzer-JWT** auf (Actor-Prüfung in der Function); Service Role bleibt der Function vorbehalten. Vertragstests Admin↔Function in CI. |
+| S‑15 | **Rechte-Matrix und Zod-Schemas als Kopien in Deno** – Drift (siehe I‑2 in `CURRENT_STATE.md`). | mittel | `packages/domain`/`validation` per Import-Map bzw. Build-Schritt in die Functions einbinden; eine Quelle. |
+| S‑16 | **Rate Limiting** in Functions nur In-Memory je Isolate; Supabase-Auth-Limits nicht konfiguriert; keine Audit-Einträge für Fehlversuche. | mittel | DB-gestützter Limiter (Tabelle `rate_limits`) oder Upstash; `[auth.rate_limit]` in `config.toml`; Fehlversuche loggen. |
+| S‑17 | **Storage:** keine INSERT-Policy für Teilnehmer-Uploads; Signed-URL-TTL 1 h statt Minuten; Signierung nur clientseitig. | mittel | Bucket `participant-uploads` mit Policies; Signierung über Server-Endpunkt mit TTL ≤ 10 min und `Content-Disposition`. |
+| S‑18 | **Löschprozess** ohne Aufrufer/Admin-UI, räumt falschen Bucket. | mittel (DSGVO) | Admin-Seite „Löschanträge" (SYSTEM), Function korrigieren (Buckets `learning-assets`, `participant-uploads`, `avatars`), Ende-zu-Ende-Test. |
+| S‑19 | **Passwort-Reset** ohne Zielseite; Redirect-Allowlist leer. | mittel | Campus-Route `/passwort-neu`; Allowlist pro Umgebung. |
+| S‑20 | **CI erzeugt Scheinsicherheit** (Lint `\|\| true`, E2E ohne Stack, keine Function-/RLS-Tests, kein Secret-Scan). | mittel | ESLint-Konfiguration, Lint verbindlich, Playwright mit lokalem Stack, `deno test`, pgTAP, `pnpm audit`, Gitleaks. |
+
+### 0.2 Neue Schutzmaßnahmen für Version 2
+
+- **Campus ohne Service Role.** Alle Lese- und Schreibzugriffe des Campus laufen über die Nutzersitzung (`@supabase/ssr`, Cookies `HttpOnly`, `Secure`, `SameSite=Lax`); RLS ist damit für jeden Campus-Pfad wirksam. Privilegiertes (Einladung annehmen, Löschanfrage) bleibt in Edge Functions.
+- **Website liest nur `site_content`/`site_posts` als `anon`**; keine weiteren `anon`-Policies. Anfrageformular: Server Action, Zod, Honeypot, Rate Limit je IP-Hash, Einwilligung mit Zeitstempel; E-Mail-Versand serverseitig.
+- **Offline-Entwürfe im Browser** (IndexedDB) enthalten potenziell persönliche Reflexionen: verschlüsselt mit einem sitzungsgebundenen Schlüssel (WebCrypto), beim Logout gelöscht, nie im `localStorage`, nie in Server-Logs.
+- **PWA/Service Worker** cacht keine personenbezogenen API-Antworten dauerhaft (nur App-Shell und öffentliche Assets); Cache-Invalidierung beim Logout.
+- **Passwort-Reset-Redirects** nur auf die Campus-/Admin-Domain (Allowlist in Supabase Auth).
+- **Content Security Policy** je App: `default-src 'self'`, Supabase-Host in `connect-src`, Video-Host explizit, keine Inline-Skripte (Nonces).
+- **Uploads von Teilnehmern** (Datei/Foto): Größenlimit, erlaubte Typen (PDF, JPG, PNG, HEIC→JPG), Magic-Byte-Prüfung in der Edge Function, Virenscan optional, Auslieferung nur per Signed URL an Eigentümer/Trainer.
+- **Audit** erweitert um Website-Veröffentlichungen, MFA-Änderungen, Freischaltungen durch Trainer.
+- **CI-Sicherheit:** RLS-Tests (pgTAP) gegen eine Wegwerf-Datenbank, `pnpm audit`, Secret-Scan, Lint verbindlich; Security-Review-Checkliste §45 als Pflichtschritt vor jedem Phasen-Checkpoint.
+
+### 0.3 Datenschutz-Ergänzungen (§39–§43)
+
+- Vercel (Rendering) und Supabase (Daten, EU) als Auftragsverarbeiter mit AVV; Unterauftragnehmerliste aktualisieren. Website ohne Tracking; Vercel Web Analytics nur, wenn cookielos und in der Datenschutzerklärung genannt.
+- Systemmails über das Kunden-Postfach (SMTP) – kein zusätzlicher Auftragsverarbeiter, sofern **[ENTSCHEIDUNG K‑4]** so getroffen wird.
+- Keine Ranglisten, keine Vergleiche zwischen Teilnehmern, keine Sichtbarkeit privater Reflexionen für Organisationsadmins – unverändert und in RLS verankert.
+- Löschkonzept (Kapitel 13) um Website-Anfragen (`inquiries`, Löschung nach 12 Monaten) und Browser-Entwürfe ergänzen.
 
 ---
 

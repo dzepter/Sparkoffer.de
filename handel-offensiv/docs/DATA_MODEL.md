@@ -1,6 +1,75 @@
-# Datenmodell – Handel Offensiv Learning App
+# Datenmodell – Aigner Offensiv Digital (Website · Campus · Admin)
 
-Dieses Dokument beschreibt das vollständige relationale Datenmodell der Handel Offensiv Learning App (Supabase/PostgreSQL). Es richtet sich an Entwickler (Detailkapitel) und an fachliche Leser (Überblickskapitel 1–3). Alle Änderungen am Schema erfolgen ausschließlich über versionierte Migrationen in `supabase/migrations/`.
+Dieses Dokument beschreibt das vollständige relationale Datenmodell der Plattform (Supabase/PostgreSQL). Kapitel 0 fasst die **Änderungen der Version 2** (Master-Prompt September 2026) zusammen; die Kapitel 1–13 beschreiben das bestehende, in `0001_schema.sql`/`0002_rls.sql` umgesetzte Modell, das unverändert Grundlage bleibt. Es richtet sich an Entwickler (Detailkapitel) und an fachliche Leser (Überblickskapitel 1–3). Alle Änderungen am Schema erfolgen ausschließlich über versionierte Migrationen in `supabase/migrations/`.
+
+---
+
+## 0. Version 2 – Änderungen (Entwurf zur Freigabe, 26.09.2026)
+
+Das bestehende Schema deckt den Master-Prompt weitgehend ab (Bestandsaufnahme: `CURRENT_STATE.md`, Abschnitt 5.2). Die folgenden Änderungen ergeben sich aus dem Abgleich mit §10–§17, §19, §26–§32, §41, §46 und aus den Befunden der Schema-Analyse. Sie werden als **neue Migrationen** ergänzt (`0003_…` ff.); bestehende Migrationen werden nicht verändert.
+
+### 0.1 Zuordnung der in §30 geforderten Entitäten zum Schema
+
+| Master-Prompt §30 | Schema | Bewertung |
+|---|---|---|
+| `roles`, `permissions`, `role_permissions` | Enum `member_role` + `profiles.is_super_admin` + Capability-Katalog als Code in `packages/domain` + `organization_memberships.permissions jsonb` | **Beibehalten.** Rechte als getesteter Code statt Tabellen: keine Rechteänderung ohne Review/Deployment, keine Inkonsistenz zwischen DB und Prüf-Logik. Kundenspezifische Rollen bleiben über `permissions` und neue Enum-Werte möglich (`RBAC.md`, Kap. 8). |
+| `assignments` | `content_blocks` vom Typ `transfer_task` (neu auch `practice_task`); Fälligkeit in `config` | **Beibehalten.** Aufgaben sind Inhaltsbausteine einer Lektion, keine eigene Entität. |
+| `sessions` | `cohort_sessions` | identisch (Offensivtage je Gruppe) |
+| `enrollments` | `course_enrollments` | identisch |
+| `reflections` | `reflection_entries` | identisch |
+| `module_progress` | SQL-View `module_progress` | identisch; ergänzt um View `program_progress` (Gesamt-%) |
+| alle übrigen 26 Entitäten | 1:1 vorhanden | – |
+
+### 0.2 Erweiterte Enums
+
+- `block_type` **+4 Werte** → 18 Typen gemäß §12: `practice_task` (Praxisaufgabe ohne Nachweis-Pflicht, getrennt von `transfer_task`), `file_upload`, `photo_upload` (optional, mit Hinweis auf Freiwilligkeit), `announcement` (Ankündigungsblock innerhalb einer Lektion; gruppenweite Mitteilungen bleiben in `announcements`). Zod-Schemas und Renderer werden je Typ ergänzt (`packages/validation`, Campus, Admin-Editor, Vorschau).
+- `release_mode` **unverändert** (7 Werte). Die zehn Varianten aus §16 sind über Spalten abgebildet: *ab Datum/Uhrzeit* = `at_datetime` mit `release_at timestamptz`; *X Tage vor/nach Offensivtag* = `days_before_session`/`days_after_session` + `session_id` + `offset_days`; *nach Lektion/Modul* = `after_lesson`/`after_module` + `prerequisite_*`; *manuell* = `manual` + `released_at`; *nur Gruppe* = `cohort_id` mit `profile_id IS NULL`; *nur einzelne Teilnehmer* = `profile_id` gesetzt.
+
+### 0.3 Neue Tabellen
+
+| Tabelle | Zweck | Zugriff |
+|---|---|---|
+| `site_content (key text pk, group_key text, label text, value_html text, updated_by uuid, updated_at)` | redaktionelle Texte der öffentlichen Website (ersetzt `cms/content.json`); Schlüssel wie bisher (`hero_titel`, `tag1_text` …) | SELECT für `anon` (öffentlich); Schreiben nur Super Admin (`website.edit`/`website.publish`) |
+| `site_posts (id, slug unique, title, excerpt, body_md, cover_path, status content_status, published_at, author_profile_id, updated_at)` | „Impulse" (Blog) inkl. der fünf gesicherten Altartikel | SELECT für `anon` nur `status='published'`; Schreiben Super Admin |
+| `inquiries (id, kind text, name, company, email, phone, message, consent_at, source_page, ip_hash, status text, created_at)` | Anfragen aus dem Website-Formular „Offensivtag anfragen" (ersetzt `mailto:`) | INSERT nur über Server Action mit Rate Limit; Lesen Super Admin |
+| `submission_files (id, submission_id fk, storage_path, mime_type, size_bytes, created_at)` | Datei-/Foto-Nachweise zu Transfer-/Praxisaufgaben (Blocktypen `file_upload`, `photo_upload`) | wie `assignment_submissions` (Eigentümer, Trainer bei `visibility='trainer'`) |
+| `block_responses (profile_id, cohort_id, content_block_id, response jsonb, updated_at; pk (profile_id, cohort_id, content_block_id))` | serverseitiger Zustand interaktiver Blöcke ohne Einreichung: Checkliste, Skala 1–10 (Selbsteinschätzung), Single/Multiple Choice – heute nur im Gerätespeicher der App (Befund I‑9); geräteübergreifend konsistent, Skala für Trainer auswertbar | Eigentümer lesen/schreiben; Trainer lesen nur Skalenwerte zugewiesener Cohorts, wenn der Block `shareWithTrainer` erlaubt |
+| `session_notes (profile_id, session_id, note_md, updated_at; pk (profile_id, session_id))` | persönliche Notizen zum Präsenztag (§11) | nur Eigentümer |
+| `notification_preferences (profile_id, kind notification_kind, channel text, enabled bool)` | Kanal-/Kategorie-Präferenzen (In-App, E-Mail, Push, Web-Push) – heute nur lokal in der App | nur Eigentümer; Trainer/Admin nie |
+
+### 0.4 Härtungen aus der Schema-Analyse
+
+1. **Freischaltzeit in der Datenbank erzwingen.** Bisher prüft `app.can_read_lesson()` nur die *Existenz* einer `lesson_releases`-Zeile; `release_at`, `offset_days`, Voraussetzungen und `released_at` werden nur in der App ausgewertet – ein Teilnehmer könnte gesperrte Lektionen direkt über die API lesen (Verstoß gegen §27 „nicht nur UI"). Neu: `app.lesson_is_released(lesson_id, profile_id)` bildet die Release-Engine-Logik in SQL ab und wird in den RLS-Policies von `lessons`, `content_blocks`, `quizzes` verwendet. Die TypeScript-Implementierung in `packages/domain` bleibt für die Anzeige („Wird am … freigeschaltet") – beide werden gegen dieselben Testfälle geprüft.
+2. **Quiz serverseitig bewerten.** `quiz_options.is_correct` ist heute für Teilnehmer lesbar und `quiz_attempts.score/passed` vom Client schreibbar. Neu: View `quiz_options_public` ohne `is_correct` für Teilnehmer; RPC `app.grade_quiz_attempt(attempt_id)` (SECURITY DEFINER) berechnet Ergebnis und schreibt es; Client darf nur Antworten einreichen.
+3. **Eindeutigkeit je Gruppe.** `lesson_progress`, `reflection_entries`, `assignment_submissions`, `quiz_attempts` erhalten `cohort_id` in den Unique-Constraints, damit eine Person ein Programm in einer späteren Gruppe wiederholen kann.
+4. **Konsistenz Gruppe ↔ Organisation.** Trigger auf `cohort_members`/`cohort_trainers`: das Profil muss eine aktive `organization_membership` in `cohorts.organization_id` besitzen (Trainer: Rolle `trainer` oder Super Admin).
+5. **Audit je Mandant.** `audit_logs.organization_id` (nullable) für mandantenbezogene Filter; INSERT-only bleibt.
+6. **Storage.** Je Bucket `allowed_mime_types` und `file_size_limit` (PDF/Bilder/Audio/Video-Grenzen; keine ausführbaren Typen); neuer privater Bucket `participant-uploads` mit Pfad `organizations/{orgId}/cohorts/{cohortId}/profiles/{profileId}/…` und RLS wie `submission_files`. Globale Assets (`organization_id IS NULL`) erhalten eine explizite Leseregel für Mitglieder freigeschalteter Lektionen.
+7. **Deaktivierung wirksam machen.** `profiles.status` wird bei Deaktivierung gesetzt; RLS-Helfer prüfen zusätzlich `profiles.status='active'`; Sessions werden serverseitig beendet (`auth.admin.signOut(user, 'global')`).
+8. **Fortschritt gesamt.** View `program_progress` (Gesamt-% je Teilnehmer und Cohort) ergänzend zu `module_progress`.
+9. **Transfer-Nachfragen (§11).** `assignment_submissions.answers jsonb` für die drei strukturierten Fragen (*Was ist passiert? Was hat funktioniert? Was würden Sie anders machen?*); `transfer_task`-/`practice_task`-Config erhält `followUpQuestions` (Zod). Heute existiert nur ein Freitext-Nachweis.
+10. **Web-Push vorbereiten (§18).** `push_tokens.platform` um `'web'` erweitern (VAPID-Subscription als JSON in `token`), `notification_preferences` (Tabelle oben) statt lokaler Einstellungen.
+11. **Rate Limiting persistent (§45).** Tabelle `rate_limits (key text pk, tokens numeric, refilled_at)` für Edge Functions und Server Actions (heute In-Memory je Isolate).
+
+### 0.5 Seed Version 2 (§17, §46)
+
+- **Feste Termine 2027**, keine `now()`-relativen Daten: Offensivtag 1 **12.03.2027**, 2 **30.04.2027**, 3 **18.06.2027**, 4 **30.07.2027**, 5 **17.09.2027** (die drei fett gesetzten Daten stammen aus dem Master-Prompt, die beiden weiteren sind frei gewählte Demo-Daten). Gruppe „Marktleiter Süd – Frühjahr 2027", 12.03.–17.09.2027, 18 Plätze.
+- **Erfundene Firma** „Muster Handelsgruppe GmbH" statt „Aigner Offensiv Demo GmbH" (Marke nicht als Demo-Kunde verwenden); Personen fiktiv (Max Muster, Anna Beispiel), Domain `.test`.
+- **Demo-Konten nicht mehr per SQL in `auth.users`** (bcrypt-Hash und Klartextpasswort im Repository, bricht bei Auth-Schemaänderungen). Stattdessen Skript `supabase/seed-users.ts` (Service Role, nur lokal/Staging, Passwort aus Umgebungsvariable).
+- **Block-Konfigurationen an die Zod-Schemas angleichen** (heute: `prompt`/`assetPath`/`allowFileUpload` im Seed vs. `question`/`storagePath`/`evidence` in `packages/validation` – Demo-Lektionen würden Validierung und Rendering nicht bestehen). Modul-Untertitel gemäß §10.
+- Beispieldaten für alle neuen Blocktypen, eine Beispiel-Website-Textbasis (`site_content`) und die fünf Altartikel (`site_posts`, Status `draft`).
+
+### 0.6 Migrationsplan
+
+| Migration | Inhalt |
+|---|---|
+| `0003_v2_block_types.sql` | Enum-Erweiterung `block_type`, `submission_files`, Bucket `participant-uploads` + Policies |
+| `0004_v2_website.sql` | `site_content`, `site_posts`, `inquiries` + Policies (anon-Lesen nur hier) |
+| `0005_v2_hardening.sql` | `app.lesson_is_released`, RLS-Anpassung, Quiz-View/RPC, Unique-Constraints, Konsistenz-Trigger, `audit_logs.organization_id`, `profiles.status` in Helfern, `program_progress` |
+| `0006_v2_storage_limits.sql` | MIME-/Größenlimits je Bucket |
+| `seed.sql` + `seed-users.ts` | Seed v2 (2027) |
+
+Jede Migration wird von **RLS-Tests** (pgTAP, `supabase/tests/`) begleitet: Teilnehmer A sieht B nicht, Organisation A sieht B nicht, Trainer nur eigene Gruppe, gesperrte Lektion nicht lesbar, Org-Admin liest keine Reflexion.
 
 ---
 

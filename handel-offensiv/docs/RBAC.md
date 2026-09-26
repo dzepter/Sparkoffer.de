@@ -1,8 +1,64 @@
 # Rollen- und Rechtemodell (RBAC)
 
-Handel Offensiv Learning App – Aigner Offensiv, Institut für Führung und Vertrieb
+Aigner Offensiv Digital – Website · Campus · Admin
 
-Dieses Dokument beschreibt verbindlich, **wer in der App was darf** – und mindestens genauso wichtig: **was nicht**. Es richtet sich an Entwickler (Abschnitte 4–7) und an Nicht-IT-Leser (Abschnitte 1–3 genügen für den Überblick).
+Dieses Dokument beschreibt verbindlich, **wer im System was darf** – und mindestens genauso wichtig: **was nicht**. Es richtet sich an Entwickler (Abschnitte 4–7) und an Nicht-IT-Leser (Abschnitte 1–3 genügen für den Überblick). Kapitel 0 enthält die **Änderungen der Version 2** (Master-Prompt September 2026); das Grundmodell der Kapitel 1–8 ist umgesetzt (`packages/domain/src/capabilities.ts`, `0002_rls.sql`) und bleibt gültig.
+
+---
+
+## 0. Version 2 – Änderungen (Entwurf zur Freigabe, 26.09.2026)
+
+### 0.1 Rollen und Rechtematrix (§26) – Abgleich
+
+Die vier Rollen **Super Admin, Organisationsadmin, Trainer, Teilnehmer** sind vorhanden. Der Capability-Katalog des Master-Prompts entspricht dem umgesetzten Katalog bis auf Benennung:
+
+| Master-Prompt §26 | Umgesetzt (`packages/domain`) | Änderung |
+|---|---|---|
+| `participants.read` | `users.read` | Alias im Katalog; Benennung bleibt `users.*`, weil auch Trainer/Org-Admins verwaltet werden |
+| `participants.manage` | `users.invite` + `users.manage` | – |
+| `organizations.*`, `content.*`, `cohorts.*`, `submissions.*`, `analytics.read`, `notifications.send`, `audit.read`, `settings.manage` | identisch | – |
+| – | **neu** `releases.manage` | Trainer dürfen laut §20 Inhalte **freischalten** (manueller Release, Termin-Offsets) – bisher nur mit `cohorts.manage` (Super Admin) möglich. Geltung: Trainer nur in zugewiesenen Cohorts; Org-Admin per `permissions`; Super Admin global. |
+| – | **neu** `website.edit`, `website.publish` | Texte und Impulse der öffentlichen Website im Admin pflegen/veröffentlichen (`site_content`, `site_posts`). Nur Super Admin; optional per `permissions` an eine Redaktionsperson von Aigner Offensiv. |
+| – | **neu** `inquiries.read` | Website-Anfragen lesen/bearbeiten. Nur Super Admin. |
+
+**Klarstellung `submissions.read`:** umfasst `assignment_submissions` **und** `reflection_entries` mit `visibility = 'trainer'` in zugewiesenen Cohorts. Das Admin-Cockpit zeigt Trainern heute nur Einreichungen, keine freigegebenen Reflexionen – das ist eine UI-Lücke (§20), keine Rechtelücke; sie wird im Trainer-Bereich geschlossen.
+
+**Trainer** erhalten damit: `cohorts.read`, `users.read` (Teilnehmerstatus **ansehen**), `content.read`, `submissions.read`, `submissions.feedback`, `notifications.send` (Gruppennachricht), `analytics.read`, **`releases.manage`** – jeweils nur in zugewiesenen Cohorts. Weiterhin **nicht**: andere Unternehmen sehen, Systemrechte ändern, andere Trainer administrieren, globale Einstellungen (§20).
+
+### 0.2 Vier Durchsetzungsebenen (Erweiterung von Kapitel 6)
+
+Mit dem Web-Campus kommt eine Ebene hinzu:
+
+| Ebene | Aufgabe |
+|---|---|
+| 1 RLS (Postgres) | unverändert letzte Verteidigungslinie – neu inklusive **Freischaltzeit** (`app.lesson_is_released`) und `profiles.status` |
+| 2 Edge Functions (Service Role) | unverändert |
+| 3 **Next.js Server Actions / Route Handler** | **Campus:** ausschließlich mit der **Nutzersitzung** (`@supabase/ssr`), damit RLS greift – **kein Service Role im Campus**. **Admin:** Service Role nur nach `can()`-Prüfung **und** mit **Scope-Bindung** (siehe 0.3). |
+| 4 UI (Website/Campus/Admin) | nur UX |
+
+### 0.3 Scope-Bindung als Pflichtmuster (Befund IDOR)
+
+Zwei Admin-Aktionen (`setMembershipStatusAction`, `changeCohortAction`) prüfen `can()` gegen eine `organizationId` aus dem Formular, ändern dann aber nur nach `id` – ein Org-Admin könnte fremde Datensätze treffen. Verbindliche Regel für **jede** schreibende Server Action mit Service Role:
+
+```ts
+// Ziel IMMER an den geprüften Geltungsbereich binden – nie nur .eq('id', …)
+.update({...}).eq('id', membershipId).eq('organization_id', scope.organizationId)
+// bzw. Cohort-Bindung: .eq('cohort_id', cohortId) und Cohort → Organisation zuvor verifizieren
+```
+
+Jede Server Action bekommt einen Test „fremde ID im eigenen Scope → 0 Zeilen geändert".
+
+### 0.4 MFA-Richtlinie (§33)
+
+TOTP-Zweitfaktor (Supabase Auth MFA) ist **Pflicht** für Super Admin, Trainer und Organisationsadmin beim Zugang zum Admin-Cockpit: Die Middleware verlangt `aal2`; ohne aktivierten Faktor wird zur Einrichtung geführt (die vorhandene MFA-Seite wird aus `/system` in den Profilbereich verschoben, damit sie für alle Rollen erreichbar ist). Teilnehmer im Campus: optional.
+
+### 0.5 Deaktivierung und Zugangsentzug (§25, §33)
+
+„Teilnehmer deaktivieren" setzt `organization_memberships.status`, `cohort_members.status` **und** `profiles.status = 'inactive'`, beendet alle Sitzungen (`auth.admin.signOut(userId, 'global')`), widerruft offene Einladungen und schreibt einen Audit-Eintrag. Reaktivierung kehrt dies um. RLS-Helfer verweigern inaktiven Profilen jeden Zugriff.
+
+### 0.6 Öffentliche Website
+
+Die Website nutzt die Rolle `anon` ausschließlich lesend auf `site_content` und `site_posts (status='published')`. Es gibt **keine** weiteren `anon`-Policies. Anfragen (`inquiries`) werden nur über eine Server Action mit Rate Limit, Honeypot und Zod-Validierung geschrieben.
 
 ---
 

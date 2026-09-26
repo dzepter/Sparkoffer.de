@@ -19,7 +19,7 @@ Ihre Aufgabe: **Vorbereiten. Vertiefen. Umsetzen. Reflektieren.**
 | `packages/domain` | RBAC-Capabilities, Release Engine, Fortschrittslogik (reine Funktionen) |
 | `packages/config` | Design Tokens & Konstanten |
 | `supabase/` | Datenbank-Migrationen, RLS-Policies, Edge Functions, Seed |
-| `docs/` | Architektur-, Sicherheits-, Betriebs- und Store-Dokumentation |
+| `docs/` | Architektur-, Sicherheits-, Betriebs- und Store-Dokumentation – **Version 2 (Website · Campus · Admin) als Entwurf zur Freigabe:** `CURRENT_STATE.md` (Bestand), `ARCHITECTURE.md`, `DATA_MODEL.md`, `RBAC.md`, `SECURITY.md`, `IMPLEMENTATION_PLAN.md` |
 
 ## Schnellstart (lokal)
 

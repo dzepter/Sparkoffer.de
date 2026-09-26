@@ -9,7 +9,8 @@
 | MX `aigner-offensiv.de` | Microsoft 365 | Postfächer (Reply-To) bleiben bei M365 – **nicht anfassen** |
 | SPF/DMARC `aigner-offensiv.de` | `-all`, `p=reject` | fremde Absender *@aigner-offensiv.de* werden abgewiesen – deshalb keine Systemmails als `@aigner-offensiv.de` |
 | MX `handel-offensiv.de` | `smtpin.rzone.de` (Strato) | bleibt unverändert |
-| SPF/DMARC `handel-offensiv.de` | **keine Einträge** | die Versand-Subdomain bekommt eigene SPF-/DKIM-/DMARC-Einträge; die Hauptdomain wird nicht verändert (Empfehlung für später, separat zu entscheiden: eigener DMARC-Eintrag für `handel-offensiv.de`) |
+| SPF/DMARC `handel-offensiv.de` | **kein SPF**; **DMARC `_dmarc` = `v=DMARC1;p=reject;`** (ohne `sp=`, gilt damit auch für Subdomains ohne eigenen `_dmarc`-Eintrag); Strato-DKIM-Selektoren `strato-dkim-0002`/`-0003` vorhanden (Befund 26.09.2026, `CURRENT_STATE.md` 2.1) | die Versand-Subdomain bekommt eigene SPF-/DKIM-/DMARC-Einträge; die Hauptdomain wird nicht verändert. Der eigene `_dmarc.mail`-Eintrag (Tabelle §3) ist damit **Pflicht**, sonst würde für `mail.` die Apex-Policy `p=reject` gelten |
+| Wildcard `*.handel-offensiv.de` | `MX 5 smtpin.rzone.de` (Strato-Standard) | jeder nicht angelegte Name antwortet mit diesem MX – der MX für `send.mail` muss deshalb **explizit** angelegt werden (überschreibt den Wildcard nur für diesen Namen); Resend-Verifizierung schlägt sonst fehl |
 
 Das System versendet ausschließlich als **`akademie@mail.handel-offensiv.de`**; DKIM (d=`mail.handel-offensiv.de`) und Return-Path liegen auf derselben Subdomain → SPF und DKIM sind ausgerichtet, DMARC besteht, ohne einen bestehenden Eintrag zu ändern.
 

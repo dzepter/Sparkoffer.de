@@ -25,13 +25,46 @@
 | Domain / Host | Zeigt auf | Hoster | Zustand |
 |---|---|---|---|
 | `www.aigner-offensiv.de` | **WordPress 6.7.9** (Theme `aigner_theme`, Bootstrap 3.3.7, Yoast, Borlabs 3.3.7, CF7) | Strato (A 81.169.145.157, IPv6 `2a01:238:…`), Apache 2.4.68, **PHP 7.4.33** | live, HTTPS ok (Sectigo bis 06.12.2026), http→https 301, non-www→www 301; `/wp-json/wp/v2/users` listet 2 Nutzer, `/readme.html` offen, keine Security-Header |
-| `www.handel-offensiv.de` | statische Site + `cms/admin.php` | Webspace im **IONOS/1&1-Adressraum** (A 217.160.0.88, PTR `*.elastic-ssl.ui-r.com`), DNS-Zone und MX (`smtpin.rzone.de`) bei **Strato** – **welcher Vertrag den Webspace stellt und wer FTP-Zugang hat, ist zu klären** | live seit 11.08.2026, HTTPS ok (Sectigo bis 07.02.2027), http→https 301, eigene 404-Seite aktiv; kein SPF/DMARC/CAA |
-| `cockpit.handel-offensiv.de` | – | kein DNS-Eintrag | frühere Cockpit-Domain, **nicht existent, nicht mehr vorgesehen** |
+| `www.handel-offensiv.de` | statische Site + `cms/admin.php` | Webspace im **IONOS-Adressraum** (A `217.160.0.88`, AAAA `2001:8d8:100f:f000::200`; RIPE-Inhaber „ionos-inf" = IONOS SE; PTR `217-160-0-88.elastic-ssl.ui-r.com`), DNS-Zone (NS `shades11`/`docks05.rzone.de`) und MX (`smtpin.rzone.de`) bei **Strato** – **welcher Vertrag den Webspace stellt und wer FTP-Zugang hat, ist weiter offen** (Abschnitt 2.2) | live seit 11.08.2026 (Live-Dateien zuletzt geändert 11.08.2026), HTTPS ok (Sectigo bis 07.02.2027), http→https 301, eigene 404-Seite aktiv; **kein SPF, kein CAA; DMARC `p=reject` und Strato-DKIM-Selektoren vorhanden** (Abschnitt 2.1) |
+| `cockpit.handel-offensiv.de` | – | kein eigener DNS-Eintrag (nur Wildcard-MX, 2.1) | frühere Cockpit-Domain, **nicht existent, nicht mehr vorgesehen** |
 | `campus.aigner-offensiv.de`, `admin.aigner-offensiv.de` | – | kein DNS-Eintrag | ursprünglich gewünscht; **seit 26.09.2026 nicht mehr vorgesehen** – Version 1 läuft unter `www.handel-offensiv.de/login`, `/akademie`, `/admin` (`DEPLOYMENT.md`) |
-| `mail.handel-offensiv.de` | – | kein DNS-Eintrag | geplante Versand-Subdomain für Resend (`EMAIL_DNS_PLAN.md`), Einträge erst nach Bestätigung |
+| `mail.handel-offensiv.de` | – | kein eigener DNS-Eintrag; **der Wildcard-MX der Zone greift** (`*.handel-offensiv.de MX 5 smtpin.rzone.de`) | geplante Versand-Subdomain für Resend (`EMAIL_DNS_PLAN.md`), Einträge erst nach Bestätigung; der MX für `send.mail` muss dann **explizit** gesetzt werden, damit er den Wildcard für diesen Namen überschreibt |
 | E-Mail `info@aigner-offensiv.de` | **Microsoft 365** (MX `aigneroffensiv-de01e.mail.protection.outlook.com`), SPF `include:spf.protection.outlook.com -all`, **DMARC `p=reject`** | Microsoft (DNS bei Strato) | in Betrieb; **MX/SPF/DMARC dürfen nicht angefasst werden.** Folge: **Jeder Systemmail-Versender (Supabase-Auth, Resend, SMTP-Relay) muss per SPF-Include + DKIM autorisiert werden – sonst Abweisung.** Entscheidung K‑4 |
 
 Strato-Shared-Hosting kann **kein Node.js/Next.js** ausführen – nur statische Dateien und PHP. Alles, was Next.js braucht (Campus, Admin, ggf. neue Website), benötigt einen anderen Host (z. B. Vercel), an den Subdomains per CNAME gehängt werden.
+
+### 2.1 DNS-Zone `handel-offensiv.de` – öffentliche Sicht (abgefragt 26.09.2026, 22:40 MESZ, per DNS-over-HTTPS bei Cloudflare, Gegenprobe Google)
+
+Nur lesend erhoben, nichts verändert. **Einschränkung:** Aus dem öffentlichen DNS lassen sich nur Namen abfragen, die man kennt; die Liste unten deckt Apex, `www`, alle mail-relevanten Namen und ~30 weitere naheliegende Hostnamen ab. Die vollständige Zone (inkl. eventueller Einträge mit unüblichen Namen) ist nur im Strato-Kundenportal einsehbar – **diese Sichtprüfung steht noch aus** (2.2).
+
+| Name (relativ zur Zone) | Typ | Wert | TTL | Anmerkung |
+|---|---|---|---|---|
+| `@` | A | `217.160.0.88` | 150 | Webspace (IONOS-Adressraum, 2.2) |
+| `@` | AAAA | `2001:8d8:100f:f000::200` | 150 | dito, IPv6 (IONOS) |
+| `@` | MX | `5 smtpin.rzone.de.` | 150 | Strato-Mailserver – **nicht anfassen** |
+| `@` | NS | `shades11.rzone.de.`, `docks05.rzone.de.` | 150 | Strato-Nameserver |
+| `@` | SOA | `shades11.rzone.de. hostmaster.strato-rz.de.` Serial `2026081026`, Refresh 86400, Retry 7200, Expire 604800, Minimum 300 | 150 | Serial = letzte Zonenänderung **10.08.2026** (deckt sich mit DENIC „last changed 10.08.2026") |
+| `@` | TXT | – | – | **kein SPF-Eintrag** |
+| `@` | CAA | – | – | kein CAA |
+| `www` | CNAME | `handel-offensiv.de.` | 150 | folgt A/AAAA des Apex |
+| `_dmarc` | TXT | `v=DMARC1;p=reject;` | 150 | **DMARC vorhanden** (ohne `rua`, ohne `sp=` → gilt auch für Subdomains ohne eigenen `_dmarc`) |
+| `_domainkey` | TXT | `o=~; t=y; r=dkim@rzone.de` | 150 | Strato-DKIM-Policy (Standard) |
+| `strato-dkim-0002._domainkey` | TXT | `v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAt3a1nb…lwIDAQAB` (2048 Bit, gekürzt) | 150 | Strato signiert ausgehende Mails `@handel-offensiv.de` |
+| `strato-dkim-0003._domainkey` | TXT | `v=DKIM1; k=ed25519; p=hB4fidO1tsRNeRkj6ySb9N2xwfNzERRFYLQhGQyQ9dE=` | 150 | dito (Ed25519) |
+| `autoconfig` | CNAME | `autoconfigure.strato.de.` (→ `81.169.145.141`) | 150 | Mailclient-Autokonfiguration Strato |
+| `*` (Wildcard) | MX | `5 smtpin.rzone.de.` | 150 | **jeder nicht angelegte Name** (z. B. `mail`, `send.mail`, `autodiscover`, `imap`, `smtp`, `akademie`, `admin`, `login`, Zufallsname) antwortet mit diesem MX, ohne A/AAAA/CNAME/TXT |
+
+**Nicht vorhanden** (kein A/AAAA/CNAME/TXT, nur der Wildcard-MX): `mail`, `send.mail`, `resend._domainkey.mail`, `_dmarc.mail`, `autodiscover`, `imap`, `smtp`, `pop`, `pop3`, `ftp`, `webmail`, `akademie`, `admin`, `login`, `app`, `campus`, `cockpit`, `staging`, `dev`, `test`, `cms`, `shop`, `blog`, `_acme-challenge`, `_mta-sts`, `mta-sts`. → Für Resend (`EMAIL_DNS_PLAN.md` §3) sind alle vier Zielnamen frei; der MX für `send.mail` muss explizit angelegt werden, damit er den Wildcard für diesen Namen ersetzt.
+
+**Zum Vergleich `aigner-offensiv.de`** (gleicher Zeitpunkt, nur lesend): A `81.169.145.157`, AAAA `2a01:238:20a:202:1157::` (Strato-Webspace, RIPE „STRATO-RZG-KA"), `www` CNAME auf den Apex, MX `20 aigneroffensiv-de01e.mail.protection.outlook.com.` (Microsoft 365), TXT `v=spf1 include:spf.protection.outlook.com -all` und `MS=ms87091361`, `_dmarc` `v=DMARC1;p=reject;`, `autodiscover` CNAME `autodiscover.outlook.com.`, NS `shades07`/`docks15.rzone.de`, ebenfalls Wildcard-MX `5 smtpin.rzone.de.` (`mail`, `imap`, `smtp` antworten damit). **Unverändert gelassen.**
+
+### 2.2 Hosting-Befund `www.handel-offensiv.de` (26.09.2026)
+
+- **Adressraum:** `217.160.0.0/24` ist bei RIPE als „ionos-inf" auf **IONOS SE** registriert (AS8560); PTR `217-160-0-88.elastic-ssl.ui-r.com` (United-Internet-Domain). Antwort-Header der Live-Site: `server: Apache`, `x-ws-origin: available`, `x-ws-ratelimit-limit/-remaining`; die http→https-Umleitung liefert `server: nginx` – das ist das typische Bild des IONOS-Webhostings. Der Strato-Webspace von `aigner-offensiv.de` liegt dagegen bei `81.169.145.157` (RIPE „STRATO-RZG-KA", `Apache/2.4.68 (Unix)`, `PHP/7.4.33`) – eine **andere Infrastruktur**.
+- **Aber:** Strato gehört zur IONOS-Gruppe; die Strato-Nameserver selbst stehen inzwischen im IONOS-Adressraum (`shades11.rzone.de` = `185.132.34.138` „DE-SCHLUND", `docks05.rzone.de` = `217.160.80.132`). Der IP-Bereich allein beweist daher **keinen** separaten IONOS-Vertrag; es kann auch ein neueres Strato-Produkt auf Gruppen-Infrastruktur sein.
+- **DENIC (RDAP):** Domain aktiv, Nameserver Strato, letzte Änderung 10.08.2026; der Registrar wird von DENIC nicht ausgewiesen.
+- **Offen (nur im Kundenportal klärbar):** Welcher Strato-Vertrag enthält `handel-offensiv.de`, gibt es dort ein Hosting-Paket mit „Webspace verwalten", oder liegt der Webspace in einem eigenen IONOS-Vertrag? Wer hat SFTP-Zugang? Die dafür vorgesehene Sichtprüfung im Strato-Login konnte am 26.09.2026 nicht stattfinden (Sitzung ohne Browser auf dem Rechner des Nutzers; braucht eine Sitzung auf seinem Mac). Bis dahin bleibt der Eintrag in `NEEDED_FROM_CLIENT.md` Abschnitt 2 offen.
+- **Unabhängig davon erledigt:** `cms/content.json` ist öffentlich abrufbar und wurde gesichert (3.2); der Dateivergleich Live ↔ Repository ist aktuell (3.2).
 
 ---
 
@@ -63,18 +96,23 @@ Strato-Shared-Hosting kann **kein Node.js/Next.js** ausführen – nur statische
 - **Vollständige Sicherung:** `docs/archive/aigner-offensiv-wordpress-2026-09/` (Texte aller 16 Inhalte, Indizes, Medienliste, altes Logo).
 - **Risiko:** PHP 7.4.33 ist seit November 2022 ohne Sicherheitsupdates; WordPress 6.7.9 erhält nur Sicherheits-Backports; Nutzer-Enumeration über die REST-API, `readme.html` offen, keine Security-Header. Die Site ist ein **offenes Sicherheitsrisiko** unter der Hauptdomain – Sofort-Härtung siehe `IMPLEMENTATION_PLAN.md` 4.3 Schritt 1.
 
-### 3.2 www.handel-offensiv.de – neue statische Programm-Website (im Repository: `handel-offensiv-website/`)
+### 3.2 www.handel-offensiv.de – neue statische Programm-Website (im Repository: `handel-offensiv/apps/web/public/`, Webspace-spezifische Teile in `apps/web/strato-legacy/`)
 
-- 7 Seiten (`index`, `login`, `kontakt`, `impressum`, `datenschutz`, `account-loeschen`, `404`), `robots.txt`, `sitemap.xml`, `.htaccess` (eigene 404-Seite), Open-Graph-Bild 1200×630.
-- **Redaktionssystem** `cms/admin.php` (413 Zeilen PHP, kein Framework): Passwort-Hash in `cms/passwort.php`, Session + CSRF, dateibasierte Anmeldebremse, Allowlist-Sanitizer (`span.accent`, `mark`, `strong`, `em`, `br`, sichere `a`), speichert nach `cms/content.json`; `assets/js/content.js` injiziert die Texte clientseitig in `[data-edit]`-Elemente.
-- **Abweichung Repository ↔ Live (geprüft per md5 am 26.09.2026):**
+- Live: 7 Seiten (`index`, `login`, `kontakt`, `impressum`, `datenschutz`, `account-loeschen`, `404`), `robots.txt`, `sitemap.xml`, `.htaccess` (eigene 404-Seite), Open-Graph-Bild 1200×630. Im Repository ist `login.html` seit Commit `f219778` entfernt (`/login` ist der Akademie-Login, `login.html` → 308 auf `/login`).
+- **Redaktionssystem** `cms/admin.php` (413 Zeilen PHP, kein Framework): Passwort-Hash in `cms/passwort.php`, Session + CSRF, dateibasierte Anmeldebremse, Allowlist-Sanitizer (`span.accent`, `mark`, `strong`, `em`, `br`, sichere `a`), speichert nach `cms/content.json`; `assets/js/content.js` injiziert die Texte clientseitig in `[data-edit]`-Elemente. Live: `robots.txt` sperrt `/cms/`, `cms/` selbst antwortet 403.
+- **Abweichung Repository ↔ Live (geprüft per SHA-256 am 26.09.2026, 22:40 MESZ; Live-Dateien laut `Last-Modified` zuletzt am 11.08.2026 geändert):**
 
 | Datei | Zustand |
 |---|---|
-| `assets/css/style.css`, `assets/js/main.js`, `robots.txt`, `sitemap.xml`, `.htaccess` | identisch |
-| `index.html`, `login.html`, `kontakt.html`, `404.html`, `assets/js/content.js`, `cms/admin.php` | **live noch Stand vor Commit `8225c49`** – die Ausweitung des Redaktionssystems auf 74 Felder (Live: 23 Felder auf der Startseite) und der wurzelabsolute Pfad in `content.js` sind **nicht hochgeladen** |
+| `assets/css/style.css`, `assets/js/main.js`, `assets/fonts/archivo.css` + 6 WOFF2, alle 11 Bilder in `assets/img/` (`favicon.svg`, `og-image.jpg`, `Rainer-Aigner.jpg`, `rainer-aigner-1…5.jpg`, `uber-rainer-aigner.jpg`, `vortrag-1-1.jpg`) | **identisch** |
+| `account-loeschen.html`, `impressum.html`, `datenschutz.html` | nur ein Unterschied: Live `href="login.html"`, Repo `href="/login"` |
+| `index.html`, `kontakt.html`, `404.html` | Live `login.html` statt `/login`; **live noch Stand vor Commit `8225c49`**: 23 `data-edit`-Felder (nur Startseite) statt 59 (Startseite) bzw. 65 (alle Seiten); `404.html` live ohne `content.js` |
+| `assets/js/content.js` | Live lädt relativ `cms/content.json`, Repo wurzelabsolut `/cms/content.json` |
+| `robots.txt` | Live `Disallow: /cms/`; Repo `Disallow: /akademie/`, `/admin/`, `/login` (für Vercel) |
+| `sitemap.xml` | Live enthält zusätzlich `login.html` |
+| `.htaccess`, `cms/admin.php` | live nicht abrufbar (403 bzw. PHP) – kein Vergleich möglich |
 
-- **CMS-Zustand live:** Passwort ist gesetzt (Login-Maske erscheint), `content.json` enthält 23 Felder – alle inhaltlich gleich den eingebauten Standardtexten (kein individueller Text des Kunden geht bei einer Migration verloren).
+- **CMS-Zustand live:** Passwort ist gesetzt (Login-Maske erscheint), `content.json` enthält 23 Felder. **Sicherung 26.09.2026:** `cms/content.json` ist öffentlich abrufbar (HTTP 200, 2.908 Bytes, `Last-Modified` 11.08.2026 18:50 UTC) und liegt als `apps/web/strato-legacy/content.json.backup-2026-09-26` im Repository (SHA-256 `80d9fe28…89b4`). Feldweiser Vergleich mit den `[data-edit]`-Elementen der Live-Seite und der Repo-Fassung: **alle 23 Werte identisch mit den eingebauten Standardtexten** – bei der Umstellung auf Vercel geht kein individueller Kundentext verloren; nichts muss in die HTML-Dateien übernommen werden.
 
 ### 3.3 Nicht veröffentlicht: `aigner-offensiv/` – überarbeitete Aigner-Offensiv-Site
 

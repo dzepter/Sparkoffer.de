@@ -424,6 +424,87 @@ function TypeFields({
           </FormField>
         </>
       );
+
+    // Blocktypen Version 2 (§12)
+    case "practice_task":
+      return (
+        <>
+          <TitleField cfg={cfg} prefix={prefix} />
+          <FormField htmlFor={`${prefix}-beschreibung`} label="Beschreibung" required>
+            <Textarea
+              id={`${prefix}-beschreibung`}
+              name="beschreibung"
+              defaultValue={str(cfg, "description")}
+              rows={3}
+              required
+            />
+          </FormField>
+        </>
+      );
+    case "file_upload":
+      return (
+        <>
+          <TitleField cfg={cfg} prefix={prefix} />
+          <FormField htmlFor={`${prefix}-beschreibung`} label="Beschreibung">
+            <Textarea
+              id={`${prefix}-beschreibung`}
+              name="beschreibung"
+              defaultValue={str(cfg, "description")}
+              rows={2}
+            />
+          </FormField>
+          <FormField
+            htmlFor={`${prefix}-maxDateien`}
+            label="Maximale Anzahl Dateien"
+            hint="1 bis 5; erlaubte Typen und Größen regelt der Storage-Bucket."
+          >
+            <Input
+              id={`${prefix}-maxDateien`}
+              name="maxDateien"
+              type="number"
+              min={1}
+              max={5}
+              defaultValue={typeof cfg.maxFiles === "number" ? cfg.maxFiles : 1}
+            />
+          </FormField>
+        </>
+      );
+    case "photo_upload":
+      return (
+        <>
+          <TitleField cfg={cfg} prefix={prefix} />
+          <FormField htmlFor={`${prefix}-beschreibung`} label="Beschreibung">
+            <Textarea
+              id={`${prefix}-beschreibung`}
+              name="beschreibung"
+              defaultValue={str(cfg, "description")}
+              rows={2}
+            />
+          </FormField>
+          <FormField
+            htmlFor={`${prefix}-freiwilligkeitshinweis`}
+            label="Hinweis auf Freiwilligkeit"
+            required
+            hint="Pflicht: Der Upload ist freiwillig und beeinflusst den Fortschritt nicht."
+          >
+            <Input
+              id={`${prefix}-freiwilligkeitshinweis`}
+              name="freiwilligkeitshinweis"
+              defaultValue={str(cfg, "voluntaryNote")}
+              required
+            />
+          </FormField>
+        </>
+      );
+    case "announcement":
+      return (
+        <>
+          <TitleField cfg={cfg} prefix={prefix} />
+          <FormField htmlFor={`${prefix}-text`} label="Text" required>
+            <Textarea id={`${prefix}-text`} name="text" defaultValue={str(cfg, "body")} rows={4} required />
+          </FormField>
+        </>
+      );
   }
 }
 

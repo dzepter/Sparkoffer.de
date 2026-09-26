@@ -77,6 +77,10 @@ function blockSummary(block: ContentBlockRow): string {
     case "pdf":
     case "download":
     case "transfer_task":
+    case "practice_task":
+    case "file_upload":
+    case "photo_upload":
+    case "announcement":
       return text("title") || "Ohne Titel";
     case "image":
       return text("alt") || "Bild";

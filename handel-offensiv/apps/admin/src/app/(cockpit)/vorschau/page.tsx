@@ -273,7 +273,7 @@ export default async function VorschauPage({
                           <div key={phase.id}>
                             <p className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-kicker text-ink-soft">
                               <span aria-hidden="true" className="font-extrabold text-green-deep">
-                                //
+                                {"//"}
                               </span>
                               {phase.title}
                             </p>

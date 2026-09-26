@@ -39,6 +39,16 @@ function InvalidConfig() {
   );
 }
 
+/** Blocktypen der Version 2 (§12) – Renderer folgen mit dem Web-Campus (Phase 2/9). */
+function NotYetSupported() {
+  return (
+    <Banner
+      kind="info"
+      message="Dieser Inhaltstyp wird in dieser App-Version noch nicht unterstützt. Bitte nutzen Sie den Campus im Browser."
+    />
+  );
+}
+
 export function BlockRenderer({
   block,
   profileId,
@@ -167,5 +177,10 @@ export function BlockRenderer({
       const p = safeParseBlockConfig("external_link", block.config);
       return p.success ? <ExternalLinkBlock config={p.data} /> : <InvalidConfig />;
     }
+    case "practice_task":
+    case "file_upload":
+    case "photo_upload":
+    case "announcement":
+      return <NotYetSupported />;
   }
 }

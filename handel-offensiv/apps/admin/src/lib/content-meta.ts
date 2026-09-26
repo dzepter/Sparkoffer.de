@@ -45,6 +45,10 @@ export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   transfer_task: "Transferaufgabe",
   download: "Download",
   external_link: "Externer Link",
+  practice_task: "Praxisaufgabe",
+  file_upload: "Datei-Upload",
+  photo_upload: "Foto-Upload (freiwillig)",
+  announcement: "Ankündigung",
 };
 
 export const PHASE_TYPE_LABELS: Record<PhaseType, string> = {

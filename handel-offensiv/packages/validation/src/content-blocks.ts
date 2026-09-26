@@ -20,6 +20,11 @@ export const blockTypes = [
   "transfer_task",
   "download",
   "external_link",
+  // Version 2 (§12)
+  "practice_task",
+  "file_upload",
+  "photo_upload",
+  "announcement",
 ] as const;
 
 export type BlockType = (typeof blockTypes)[number];
@@ -137,6 +142,8 @@ export const scaleConfigSchema = z
     max: z.number().int().min(1).max(10).default(10),
     minLabel: z.string().optional(),
     maxLabel: z.string().optional(),
+    /** Skalenwert fuer Trainer der Gruppe auswertbar (block_responses-RLS) */
+    shareWithTrainer: z.boolean().optional(),
   })
   .refine((v) => v.min < v.max, { message: "min muss kleiner als max sein" });
 
@@ -153,6 +160,11 @@ export const transferTaskConfigSchema = z
       image: z.boolean(),
       file: z.boolean(),
     }),
+    /** Transfer-Nachfragen (§11), Antworten in assignment_submissions.answers */
+    followUpQuestions: z
+      .array(z.object({ id: nonEmpty("Frage-ID erforderlich"), label: nonEmpty("Frage erforderlich") }))
+      .max(5)
+      .optional(),
   })
   .refine((v) => v.dueMode !== "fixed" || v.dueAt !== undefined, {
     message: "dueAt ist bei dueMode 'fixed' erforderlich",
@@ -183,6 +195,32 @@ export const externalLinkConfigSchema = z.object({
   note: nonEmpty("Hinweistext (Kennzeichnungspflicht) erforderlich"),
 });
 
+/** practice_task: Praxisaufgabe ohne Nachweis-Pflicht (Version 2). */
+export const practiceTaskConfigSchema = z.object({
+  title: nonEmpty("Titel erforderlich"),
+  description: nonEmpty("Beschreibung erforderlich"),
+});
+
+/** file_upload: Datei-Nachweis (PDF/Bild/Audio; Limits per Storage-Bucket). */
+export const fileUploadConfigSchema = z.object({
+  title: nonEmpty("Titel erforderlich"),
+  description: z.string().optional(),
+  maxFiles: z.number().int().min(1).max(5).default(1),
+});
+
+/** photo_upload: freiwilliges Foto – Hinweis auf Freiwilligkeit ist Pflicht (§12). */
+export const photoUploadConfigSchema = z.object({
+  title: nonEmpty("Titel erforderlich"),
+  description: z.string().optional(),
+  voluntaryNote: nonEmpty("Hinweis auf Freiwilligkeit erforderlich"),
+});
+
+/** announcement: Ankuendigungsblock innerhalb einer Lektion. */
+export const announcementConfigSchema = z.object({
+  title: nonEmpty("Titel erforderlich"),
+  body: nonEmpty("Text erforderlich"),
+});
+
 /* --------------------------- Zuordnung/Union -------------------------- */
 
 /** Map block_type → Config-Schema. */
@@ -201,6 +239,10 @@ export const blockConfigSchemas = {
   transfer_task: transferTaskConfigSchema,
   download: downloadConfigSchema,
   external_link: externalLinkConfigSchema,
+  practice_task: practiceTaskConfigSchema,
+  file_upload: fileUploadConfigSchema,
+  photo_upload: photoUploadConfigSchema,
+  announcement: announcementConfigSchema,
 } as const satisfies Record<BlockType, z.ZodTypeAny>;
 
 export type BlockConfigMap = {

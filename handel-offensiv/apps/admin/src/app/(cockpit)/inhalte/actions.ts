@@ -249,6 +249,33 @@ function buildConfig(
           note: fd(formData, "hinweis"),
         },
       };
+
+    // Blocktypen Version 2 (§12)
+    case "practice_task":
+      return { config: { title: fd(formData, "titel"), description: fd(formData, "beschreibung") } };
+
+    case "file_upload": {
+      const maxRaw = fd(formData, "maxDateien");
+      return {
+        config: {
+          title: fd(formData, "titel"),
+          description: fd(formData, "beschreibung"),
+          maxFiles: maxRaw === undefined ? 1 : Number(maxRaw),
+        },
+      };
+    }
+
+    case "photo_upload":
+      return {
+        config: {
+          title: fd(formData, "titel"),
+          description: fd(formData, "beschreibung"),
+          voluntaryNote: fd(formData, "freiwilligkeitshinweis"),
+        },
+      };
+
+    case "announcement":
+      return { config: { title: fd(formData, "titel"), body: fd(formData, "text") } };
   }
 }
 

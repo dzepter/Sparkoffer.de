@@ -13,6 +13,31 @@ Das Sicherheitskonzept der Kapitel 1–15 gilt als **Zielbild** weiter – einig
 
 ### 0.1 Befunde im Bestand (zu beheben vor dem Vertical Slice)
 
+**Stand nach Phase 1 (26.09.2026):**
+
+| Nr. | Status | Nachweis |
+|---|---|---|
+| S‑1 | **behoben** | Migration `0003_release_rls_hardening.sql` (`app.lesson_is_released`, cron-frei); RLS-Tests `03_freischaltung.test.ts` (22 Tests, alle 7 Modi, Zeitfenster-Grenzen) |
+| S‑2 | **behoben** | `teilnehmer/actions.ts`: `.eq("organization_id", …)` + Treffer-Prüfung; Gruppe und Profil an Organisation gebunden; `02_id_manipulation.test.ts` |
+| S‑3 | offen (Phase 2) | Quiz-Bewertung serverseitig zusammen mit dem Campus-Quiz umsetzen (Client-Änderung nötig) |
+| S‑4 | teilweise | Admin nutzt weiterhin Service Role für Schreibvorgänge mit Scope-Bindung; Lesen über Nutzersitzung folgt mit `packages/ui`/Campus (K‑13) |
+| S‑5 | **behoben** | `app.current_profile_id()` nur für aktive Profile; Mitgliedschaft/Gruppe/Organisation inaktiv → sofort kein Zugriff; Konto-Sperre (GoTrue `ban_duration`) bei Deaktivierung; `04_deaktivierung.test.ts` |
+| S‑6 | teilweise | `vercel.json` setzt `X-Robots-Tag`, `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`; CSP und Rate Limit im Admin: Phase 2 |
+| S‑7 | offen (Phase 2) | MFA-Pflicht |
+| S‑8 | **behoben** | Migration 0006: MIME-/Größenlimits je Bucket; Bucket `participant-uploads` mit Pfad-RLS (0004) |
+| S‑9 | **behoben** | Seed v2 ohne Passwörter; Demo-Passwörter nur per `seed-users.mjs` aus Umgebungsvariable |
+| S‑10 | offen | Phase 4 (Admin) |
+| S‑11 | **behoben** | ESLint verbindlich, `\|\| true` entfernt |
+| S‑12 | **behoben** | `config.toml`: Redirect-Allowlist, `site_url` per Umgebung |
+| S‑13 | dokumentiert | `WORDPRESS_BACKUP_UND_HAERTUNG.md` (Backup, Sofortmaßnahmen, Staging-Pfad); Umsetzung durch den Auftraggeber |
+| S‑14 | **behoben** | `apps/admin/src/lib/edge-functions.ts`: Nutzer-JWT + `x-region`; Service-Role-Aufrufe entfernt |
+| S‑15 | offen (Phase 2) | Kopien synchronisiert (Rechte-Matrix, Vertrag); Import-Map-Lösung folgt |
+| S‑16 | teilweise | `app.rate_limit_take` (Tabelle `rate_limits`, 0006) bereit; Anbindung der Functions Phase 2 |
+| S‑17 | teilweise | Upload-Policies (0004); Server-Signierung mit kurzer TTL Phase 2 |
+| S‑18 | offen (Phase 4) | Löschanträge-UI |
+| S‑19 | **behoben** | `/login/passwort-vergessen`, `/auth/callback`, `/passwort-neu` (Admin), `passwort-neu` (Mobile), Allowlist |
+| S‑20 | **behoben** | CI: ESLint verbindlich, RLS-Tests gegen Postgres 16, `deno check`/`deno fmt` |
+
 | Nr. | Befund | Schwere | Maßnahme |
 |---|---|---|---|
 | S‑1 | **Freischaltzeit nicht in der DB erzwungen.** `app.can_read_lesson()` prüft nur, ob eine `lesson_releases`-Zeile existiert; `release_at`, Offsets, Voraussetzungen, `released_at` werden allein in der App bewertet. Gesperrte Lektionen sind per API lesbar. | hoch | `app.lesson_is_released(lesson_id, profile_id)` in SQL; Einsatz in RLS von `lessons`, `content_blocks`, `quizzes`; pgTAP-Tests „gesperrt → 0 Zeilen". |

@@ -60,6 +60,14 @@ export function blockTypeLabel(blockType: BlockType): string {
       return "Download";
     case "external_link":
       return "Externer Link";
+    case "practice_task":
+      return "Praxisaufgabe";
+    case "file_upload":
+      return "Datei-Upload";
+    case "photo_upload":
+      return "Foto-Upload";
+    case "announcement":
+      return "Ankündigung";
   }
 }
 

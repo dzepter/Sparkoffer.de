@@ -54,7 +54,7 @@ export const B = {
   asset: "ab000000-0000-4000-a000-000000000003",
 } as const;
 
-/** Trainer, der A1 zugeordnet ist, aber KEINE Mitgliedschaft in Organisation A hat. */
+/** Trainer, der A1 zugeordnet ist, dessen Mitgliedschaft in Organisation A aber inaktiv ist. */
 export const X_TRAINER_NO_MEMBERSHIP = "ee000000-0000-4000-a000-000000000001";
 
 export const PROGRAM = "cc000000-0000-4000-a000-000000000001";

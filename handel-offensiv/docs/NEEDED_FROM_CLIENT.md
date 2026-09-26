@@ -1,22 +1,22 @@
 # Noch benötigte Zulieferungen und Entscheidungen des Auftraggebers
 
-**Stand: 26.09.2026 (Version 2, Master-Prompt Website + Campus + Admin).**
+**Stand: 26.09.2026 (Version 2.1 – nach Freigabe des Plans und Abschluss von Phase 1).**
 Diese Liste sammelt alle Punkte, die bewusst **nicht erfunden** wurden (Master-Prompt §46, früheres Briefing §63) und vor dem jeweiligen Meilenstein geliefert bzw. entschieden werden müssen. Bis dahin arbeitet das System mit klar als **DEMO** gekennzeichneten Platzhaltern (alle Demo-Termine im Jahr 2027).
 
 Legende: **[P0]** vor Phase 1 nötig · **[P2]** vor dem Vertical Slice · **[P5]** vor dem Website-Cutover · **[P9]** vor der nativen App
 
 ## 1. Entscheidungen (Freigabe des Plans, `IMPLEMENTATION_PLAN.md` Abschnitt 7)
 
-- [ ] **[P0]** K‑1 Domainstrategie: alles unter `aigner-offensiv.de`, `handel-offensiv.de` leitet weiter (Empfehlung) – **Bestätigung**, da dies die Entscheidung vom September umkehrt
-- [ ] **[P0]** K‑2 Website in Next.js mit Redaktion im Admin-Cockpit (Empfehlung) statt PHP-CMS
-- [ ] **[P0]** K‑3 Campus als Next.js-Web-App (Empfehlung)
-- [ ] **[P0]** K‑4 Systemmails über einen Transaktionsmail-Dienst (Empfehlung Resend, EU-Region) mit Versand-Subdomain `mail.aigner-offensiv.de` – gewünschte **Absenderadresse** (Vorschlag: `campus@aigner-offensiv.de`). Hintergrund: Ihr Mailsystem ist Microsoft 365 mit DMARC `p=reject`; ohne passende DNS-Einträge (SPF/DKIM) würden Einladungs- und Reset-Mails abgewiesen.
-- [ ] **[P0]** K‑12 Eigenes privates Repository für die Plattform (Empfehlung) · K‑13 Admin liest über Nutzersitzung (Empfehlung) · K‑14 eigenes UI-Paket statt shadcn (Empfehlung)
-- [ ] **[P0]** K‑5 Hosting Vercel (EU) – Bestätigung
-- [ ] **[P0]** K‑7 Farbwelt Blau (Empfehlung) – Bestätigung; Gold nur, wenn ausdrücklich gewünscht
-- [ ] **[P0]** K‑8 Alt-Inhalte (LEARN TO LEAD®, Vorträge, Blog) als Unterseiten behalten
-- [ ] **[P0]** K‑9 Reihenfolge: Campus/Admin zuerst, Website-Cutover in Phase 5
-- [ ] K‑6 Video-Ablage (Supabase Storage zuerst) · K‑10 Demo-Teilnehmer nur fiktiv · K‑11 Rechtekatalog im Code
+- [x] **[P0]** K‑1 Domainstrategie: **freigegeben** (26.09.2026) – alles unter `aigner-offensiv.de`; `handel-offensiv.de` bleibt registriert und leitet später permanent weiter; keine Domain wird aufgegeben
+- [x] **[P0]** K‑2 Website in Next.js mit Redaktion im Admin-Cockpit – **freigegeben** (Zustände draft/preview/published/archived, Migration 0005)
+- [x] **[P0]** K‑3 Campus als Next.js-Web-App – **freigegeben**
+- [x] **[P0]** K‑4 Resend über `mail.aigner-offensiv.de` – **freigegeben**; Absender `Aigner Offensiv Campus <campus@mail.aigner-offensiv.de>`. **Noch zu liefern:** welches M365-Postfach als Reply-To dienen soll (Vorschlag `info@aigner-offensiv.de`), Resend-Konto + DNS-Einträge (`EMAIL_DNS_PLAN.md`), danach echter Zustelltest.
+- [x] **[P0]** K‑12 privates Repository – **freigegeben**; **noch zu liefern:** das private GitHub-Repository anlegen und Zugriff erteilen (Umzug erfolgt dann ohne Historienverlust). K‑13/K‑14 freigegeben.
+- [x] **[P0]** K‑5 Vercel – **freigegeben mit Auflage** Frankfurt/`fra1` und Supabase `eu-central-1` (`REGIONS_AND_DATA_FLOWS.md`)
+- [x] **[P0]** K‑7 Farbwelt: **entschieden** – Navy Hauptfarbe, Off-White, Gold/Ocker sehr sparsam (Freigabe 26.09.2026); Feinabstimmung nach Sichtvergleich
+- [x] **[P0]** K‑8 Alt-Inhalte – **freigegeben mit Auflage**: nur nachgeordnet, Startseite/Navigation vollständig Handel Offensiv, Redundantes nicht mitnehmen, 301 für entfernte URLs
+- [x] **[P0]** K‑9 Reihenfolge – **freigegeben**: Sicherheit → Infrastruktur → E‑Mail → Vertical Slice → Web-Campus → Admin → Website → Kommunikation → QA → native App
+- [x] K‑6 Video (Supabase Storage + `VideoProvider`-Abstraktion) · K‑10 Demo nur fiktiv, Termine 2027 · K‑11 Rechtekatalog im Code – **freigegeben**
 
 ## 2. Konten und Zugänge
 

@@ -62,7 +62,7 @@ Bevor weitere Features entstehen, muss dieser Ablauf **auf Staging, mit echten E
 | 1 | Admin legt Demo-Unternehmen „Muster Handelsgruppe GmbH" an | Admin | ✔ `/unternehmen/neu` | Logo-Upload |
 | 2 | Admin legt Gruppe „Marktleiter Süd – Frühjahr 2027" mit 5 Terminen an | Admin | ✔ `/gruppen/neu` + Termine | Platzhaltertexte 2027 |
 | 3 | Admin fügt Teilnehmer hinzu | Admin | ◐ UI vorhanden, Function-Aufruf scheitert (I‑1) | Auth-Vertrag Admin → Function korrigieren |
-| 4 | Teilnehmer erhält Einladung | Function | ◐ `invite-user` ohne Anbieter | SMTP konfigurieren, Template in Blau, Link auf Campus-Route (I‑4), Vertragstest |
+| 4 | Teilnehmer erhält Einladung | Function | ◐ `invite-user` ohne Anbieter | SMTP konfigurieren, Template in Navy/Gold, Link auf Campus-Route (I‑4), Vertragstest |
 | 5 | Teilnehmer setzt Passwort | **Campus** | ✖ (nur nativ) | `/einladung` bauen (nutzt `accept-invitation`) |
 | 6 | Teilnehmer loggt sich ein | **Campus** | ✖ | `/login` (Vorlage: Admin-Login) |
 | 7 | HEUTE-Seite erscheint | **Campus** | ✖ (nativ ✔) | `/` nach §8 |
@@ -75,7 +75,7 @@ Bevor weitere Features entstehen, muss dieser Ablauf **auf Staging, mit echten E
 | 14 | Teilnehmer sieht Feedback | **Campus** | ✖ | Feedback in Lektion + Posteingang |
 | 15 | Fortschritt aktualisiert sich | DB/Campus | ✔ View | Anzeige auf HEUTE/Programm |
 
-**Voraussetzungen vor Schritt 1:** Seed v2 (Konfigurationen an Zod angeglichen, 2027), Design-Tokens Blau, `packages/ui`, `apps/campus` angelegt, Staging-Supabase + Vercel-Preview vorhanden.
+**Voraussetzungen vor Schritt 1:** Seed v2 (Konfigurationen an Zod angeglichen, 2027), Design-Tokens Navy/Gold, `packages/ui`, `apps/campus` angelegt, Staging-Supabase + Vercel-Preview vorhanden.
 **Definition of Done:** alle 15 Schritte als Playwright-Test (`e2e/vertical-slice.spec.ts`) grün gegen Staging; keine Konsolenfehler; Screenshots Desktop + iPhone-Breite im Repo.
 
 ---
@@ -87,7 +87,7 @@ Reihenfolge: 0 → 1 → 2 → (3 ∥ 4) → 5 → 6 → 7 → 8 → 9. Jede Pha
 | Phase | Name | Inhalt | Fertig, wenn … |
 |---|---|---|---|
 | **0** | Freigabe & Sicherung | Plan A–L freigegeben; WordPress-Inhalte gesichert (erledigt: `docs/archive/…`); Kundenkonten Supabase/Vercel angelegt; Entscheidungen K‑1…K‑11 getroffen | Freigabe liegt vor; Staging-Supabase erreichbar |
-| **1** | Fundament v2 | Design-Tokens Blau in `packages/config`; `packages/ui` (Tailwind-Preset + Kernkomponenten aus Admin extrahiert); Migrationen 0003–0006 (Blocktypen, Website-Tabellen, Härtungen S‑1/S‑3/S‑5/S‑8, Storage-Limits, `block_responses`, `session_notes`); Seed v2 (2027); **Integrationsfixes I‑1, I‑2, I‑5, I‑7, I‑8** (Auth-Vertrag Admin→Functions, gemeinsame Schemas statt Kopien, pg_cron, Redirect-URLs, Upload-Policies); Staging-Deployment Supabase + Vercel; pgTAP-RLS-Tests, `deno test`, ESLint verbindlich in CI; Archivo-Fonts in alle Apps | Migrationen laufen auf Staging; RLS-Tests grün (Mandantentrennung, gesperrte Lektion); Einladung aus dem Admin erzeugt nachweislich eine E-Mail; Admin im blauen Design ohne Regressionen |
+| **1** | Fundament v2 | Design-Tokens Navy/Off-White/Gold in `packages/config`; `packages/ui` (Tailwind-Preset + Kernkomponenten aus Admin extrahiert); Migrationen 0003–0006 (Blocktypen, Website-Tabellen, Härtungen S‑1/S‑3/S‑5/S‑8, Storage-Limits, `block_responses`, `session_notes`); Seed v2 (2027); **Integrationsfixes I‑1, I‑2, I‑5, I‑7, I‑8** (Auth-Vertrag Admin→Functions, gemeinsame Schemas statt Kopien, pg_cron, Redirect-URLs, Upload-Policies); Staging-Deployment Supabase + Vercel; pgTAP-RLS-Tests, `deno test`, ESLint verbindlich in CI; Archivo-Fonts in alle Apps | Migrationen laufen auf Staging; RLS-Tests grün (Mandantentrennung, gesperrte Lektion); Einladung aus dem Admin erzeugt nachweislich eine E-Mail; Admin im Navy/Gold-Design ohne Regressionen |
 | **2** | Vertical Slice | `apps/campus` (Login, Einladung, Reset, HEUTE, eine Lektion mit Text/Video/Reflexion, Offensivplan-Eintrag, Feedback-Anzeige); Admin: Reflexionen für Trainer, `/trainer`, S‑2 IDOR-Fix, Einladungs-Redirect auf Campus; SMTP + Mail-Templates | Abschnitt 2 komplett grün auf Staging, Desktop + Mobile |
 | **3** | Campus vollständig | Mein Programm mit Zuständen und Freischalt-Hinweisen; alle 18 Blocktypen; Quiz (serverseitig); Transfer-/Praxisaufgaben mit Datei-/Fotoupload; Termine + ICS; Material; Posteingang; Profil inkl. Accountlöschung; Autosave/Offline-Warteschlange mit Statusanzeige; PWA (Manifest, Service Worker, Icon); `noindex`, Security-Header | §44-Testfälle für Teilnehmer grün; PWA installierbar; Lighthouse Accessibility ≥ 95 |
 | **4** | Admin-Ausbau | Teilnehmer-/Unternehmen-Detailseiten; Dashboard §22 (nächste Offensivtage, aktive Lernphasen, überfällige Aufgaben, offene Einladungen); Filter Programm/Einladungsstatus; Freischaltung je einzelnem Teilnehmer; Editor für neue Blocktypen inkl. Datei-Upload statt Pfadeingabe; Nachrichten bearbeiten/planen; Deaktivierung kaskadierend (S‑5); MFA für alle Rollen + AAL2-Pflicht; Rate Limiting; responsive Layout; Bereich „Website" (Texte, Impulse, Anfragen, Vorschau, Veröffentlichen → Revalidation) | §44-Testfälle Admin grün; Trainer kann auf Tablet arbeiten; Org A sieht Org B nicht (E2E) |
@@ -95,7 +95,7 @@ Reihenfolge: 0 → 1 → 2 → (3 ∥ 4) → 5 → 6 → 7 → 8 → 9. Jede Pha
 | **6** | Kommunikation | Release-Scheduler produktiv (Cron), Web-Benachrichtigungen im Posteingang, optionale E-Mail-Benachrichtigung („neue Lernphase") mit Opt-in, Gruppennachrichten, Web-Push vorbereitet (VAPID) | Erinnerung „Noch 7 Tage bis Offensivtag" erreicht Staging-Teilnehmer |
 | **7** | Security & Privacy | Security-Review §45 (Broken Access Control, IDOR, RLS-Bypass, Privilege Escalation, File-URLs, Validierung, Sessions, offene Routen, Secrets, Injection, XSS, CSRF, Rate Limiting); Löschprozess Ende-zu-Ende; Audit vollständig; Datenschutztexte + AVVs; Unterauftragnehmerliste | Review-Protokoll ohne offene „hoch"-Befunde; Löschanfrage durchläuft alle Status |
 | **8** | QA & Go-Live | Playwright-Suite §44 komplett; axe-core; Performance; Production Builds; **Cutover** (Abschnitt 4.3); Monitoring/Backups (`BACKUP_RESTORE.md`); Anleitungen für Rainer/Dennis aktualisiert | Abnahmeliste §50 vollständig abgehakt |
-| **9** | Native App vorbereiten | Expo-App auf Tokens Blau, gemeinsame Pakete, Campus-Parität; TestFlight (später) | App baut in CI, Domain-Modelle identisch |
+| **9** | Native App vorbereiten | Expo-App auf Tokens Navy/Gold, gemeinsame Pakete, Campus-Parität; TestFlight (später) | App baut in CI, Domain-Modelle identisch |
 
 ---
 
@@ -204,7 +204,7 @@ Vollständig zu bauen (Sitemap 1.1); Inhalte aus `handel-offensiv-website/` (Tex
 | Einladungslink auf Campus-Route `/einladung` (I‑4) | 7 | ✖ | K | 2 |
 | `pg_cron` für `release-scheduler`; `config.toml` `site_url`/Redirects je Umgebung; `verify_jwt`-Einträge (I‑5) | 16, 18 | ✖ | K | 1 |
 | Scheduler: Erinnerungs-Offset konfigurierbar (heute fix 3 Tage; §18 nennt 7), Benachrichtigung „neues Trainerfeedback" automatisch erzeugen, `after_lesson`/`after_module`/`manual` melden | 16, 18 | ◐ | M | 6 |
-| E-Mail: Anbieter anbinden (K‑4), Templates in Blau, Absender/SPF/DKIM, `reminderEmail` nutzen oder entfernen (I‑12) | 43 | ◐ | M | 2 |
+| E-Mail: Anbieter anbinden (K‑4), Templates in Navy/Gold, Absender/SPF/DKIM, `reminderEmail` nutzen oder entfernen (I‑12) | 43 | ◐ | M | 2 |
 | Löschprozess: Aufrufer + Admin-Seite „Löschanträge", Bucket-Korrektur, E2E (I‑6, S‑18) | 40 | ◐ | M | 7 |
 | Storage: INSERT-Policy/Bucket für Uploads, Server-Signierung mit kurzer TTL (I‑7, S‑17) | 32 | ◐ | M | 1, 3 |
 | Rate Limiting DB-gestützt, Auth-Limits, Fehlversuche loggen (I‑11, S‑16) | 45 | ◐ | M | 4 |
@@ -241,7 +241,7 @@ Vollständig zu bauen (Sitemap 1.1); Inhalte aus `handel-offensiv-website/` (Tex
 | `packages/types` handgeschrieben (aktuell spaltengenau synchron, kein Drift-Schutz, kein `Database`-Typ) → `supabase gen types` | 28, 30 | ◐ | M | 1 |
 | Kein Token-Export als CSS-Variablen/Tailwind-Preset; Admin spiegelt Tokens manuell; `.pitch-lines` nur im Admin | 29, 34 | ✖ | M | 1 |
 | Kein `packages/ui`; UI-Bausteine doppelt (Admin 16 Komponenten, Mobile 13) | 29, 35 | ✖ | G | 1 |
-| Tokens grün statt Blau; Token-Schlüssel heißen `green*` (≈45 Mobile-Dateien, Tailwind-Klassen) | 34 | ✖ | M | 1 |
+| Tokens grün statt Navy/Gold; Token-Schlüssel heißen `green*` (≈45 Mobile-Dateien, Tailwind-Klassen) | 34 | ✖ | M | 1 |
 | Geteilte Logik außerhalb der Pakete: `deriveModuleJourney`, `findMissingRequiredBlocks`, ICS-Builder, Zeitlogik im Scheduler (dritte Kopie) | 13, 15, 16, 17 | ◐ | M | 1–2 |
 | Formular-Schemas ohne Tests (12 Schemas, 0 Tests); Reset-/Forgot-Schemas fehlen; Passwortregel nur `min(10)` | 33, 44 | ◐ | K | 2 |
 | Kein ESLint/Prettier; kein vitest-Workspace/Coverage | 44, 49 | ✖ | K | 1 |
@@ -304,7 +304,28 @@ Vollständig zu bauen (Sitemap 1.1); Inhalte aus `handel-offensiv-website/` (Tex
 
 ---
 
-## 7. Offene Entscheidungen (zur Freigabe)
+## 7. Entscheidungen (freigegeben am 26.09.2026 – mit verbindlichen Änderungen)
+
+**Stand der Freigabe:** Der Plan A–L ist freigegeben; K‑1 bis K‑14 gelten mit folgenden verbindlichen Änderungen des Auftraggebers:
+
+| Nr. | Freigabe | Verbindliche Änderung / Auflage | Umsetzung |
+|---|---|---|---|
+| K‑1 | ✔ | `handel-offensiv.de` bleibt registriert, später permanente Weiterleitung; keine Domain aufgeben | `ARCHITECTURE.md` §3, Redirect-Karte 4.2 |
+| K‑4 | ✔ mit Auflage | Resend; Versand-Subdomain `mail.aigner-offensiv.de`; M365‑MX unverändert; SPF/DKIM/DMARC + echter Zustelltest vor Produktion; Absender `Aigner Offensiv Campus <campus@mail.aigner-offensiv.de>`; Reply‑To auf M365-Postfach erlaubt | `EMAIL_DNS_PLAN.md`, `_shared/emails.ts`, `config.toml` |
+| K‑5 | ✔ mit Auflage | Vercel nur mit Functions in `fra1`; Supabase `eu-central-1`; alle Dienste mit möglicher Verarbeitung außerhalb dokumentiert | `REGIONS_AND_DATA_FLOWS.md`, `vercel.json`, `x-region` |
+| K‑6 | ✔ mit Auflage | Supabase Storage für Pilot/kurze Videos; `VideoProvider`-Abstraktion von Beginn an; Lernlogik/DB nicht vom Streaming abhängig | `packages/domain/src/video-provider.ts` |
+| K‑7 | ✘ Empfehlung abgelehnt | Navy Hauptfarbe, Off-White, Gold/Ocker sehr sparsam (Modulnummern, aktive Navigation, wichtige CTA, Fortschritt, Taktiklinien, Hervorhebungen); kein generisches SaaS-Blau; finale Tokens nach Vergleich mit der HO-Website | `DESIGN_TOKENS.md`, `packages/config` |
+| K‑8 | ✔ mit Auflage | LEARN TO LEAD / Vorträge nur nachgeordnet; Navigation und Startseite vollständig Handel Offensiv; Redundantes nicht mitnehmen; 301 für entfernte URLs | Sitemap 1.1, Redirect-Karte |
+| Freischaltungen | Auflage | Zugriff darf NICHT von Cronjobs abhängen; DB/RLS prüft bei jedem Zugriff; Cron nur Folgeaktionen | Migration 0003 `app.lesson_is_released`, RLS-Tests |
+| Sicherheit zuerst | Auflage | S‑1, S‑2, S‑14, I‑2, I‑3 vor neuen Campus-Funktionen; negative Tests verpflichtend | Phase 1 erledigt, `supabase/tests` |
+| Apple-Account | Auflage | kein Blocker bis Phase 8 | Phase 9 |
+| WordPress | Auflage | Vollbackup vor Änderungen, PHP nicht blind umstellen, Staging zuerst; Sofortmaßnahmen erlaubt | `WORDPRESS_BACKUP_UND_HAERTUNG.md` |
+| Website-CMS | ✔ mit Auflage | Zustände draft/preview/published/archived, Audit-Spalten, nichts geht beim Tippen live | Migration 0005 |
+| Repository | Auflage | privates Repository, keine Produktionsgeheimnisse/Kundendaten/Demo-Passwörter in Git | Seed v2 ohne Passwörter; Umzug sobald das Repo angelegt ist |
+| Demo | Auflage | alles fiktiv, Termine 2027; Dennis Zepter nur in internen Mockups | Seed v2 |
+| Reihenfolge | Auflage | Sicherheit → Infrastruktur → E‑Mail → Vertical Slice → Web-Campus → Admin → Website → Kommunikation → QA → native App; DNS-/DB-Änderungen vorher ankündigen (was/Auswirkung/Rollback); nach Phase 1 STOPP + Bericht | Abschnitt 3 |
+
+Ursprüngliche Entscheidungsvorlage (zur Nachvollziehbarkeit):
 
 | Nr. | Thema | Optionen | Empfehlung | Begründung |
 |---|---|---|---|---|

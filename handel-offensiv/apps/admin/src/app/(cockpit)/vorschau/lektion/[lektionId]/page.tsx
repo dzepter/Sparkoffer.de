@@ -122,7 +122,7 @@ export default async function VorschauLektionPage({
         <div className="mb-6">
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-kicker text-ink-soft">
             <span aria-hidden="true" className="font-extrabold text-green-deep">
-              //
+              {"//"}
             </span>
             Teilnehmersicht · Modul {context.module.number_label} · {context.title}
           </p>
@@ -153,7 +153,7 @@ export default async function VorschauLektionPage({
         {!decision.released ? (
           <div className="pitch-lines rounded border border-line bg-paper px-6 py-12 text-center">
             <span aria-hidden="true" className="text-lg font-extrabold text-green-deep">
-              //
+              {"//"}
             </span>
             <h2 className="mt-2 text-base font-bold text-ink">Diese Lektion ist noch gesperrt</h2>
             <p className="mt-1 text-sm text-ink-soft">

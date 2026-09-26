@@ -60,12 +60,13 @@ insert into public.organization_memberships (organization_id, profile_id, role, 
   ('aa000000-0000-4000-a000-000000000100', 'aa000000-0000-4000-a000-000000000003', 'participant', 'active'),
   ('aa000000-0000-4000-a000-000000000100', 'aa000000-0000-4000-a000-000000000004', 'participant', 'active'),
   ('aa000000-0000-4000-a000-000000000100', 'aa000000-0000-4000-a000-000000000005', 'participant', 'active'),
-  ('aa000000-0000-4000-a000-000000000100', 'aa000000-0000-4000-a000-000000000006', 'participant', 'inactive'),
+  ('aa000000-0000-4000-a000-000000000100', 'aa000000-0000-4000-a000-000000000006', 'participant', 'active'),
   ('aa000000-0000-4000-a000-000000000100', 'aa000000-0000-4000-a000-000000000007', 'participant', 'active'),
   ('aa000000-0000-4000-a000-000000000100', 'aa000000-0000-4000-a000-000000000008', 'participant', 'active'),
   ('bb000000-0000-4000-a000-000000000100', 'bb000000-0000-4000-a000-000000000001', 'org_admin',   'active'),
   ('bb000000-0000-4000-a000-000000000100', 'bb000000-0000-4000-a000-000000000002', 'trainer',     'active'),
-  ('bb000000-0000-4000-a000-000000000100', 'bb000000-0000-4000-a000-000000000003', 'participant', 'active');
+  ('bb000000-0000-4000-a000-000000000100', 'bb000000-0000-4000-a000-000000000003', 'participant', 'active'),
+  ('aa000000-0000-4000-a000-000000000100', 'ee000000-0000-4000-a000-000000000001', 'trainer',     'active');
 
 -- ---------------------------------------------------------------------------
 -- Programm, Module, Lernphasen
@@ -269,3 +270,11 @@ insert into storage.objects (bucket_id, name) values
   ('learning-assets', 'organizations/bb000000-0000-4000-a000-000000000100/b.pdf'),
   ('avatars', 'aa000000-0000-4000-a000-000000000003/avatar.jpg'),
   ('avatars', 'aa000000-0000-4000-a000-000000000004/avatar.jpg');
+
+-- ---------------------------------------------------------------------------
+-- Nachtraegliche Deaktivierungen (der Konsistenz-Trigger aus Migration 0006
+-- verlangt bei der Zuordnung eine AKTIVE Mitgliedschaft; die Tests pruefen den
+-- Zustand DANACH: P4 = Mitgliedschaft inaktiv, X-Trainer = Mitgliedschaft inaktiv)
+-- ---------------------------------------------------------------------------
+update public.organization_memberships set status = 'inactive'
+ where profile_id in ('aa000000-0000-4000-a000-000000000006', 'ee000000-0000-4000-a000-000000000001');

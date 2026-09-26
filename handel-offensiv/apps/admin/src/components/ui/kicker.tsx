@@ -15,7 +15,7 @@ export function Kicker({ children, className }: { children: ReactNode; className
       )}
     >
       <span aria-hidden="true" className="font-extrabold text-green-deep">
-        //
+        {"//"}
       </span>
       {children}
     </p>

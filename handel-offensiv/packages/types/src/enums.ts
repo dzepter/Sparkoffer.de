@@ -39,6 +39,11 @@ export const BLOCK_TYPES = [
   'transfer_task',
   'download',
   'external_link',
+  // Version 2 (§12): Praxisaufgabe ohne Nachweis, Datei-/Foto-Upload, Ankuendigungsblock
+  'practice_task',
+  'file_upload',
+  'photo_upload',
+  'announcement',
 ] as const;
 export type BlockType = (typeof BLOCK_TYPES)[number];
 

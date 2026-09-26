@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from "react";
 
 import { cn } from "@/lib/cn";
 
-type Variant = "primary" | "secondary" | "ghost" | "danger";
+type Variant = "primary" | "accent" | "secondary" | "ghost" | "danger";
 type Size = "md" | "sm";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -11,8 +11,10 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const VARIANTS: Record<Variant, string> = {
-  // Markengruen mit dunklem Text – wie die primaeren CTAs der Website
-  primary: "bg-green text-dark hover:bg-green-bright active:bg-green-bright",
+  // Navy als Standard-Aktion (Palette v2); Gold bleibt der wichtigen CTA vorbehalten
+  primary: "bg-navy text-white hover:bg-navy-soft active:bg-navy-deep",
+  // Wichtige CTA (sparsam einsetzen): helles Gold mit Navy-Text (>= 4.5:1)
+  accent: "bg-gold-bright text-navy hover:bg-gold active:bg-gold",
   secondary: "border border-ink bg-white text-ink hover:bg-paper",
   ghost: "text-ink-soft hover:bg-line/50 hover:text-ink",
   danger: "bg-danger text-white hover:bg-danger/90",

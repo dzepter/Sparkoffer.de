@@ -96,10 +96,10 @@ Kernprinzipien:
 
 | Bereich | Domain | Hosting | Bemerkung |
 |---|---|---|---|
-| Website | `www.aigner-offensiv.de` (Apex → www) | Vercel (Region `fra1`) | ersetzt die WordPress-Site; `handel-offensiv.de` leitet per 301 auf `/handel-offensiv` weiter **[ENTSCHEIDUNG K‑1]** |
-| Campus | `campus.aigner-offensiv.de` | Vercel | `noindex`, PWA-fähig |
-| Admin | `admin.aigner-offensiv.de` | Vercel | `noindex`, MFA für Admin/Trainer |
-| Backend | Supabase-Projekt (EU/Frankfurt), getrennt Staging/Production | Supabase | AVV mit Supabase abschließen |
+| Website | `www.aigner-offensiv.de` (Apex → www) | Vercel (Region `fra1`) | ersetzt die WordPress-Site; `handel-offensiv.de` **bleibt registriert** und leitet später permanent (301) auf `/handel-offensiv` weiter; keine Domain wird aufgegeben **[ENTSCHEIDUNG K‑1, freigegeben]** |
+| Campus | `campus.aigner-offensiv.de` | Vercel (`fra1`) | `noindex`, PWA-fähig |
+| Admin | `admin.aigner-offensiv.de` | Vercel (`fra1`, `apps/admin/vercel.json`) | `noindex`, MFA für Admin/Trainer |
+| Backend | Supabase-Projekt **eu-central-1 (Frankfurt)**, getrennt Staging/Production | Supabase | AVV mit Supabase abschließen; Edge Functions per `x-region: eu-central-1` gepinnt. Vollständige Liste aller Dienste mit Regionsbezug: `REGIONS_AND_DATA_FLOWS.md` **[K‑5, freigegeben mit Auflage]** |
 | DNS, E-Mail, Domain | Strato (bestehend) | Strato | **MX-Einträge unangetastet**; nur A/AAAA/CNAME für www/campus/admin ändern |
 | Alt-System | WordPress auf Strato-Webspace | Strato | nach Cutover abschalten (PHP 7.4, Sicherheitsrisiko) |
 
@@ -120,7 +120,7 @@ handel-offensiv/
 │   └── mobile/          # BESTAND Expo (ruht bis Phase 9; bleibt baubar in der CI)
 ├── packages/
 │   ├── ui/              # NEU  gemeinsame React-Komponenten (shadcn-Basis, Markenstil), Tailwind-Preset
-│   ├── config/          # BESTAND Design-Tokens (→ Blau) + Konstanten
+│   ├── config/          # BESTAND Design-Tokens (Navy/Off-White/Gold) + Tailwind-Preset + Konstanten
 │   ├── domain/          # BESTAND Capabilities, Release Engine, Fortschritt, Quiz (rein, getestet)
 │   ├── types/           # BESTAND DB-/Domain-Typen
 │   └── validation/      # BESTAND Zod-Schemas (Blocktypen, Formulare, Function-Inputs)
@@ -176,7 +176,7 @@ Die beiden statischen Sites (`aigner-offensiv/`, `handel-offensiv-website/`) ble
 
 ### 5.6 Design
 
-Farbwelt **Blau** (Kundenentscheidung, live auf handel-offensiv.de): Navy `#101C2A` / `#16263A`, Blau `#2E6FB0`, Hellblau `#7FB8E8`, Tiefblau `#1F5E96`, Off-White `#F5F7F9`, Ink `#131A22`, Linien `#DEE4EA` / `#263A50`. Schrift **Archivo** (self-hosted, Expanded für Headlines). Radius 2 px, schräge Akzentbalken, große Modulnummern 01–05, dezente Taktiklinien. **Kein Gold** als zusätzliche Akzentfarbe – der Master-Prompt lässt „bestehende Markenakzentfarbe" ausdrücklich zu; eine zweite Akzentfarbe würde die Marke verwässern. **[ENTSCHEIDUNG K‑7]**
+Farbwelt **Navy / Off-White / Gold-Ocker** (verbindliche Freigabe K‑7 vom 26.09.2026; die frühere Empfehlung „Blau, kein Gold" ist damit ersetzt): Hauptfarbe tiefes Navy `#0F2340` (dunkel `#0A182E`, erhöht `#1B3A66`), Off-White `#F6F4EE` / `#ECE9E1` für Flächen und Text auf Dunkel, Ink `#141B26` / `#4F5866`, Linien `#E2DFD6` / `#24395C`. **Gold/Ocker sehr sparsam:** `#AD8027` (Linien, Icons, große Zahlen auf Hell), `#8A6414` (Gold in Textgröße auf Hell), `#D9AE45` (Modulnummern, aktive Navigation und wichtige CTA auf Navy). Einsatzorte ausschließlich: Modulnummern 01–05, aktive Navigation, wichtige CTA, Fortschritt, dezente Taktiklinien, ausgewählte Hervorhebungen. Keine luxuriöse Goldoptik, kein Gradient-Overkill, kein generisches SaaS-Blau. Alle Farbpaare WCAG‑AA-geprüft (`DESIGN_TOKENS.md`). Vergleich mit der aktuellen handel-offensiv.de: Navy `#101C2A` und Off-White `#F5F7F9` werden (leicht wärmer) übernommen, der dortige Blau-Akzent `#2E6FB0` entfällt zugunsten des Gold-Akzents; endgültige Feinabstimmung nach Sichtvergleich (Phase 1, Zwischenbericht G). Schrift **Archivo** (self-hosted, Expanded für Headlines). Radius 2 px, schräge Akzentbalken, große Modulnummern 01–05, dezente Taktiklinien. **[ENTSCHEIDUNG K‑7, freigegeben mit Änderung]**
 Rainer Aigner ist die sichtbare Trainerpersönlichkeit (Hero, Video, Begrüßung, Impulse); Teilnehmerfotos nur im Profil. Kein Baukastenlook: wenige Rahmen, keine Glaseffekte, keine bunten Icons, ruhige Bewegung. Light Mode; kein halber Dark Mode. Alle Demo-Screens mit Daten aus **2027**.
 
 ---

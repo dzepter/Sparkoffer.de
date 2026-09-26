@@ -117,7 +117,7 @@ describe("Trainer A ↔ Gruppe B", () => {
     });
   });
 
-  it("Trainer ohne Mitgliedschaft in der Organisation sieht die Gruppe nicht", async () => {
+  it("Trainer mit inaktiver Mitgliedschaft in der Organisation sieht die Gruppe nicht", async () => {
     await withTx(client, async (tx) => {
       await tx.actAs(X_TRAINER_NO_MEMBERSHIP);
       expect(await tx.count("select 1 from public.cohorts")).toBe(0);

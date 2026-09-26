@@ -61,15 +61,17 @@ Das bestehende Schema deckt den Master-Prompt weitgehend ab (Bestandsaufnahme: `
 
 ### 0.6 Migrationsplan
 
-| Migration | Inhalt |
+| Migration (umgesetzt in Phase 1, 26.09.2026) | Inhalt |
 |---|---|
-| `0003_v2_block_types.sql` | Enum-Erweiterung `block_type`, `submission_files`, Bucket `participant-uploads` + Policies |
-| `0004_v2_website.sql` | `site_content`, `site_posts`, `inquiries` + Policies (anon-Lesen nur hier) |
-| `0005_v2_hardening.sql` | `app.lesson_is_released`, RLS-Anpassung, Quiz-View/RPC, Unique-Constraints, Konsistenz-Trigger, `audit_logs.organization_id`, `profiles.status` in Helfern, `program_progress` |
-| `0006_v2_storage_limits.sql` | MIME-/Größenlimits je Bucket |
-| `seed.sql` + `seed-users.ts` | Seed v2 (2027) |
+| `0003_release_rls_hardening.sql` | **zuerst, Sicherheit:** `app.lesson_is_released` (cron-frei, Spiegel der Release-Engine), Deaktivierungskaskade über `app.current_profile_id`, Schreibzugriffe nur auf sichtbare Lektionen, Unique-Constraints mit `cohort_id`, `audit_logs.organization_id`, Schlüssel-Schutz-Trigger |
+| `0004_v2_block_types_uploads.sql` | Enum `block_type` +4, `assignment_submissions.answers`, `submission_files`, Bucket `participant-uploads` + Pfad-Policies |
+| `0005_v2_website_cms.sql` | `site_status` (draft/preview/published/archived), `site_content` + `site_content_drafts`, `site_posts` (Live-Felder + `draft`), `inquiries`, Veröffentlichen nur über `app.publish_site_*` |
+| `0006_v2_hardening_extras.sql` | Konsistenz-Trigger Gruppe↔Organisation, `block_responses`, `session_notes`, `notification_preferences`, Web-Push-Plattform, View `program_progress`, `rate_limits` + `app.rate_limit_take`, Storage-Limits je Bucket |
+| `seed.sql` + `seed-users.mjs` | Seed v2: fiktive „Muster Handelsgruppe GmbH", feste Termine 2027, Blockkonfigurationen nach Zod, keine Passwörter im Repo |
 
-Jede Migration wird von **RLS-Tests** (pgTAP, `supabase/tests/`) begleitet: Teilnehmer A sieht B nicht, Organisation A sieht B nicht, Trainer nur eigene Gruppe, gesperrte Lektion nicht lesbar, Org-Admin liest keine Reflexion.
+Offen (Phase 2, zusammen mit dem Campus-Quiz): Quiz-Bewertung serverseitig (View ohne `is_correct`, RPC `app.grade_quiz_attempt`).
+
+Jede Migration wird von **RLS-Tests** (Vitest + `pg` gegen PostgreSQL 16 mit Supabase-Shim, `supabase/tests/`) begleitet: Teilnehmer A sieht B nicht, Organisation A sieht B nicht, Trainer nur eigene Gruppe, gesperrte Lektion nicht lesbar (alle 7 Modi), Org-Admin liest keine Reflexion, deaktivierte Konten verlieren sofort den Zugriff.
 
 ---
 

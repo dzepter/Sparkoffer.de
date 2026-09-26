@@ -20,7 +20,7 @@ export function EmptyState({ title, description, action, className }: EmptyState
       )}
     >
       <span aria-hidden="true" className="text-lg font-extrabold text-green-deep">
-        //
+        {"//"}
       </span>
       <h3 className="mt-2 text-base font-bold text-ink">{title}</h3>
       {description ? <p className="mt-1 max-w-md text-sm text-ink-soft">{description}</p> : null}

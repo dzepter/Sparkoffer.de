@@ -54,7 +54,7 @@ export default async function CockpitLayout({ children }: { children: ReactNode 
         <div className="mb-8 px-3">
           <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-kicker text-paper/50">
             <span aria-hidden="true" className="font-extrabold text-green-bright">
-              //
+              {"//"}
             </span>
             {APP.company}
           </p>

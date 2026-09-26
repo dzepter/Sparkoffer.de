@@ -35,9 +35,12 @@ Zusätzlich setzen (`supabase secrets set NAME=wert`):
 | `ALLOWED_ORIGINS` | ja (Web) | Kommaseparierte CORS-Origins, z. B. `https://app.example.de` |
 | `APP_BASE_URL` | ja | Basis der Einladungslinks (`/einladung?token=…`) |
 | `CRON_SECRET` | ja | Zugriffsschutz für `release-scheduler` |
-| `EMAIL_PROVIDER_URL` | empfohlen | HTTP-Endpoint, der `{from,to,subject,html,text}` per JSON-POST versendet. Fehlt er, liefert `invite-user` die `inviteUrl` zum manuellen Versand zurück. |
-| `EMAIL_PROVIDER_TOKEN` | optional | Bearer-Token für den E-Mail-Endpoint |
-| `EMAIL_FROM` | optional | Absender, Default `Handel Offensiv <info@aigner-offensiv.de>` |
+| `RESEND_API_KEY` | ja (Staging/Prod) | Resend-API-Schlüssel (K‑4). Fehlt er, wird nicht versendet; `invite-user` liefert dann die `inviteUrl` zum manuellen Versand zurück. |
+| `EMAIL_FROM` | optional | Absender, Default `Aigner Offensiv Campus <campus@mail.aigner-offensiv.de>` – muss in `EMAIL_SENDER_DOMAIN` liegen |
+| `EMAIL_REPLY_TO` | empfohlen | Antwortadresse (bestehendes Microsoft-365-Postfach, z. B. `info@aigner-offensiv.de`) |
+| `EMAIL_SENDER_DOMAIN` | optional | erlaubte Absenderdomain, Default `mail.aigner-offensiv.de` (fail-closed: andere Absender werden verweigert – DMARC `p=reject`) |
+| `EMAIL_PROVIDER` | optional | erzwingt `resend` / `http` / `none`; Default: automatisch nach vorhandenen Schlüsseln |
+| `EMAIL_PROVIDER_URL` / `EMAIL_PROVIDER_TOKEN` | optional (Altpfad) | generischer JSON-Relay `{from,to,subject,html,text}` |
 | `EXPO_ACCESS_TOKEN` | optional | Expo Enhanced Push Security |
 | `STORAGE_BUCKET_AVATARS` | optional | Default `avatars` (Löschablauf) |
 | `STORAGE_BUCKET_UPLOADS` | optional | Default `uploads` (Löschablauf) |

@@ -112,6 +112,22 @@ const cases: Record<BlockType, { valid: unknown; invalid: unknown }> = {
     },
     invalid: { url: "https://www.example.com", label: "Ohne Hinweis" }, // note (Kennzeichnungspflicht) fehlt
   },
+  practice_task: {
+    valid: { title: "Drei offene Fragen", description: "Im nächsten Meeting zuerst fragen." },
+    invalid: { title: "Ohne Beschreibung" },
+  },
+  file_upload: {
+    valid: { title: "Stärkenliste hochladen", maxFiles: 2 },
+    invalid: { title: "Zu viele", maxFiles: 9 }, // max 5
+  },
+  photo_upload: {
+    valid: { title: "Foto vom Teamritual", voluntaryNote: "Der Upload ist freiwillig." },
+    invalid: { title: "Ohne Freiwilligkeitshinweis" }, // voluntaryNote fehlt
+  },
+  announcement: {
+    valid: { title: "Hinweis", body: "Bitte Teilnehmerheft mitbringen." },
+    invalid: { title: "Ohne Text" },
+  },
 };
 
 describe("blockConfigSchemas", () => {

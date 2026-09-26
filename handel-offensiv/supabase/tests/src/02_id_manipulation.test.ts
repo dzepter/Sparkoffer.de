@@ -17,6 +17,8 @@ afterAll(async () => {
 });
 
 const RLS_VIOLATION = /row-level security/i;
+/** Gruppenzuordnung: RLS ODER der Konsistenz-Trigger (Migration 0006) lehnt ab – beides ist eine Verweigerung. */
+const DENIED = /row-level security|kein aktives Mitglied/i;
 
 describe("Teilnehmer: Schreibzugriffe mit fremden IDs", () => {
   it("kann kein fremdes Profil ändern (0 Zeilen betroffen)", async () => {
@@ -122,13 +124,13 @@ describe("Teilnehmer: Schreibzugriffe mit fremden IDs", () => {
       await tx.actAs(A.p1);
       expect(
         await tx.attempt("insert into public.cohort_members (cohort_id, profile_id) values ($1, $2)", [B.cohort, A.p1]),
-      ).toMatch(RLS_VIOLATION);
+      ).toMatch(DENIED);
       expect(
         await tx.attempt("insert into public.organization_memberships (organization_id, profile_id, role) values ($1, $2, 'org_admin')", [
           B.org,
           A.p1,
         ]),
-      ).toMatch(RLS_VIOLATION);
+      ).toMatch(DENIED);
       expect(
         await tx.attempt("insert into public.cohort_trainers (cohort_id, profile_id) values ($1, $2)", [A.cohort, A.p1]),
       ).toMatch(RLS_VIOLATION);
@@ -219,7 +221,7 @@ describe("Trainer: Schreibzugriffe mit fremden IDs", () => {
       expect(await tx.affected("update public.lessons set title = 'x' where id = $1", [L.immediate])).toBe(0);
       expect(
         await tx.attempt("insert into public.cohort_members (cohort_id, profile_id) values ($1, $2)", [A.cohort, B.p1]),
-      ).toMatch(RLS_VIOLATION);
+      ).toMatch(DENIED);
     });
   });
 });

@@ -227,7 +227,25 @@ Vollständig zu bauen (Sitemap 1.1); Inhalte aus `handel-offensiv-website/` (Tex
 | Autosave zum Server mit Sync-Warteschlange und Feldstatus (heute nur lokale Entwürfe, `retry 0`) | 38 | ◐ | M | 3 |
 | Login-Seite: Markensatz aus §7, Links Datenschutz/Impressum/Support | 7 | ◐ | K | 2 |
 
-### 5.7 Pakete, Websites, Live-SEO, Dokumentation
+### 5.7 Geteilte Pakete und Toolchain
+| Lücke | § | Status | Aufwand | Phase |
+|---|---|---|---|---|
+| Rechte-Matrix doppelt (`packages/domain` und `supabase/functions/_shared/auth.ts`) – Deno löst Workspace-Pakete nicht auf | 26 | ◐ | M | 1 |
+| Zod-Schema für `permissions`-JSONB-Schlüssel fehlt (RBAC.md behauptet es) | 26 | ✖ | K | 1 |
+| Neue Capabilities `releases.manage`, `website.*`, `inquiries.read` im Code | 20, 26 | ✖ | K | 1 |
+| `packages/types` handgeschrieben (aktuell spaltengenau synchron, kein Drift-Schutz, kein `Database`-Typ) → `supabase gen types` | 28, 30 | ◐ | M | 1 |
+| Kein Token-Export als CSS-Variablen/Tailwind-Preset; Admin spiegelt Tokens manuell; `.pitch-lines` nur im Admin | 29, 34 | ✖ | M | 1 |
+| Kein `packages/ui`; UI-Bausteine doppelt (Admin 16 Komponenten, Mobile 13) | 29, 35 | ✖ | G | 1 |
+| Tokens grün statt Blau; Token-Schlüssel heißen `green*` (≈45 Mobile-Dateien, Tailwind-Klassen) | 34 | ✖ | M | 1 |
+| Geteilte Logik außerhalb der Pakete: `deriveModuleJourney`, `findMissingRequiredBlocks`, ICS-Builder, Zeitlogik im Scheduler (dritte Kopie) | 13, 15, 16, 17 | ◐ | M | 1–2 |
+| Formular-Schemas ohne Tests (12 Schemas, 0 Tests); Reset-/Forgot-Schemas fehlen; Passwortregel nur `min(10)` | 33, 44 | ◐ | K | 2 |
+| Kein ESLint/Prettier; kein vitest-Workspace/Coverage | 44, 49 | ✖ | K | 1 |
+| Test-Fixtures durchgehend 2026 (32 Datumsangaben) | 17, 46 | ◐ | K | 1 |
+| Zwei TypeScript-Versionen (5.6 Mobile / 5.9 übrige), React 18/19 – `packages/ui` darf nicht von Mobile importiert werden | 28 | ◐ | K | 1 |
+| Domain-/URL-Konstanten (www/campus/admin) zentral in `packages/config` | 2, 5 | ✖ | K | 1 |
+| `formatBerlin()` ignoriert `cohort_sessions.timezone` | 17 | ◐ | K | 3 |
+
+### 5.8 Websites, Live-Site/SEO, Dokumentation
 *Ergänzung folgt aus den restlichen Analyseberichten.*
 
 ---

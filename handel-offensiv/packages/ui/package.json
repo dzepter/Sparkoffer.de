@@ -1,0 +1,20 @@
+{
+  "name": "@handel-offensiv/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "description": "Gemeinsame UI-Bausteine (Palette v2 Navy/Off-White/Gold) für Campus, Admin-Cockpit und Website. Reine Tailwind-Komponenten ohne Framework-Abhängigkeit (K-14).",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
+    "typescript": "^5.6.0"
+  }
+}

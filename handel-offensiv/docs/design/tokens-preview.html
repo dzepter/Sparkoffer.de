@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aigner Offensiv – Design-Tokens v2 (Vorschau)</title>
+<style>
+  :root {
+    --navy: #0F2340; --navy-deep: #0A182E; --navy-soft: #1B3A66;
+    --paper: #F6F4EE; --paper-deep: #ECE9E1; --white: #FFFFFF;
+    --ink: #141B26; --ink-soft: #4F5866; --line: #E2DFD6; --line-dark: #24395C;
+    --gold: #AD8027; --gold-deep: #8A6414; --gold-bright: #D9AE45;
+    --success: #2E7D4F; --warning: #985A07; --danger: #B03A2E;
+    --radius: 2px; --font: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font); color: var(--ink); background: var(--paper); line-height: 1.5; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+  header { background: var(--navy); color: var(--white); border-bottom: 1px solid var(--line-dark); }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 72px; gap: 16px; }
+  .logo { font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: .95rem; }
+  .logo span { color: var(--gold-bright); }
+  nav { display: flex; gap: 4px; }
+  nav a { color: var(--paper); text-decoration: none; padding: 10px 12px; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; border-bottom: 2px solid transparent; }
+  nav a.active { color: var(--gold-bright); border-bottom-color: var(--gold-bright); }
+  nav a.cta { background: var(--gold-bright); color: var(--navy); border-radius: var(--radius); margin-left: 8px; }
+  .hero { background: var(--navy); color: var(--paper); padding: 56px 0 64px;
+    background-image: linear-gradient(to right, rgba(217,174,69,.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(217,174,69,.07) 1px, transparent 1px); background-size: 56px 56px; }
+  .kicker { font-size: .75rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 700; color: var(--gold-bright); }
+  .kicker::before { content: ""; display: inline-block; width: 22px; height: 2px; background: var(--gold-bright); margin-right: 10px; vertical-align: middle; }
+  h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); line-height: 1.05; margin: 12px 0 16px; font-weight: 800; letter-spacing: -.01em; }
+  .hero p { max-width: 56ch; color: rgba(246,244,238,.85); font-size: 1.05rem; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: var(--radius); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: .8rem; text-decoration: none; border: 1px solid transparent; min-height: 44px; }
+  .btn.primary { background: var(--navy); color: var(--white); }
+  .btn.accent { background: var(--gold-bright); color: var(--navy); }
+  .btn.ghost-dark { color: var(--paper); border-color: rgba(246,244,238,.5); }
+  .btn.ghost { color: var(--ink); border-color: currentColor; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  section { padding: 56px 0; }
+  h2 { font-size: 1.6rem; margin: 0 0 8px; font-weight: 800; }
+  .lead { color: var(--ink-soft); max-width: 60ch; margin: 0 0 28px; }
+  .modules { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+  .module { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 18px 20px; position: relative; }
+  .module .no { font-size: 2.6rem; font-weight: 800; color: var(--gold); letter-spacing: -.02em; line-height: 1; }
+  .module h3 { font-size: 1rem; margin: 10px 0 6px; }
+  .module p { margin: 0; font-size: .85rem; color: var(--ink-soft); }
+  .module.active { border-top: 3px solid var(--gold); }
+  .progress { margin-top: 34px; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+  .progress .bar { height: 8px; background: var(--paper-deep); border-radius: 999px; overflow: hidden; margin-top: 10px; }
+  .progress .bar i { display: block; height: 100%; width: 38%; background: var(--gold); }
+  .progress small { color: var(--ink-soft); }
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+  .card { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+  .card p { margin: 0 0 14px; color: var(--ink-soft); font-size: .92rem; }
+  .card a { color: var(--gold-deep); font-weight: 700; text-decoration: none; }
+  .badge { display: inline-block; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; padding: 4px 8px; border-radius: var(--radius); }
+  .badge.ok { background: var(--success); color: #fff; } .badge.warn { background: var(--warning); color: #fff; } .badge.err { background: var(--danger); color: #fff; }
+  .dark { background: var(--navy-deep); color: var(--paper); }
+  .dark h2 { color: var(--white); }
+  .dark .lead { color: rgba(246,244,238,.8); }
+  .quote { border-left: 3px solid var(--gold-bright); padding-left: 18px; font-size: 1.15rem; max-width: 60ch; }
+  .palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .swatch { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--white); }
+  .swatch i { display: block; height: 56px; }
+  .swatch b { display: block; font-size: .78rem; padding: 8px 10px 2px; }
+  .swatch small { display: block; font-size: .72rem; color: var(--ink-soft); padding: 0 10px 8px; font-family: ui-monospace, Menlo, monospace; }
+  footer { background: var(--navy-deep); color: rgba(246,244,238,.7); padding: 28px 0; font-size: .8rem; border-top: 1px solid var(--line-dark); }
+  @media (max-width: 900px) { .modules { grid-template-columns: repeat(2, minmax(0,1fr)); } .cards { grid-template-columns: 1fr; } nav a:not(.cta):not(.active) { display: none; } }
+  @media (max-width: 560px) { .modules { grid-template-columns: 1fr 1fr; } header .wrap { height: 64px; } nav a.active { display: none; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="logo">Handel <span>Offensiv</span></div>
+    <nav>
+      <a href="#">Die 5 Offensivtage</a>
+      <a href="#" class="active">Für Unternehmen</a>
+      <a href="#">Rainer Aigner</a>
+      <a href="#">Impulse</a>
+      <a href="#" class="cta">Offensivtag anfragen</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="kicker">Der Führungsführerschein für den Handel</div>
+    <h1>Handel ist Mannschaftssport.<br />Führung entscheidet das Spiel.</h1>
+    <p>Fünf Offensivtage, ein digitaler Mannschaftsraum dazwischen: Vorbereitung, Präsenztag, Transfer. Für Marktleitungen und Führungskräfte im Handel. (Vorschau Palette v2, alle Termine 2027.)</p>
+    <div class="btn-row">
+      <a class="btn accent" href="#">Offensivtag anfragen</a>
+      <a class="btn ghost-dark" href="#">Programm ansehen</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker" style="color:var(--gold-deep)">Programm</div>
+    <h2>Die fünf Offensivtage</h2>
+    <p class="lead">Modulnummern in Gold, alles andere ruhig in Navy und Off-White – der Akzent bleibt sparsam.</p>
+    <div class="modules">
+      <div class="module active"><div class="no">01</div><h3>Führung beginnt bei mir</h3><p>12.03.2027</p></div>
+      <div class="module"><div class="no">02</div><h3>Aus Mitarbeitern wird Mannschaft</h3><p>30.04.2027</p></div>
+      <div class="module"><div class="no">03</div><h3>Die richtige Aufstellung</h3><p>18.06.2027</p></div>
+      <div class="module"><div class="no">04</div><h3>Spielintelligenz mit KI</h3><p>30.07.2027</p></div>
+      <div class="module"><div class="no">05</div><h3>Führen, wenn es darauf ankommt</h3><p>17.09.2027</p></div>
+    </div>
+    <div class="progress">
+      <strong>Ihr Fortschritt – Modul 01</strong> <small>3 von 8 Lektionen abgeschlossen</small>
+      <div class="bar"><i></i></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="cards">
+      <div class="card"><span class="badge ok">Freigeschaltet</span><h3>Ankommen: Warum Führung bei mir beginnt</h3><p>Einstimmung auf Offensivtag 1 mit Video, Checkliste und Reflexion.</p><a href="#">Lektion öffnen →</a></div>
+      <div class="card"><span class="badge warn">Fällig 02.04.2027</span><h3>Transfer: Führungsmoment dokumentieren</h3><p>Beschreiben Sie eine konkrete Führungssituation der letzten Woche.</p><a href="#">Abgabe bearbeiten →</a></div>
+      <div class="card"><span class="badge err">Gesperrt</span><h3>Einstimmung: Aus Mitarbeitern wird Mannschaft</h3><p>Wird 7 Tage vor Offensivtag 2 freigeschaltet (23.04.2027).</p><a href="#" style="color:var(--ink-soft)">Noch nicht verfügbar</a></div>
+    </div>
+    <div class="btn-row">
+      <a class="btn primary" href="#">Standard-Aktion (Navy)</a>
+      <a class="btn accent" href="#">Wichtige CTA (Gold)</a>
+      <a class="btn ghost" href="#">Sekundär</a>
+    </div>
+  </div>
+</section>
+
+<section class="dark">
+  <div class="wrap">
+    <div class="kicker">Rainer Aigner</div>
+    <h2>„Führung ist kein Titel. Führung ist Verhalten.“</h2>
+    <p class="lead">Dunkle Flächen in Navy, Zitatlinie in Gold – die einzige Hervorhebung auf dieser Fläche.</p>
+    <div class="quote">Ein Team folgt nicht der Position, sondern dem Verhalten. Deshalb beginnt Handel Offensiv bei der Selbstführung.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Palette v2</h2>
+    <p class="lead">Alle Paare WCAG-AA-geprüft (siehe docs/DESIGN_TOKENS.md).</p>
+    <div class="palette">
+      <div class="swatch"><i style="background:#0F2340"></i><b>navy</b><small>#0F2340</small></div>
+      <div class="swatch"><i style="background:#0A182E"></i><b>navyDeep</b><small>#0A182E</small></div>
+      <div class="swatch"><i style="background:#1B3A66"></i><b>navySoft</b><small>#1B3A66</small></div>
+      <div class="swatch"><i style="background:#F6F4EE"></i><b>paper</b><small>#F6F4EE</small></div>
+      <div class="swatch"><i style="background:#ECE9E1"></i><b>paperDeep</b><small>#ECE9E1</small></div>
+      <div class="swatch"><i style="background:#141B26"></i><b>ink</b><small>#141B26</small></div>
+      <div class="swatch"><i style="background:#4F5866"></i><b>inkSoft</b><small>#4F5866</small></div>
+      <div class="swatch"><i style="background:#AD8027"></i><b>gold</b><small>#AD8027</small></div>
+      <div class="swatch"><i style="background:#8A6414"></i><b>goldDeep</b><small>#8A6414</small></div>
+      <div class="swatch"><i style="background:#D9AE45"></i><b>goldBright</b><small>#D9AE45</small></div>
+      <div class="swatch"><i style="background:#2E7D4F"></i><b>success</b><small>#2E7D4F</small></div>
+      <div class="swatch"><i style="background:#985A07"></i><b>warning</b><small>#985A07</small></div>
+      <div class="swatch"><i style="background:#B03A2E"></i><b>danger</b><small>#B03A2E</small></div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">Aigner Offensiv · Vorschau der Design-Tokens v2 · alle Daten fiktiv, Termine 2027</div></footer>
+</body>
+</html>

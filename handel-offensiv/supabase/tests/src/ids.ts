@@ -1,0 +1,127 @@
+/** Feste IDs aus fixtures/10_rls_fixtures.sql. */
+export const SA = "00000000-0000-4000-a000-000000000001";
+
+export const A = {
+  org: "aa000000-0000-4000-a000-000000000100",
+  admin: "aa000000-0000-4000-a000-000000000001",
+  trainer: "aa000000-0000-4000-a000-000000000002",
+  p1: "aa000000-0000-4000-a000-000000000003",
+  p2: "aa000000-0000-4000-a000-000000000004",
+  p3InactiveProfile: "aa000000-0000-4000-a000-000000000005",
+  p4InactiveMembership: "aa000000-0000-4000-a000-000000000006",
+  p5NoEnrollment: "aa000000-0000-4000-a000-000000000007",
+  p6ArchivedCohort: "aa000000-0000-4000-a000-000000000008",
+  cohort: "a1000000-0000-4000-a000-000000000001",
+  cohortArchived: "a1000000-0000-4000-a000-000000000002",
+  sessionPast: "a9000000-0000-4000-a000-000000000000",
+  sessionFuture: "a9000000-0000-4000-a000-000000000001",
+  invitation: "aa000000-0000-4000-a000-000000000301",
+  announcement: "a3000000-0000-4000-a000-000000000001",
+  submissionP1Trainer: "a5000000-0000-4000-a000-000000000001",
+  submissionP2Private: "a5000000-0000-4000-a000-000000000002",
+  reflectionP1Private: "a6000000-0000-4000-a000-000000000001",
+  reflectionP2Trainer: "a6000000-0000-4000-a000-000000000002",
+  quizAttemptP1: "a7000000-0000-4000-a000-000000000001",
+  quizAttemptP2: "a7000000-0000-4000-a000-000000000002",
+  actionPlanP1: "a8000000-0000-4000-a000-000000000001",
+  actionPlanP2Shared: "a8000000-0000-4000-a000-000000000002",
+  actionPlanItemP2: "a8000000-0000-4000-a000-000000000021",
+  notificationP1: "a2000000-0000-4000-a000-000000000001",
+  notificationP2: "a2000000-0000-4000-a000-000000000002",
+  pushTokenP2: "a2000000-0000-4000-a000-000000000012",
+  progressP1L01: "a0000000-0000-4000-a000-000000000001",
+  progressP2L01: "a0000000-0000-4000-a000-000000000003",
+  feedback: "a4000000-0000-4000-a000-000000000001",
+  asset: "ab000000-0000-4000-a000-000000000002",
+} as const;
+
+export const B = {
+  org: "bb000000-0000-4000-a000-000000000100",
+  admin: "bb000000-0000-4000-a000-000000000001",
+  trainer: "bb000000-0000-4000-a000-000000000002",
+  p1: "bb000000-0000-4000-a000-000000000003",
+  cohort: "b1000000-0000-4000-a000-000000000001",
+  session: "b9000000-0000-4000-a000-000000000001",
+  invitation: "bb000000-0000-4000-a000-000000000301",
+  announcement: "b3000000-0000-4000-a000-000000000001",
+  submissionTrainer: "b5000000-0000-4000-a000-000000000001",
+  reflectionTrainer: "b6000000-0000-4000-a000-000000000001",
+  quizAttempt: "b7000000-0000-4000-a000-000000000001",
+  actionPlanShared: "b8000000-0000-4000-a000-000000000001",
+  actionPlanItem: "b8000000-0000-4000-a000-000000000011",
+  notification: "b2000000-0000-4000-a000-000000000001",
+  progressL01: "b0000000-0000-4000-a000-000000000001",
+  asset: "ab000000-0000-4000-a000-000000000003",
+} as const;
+
+/** Trainer, der A1 zugeordnet ist, dessen Mitgliedschaft in Organisation A aber inaktiv ist. */
+export const X_TRAINER_NO_MEMBERSHIP = "ee000000-0000-4000-a000-000000000001";
+
+export const PROGRAM = "cc000000-0000-4000-a000-000000000001";
+export const MODULE = {
+  m1: "cc000000-0000-4000-a000-000000000011",
+  m2: "cc000000-0000-4000-a000-000000000012",
+  mini: "cc000000-0000-4000-a000-000000000013",
+} as const;
+
+export const L = {
+  immediate: "dd000000-0000-4000-a000-000000000001",
+  atDatetimePast: "dd000000-0000-4000-a000-000000000002",
+  atDatetimeFuture: "dd000000-0000-4000-a000-000000000003",
+  beforeSessionLocked: "dd000000-0000-4000-a000-000000000004",
+  afterSessionReleased: "dd000000-0000-4000-a000-000000000005",
+  afterLesson: "dd000000-0000-4000-a000-000000000006",
+  afterModule: "dd000000-0000-4000-a000-000000000007",
+  miniModule: "dd000000-0000-4000-a000-000000000008",
+  manualReleased: "dd000000-0000-4000-a000-000000000009",
+  manualLocked: "dd000000-0000-4000-a000-000000000010",
+  expired: "dd000000-0000-4000-a000-000000000011",
+  noRule: "dd000000-0000-4000-a000-000000000012",
+  draft: "dd000000-0000-4000-a000-000000000013",
+  beforeSessionReleased: "dd000000-0000-4000-a000-000000000014",
+  afterSessionLocked: "dd000000-0000-4000-a000-000000000015",
+  profileOverride: "dd000000-0000-4000-a000-000000000016",
+  onlyB: "dd000000-0000-4000-a000-000000000017",
+  window2027: "dd000000-0000-4000-a000-000000000018",
+} as const;
+
+export const CB = {
+  l01Text: "ee000000-0000-4000-a000-000000000001",
+  l01Quiz: "ee000000-0000-4000-a000-000000000002",
+  l01Transfer: "ee000000-0000-4000-a000-000000000003",
+  l01Reflection: "ee000000-0000-4000-a000-000000000004",
+  l03Text: "ee000000-0000-4000-a000-000000000031",
+  l03Quiz: "ee000000-0000-4000-a000-000000000032",
+  l17Text: "ee000000-0000-4000-a000-000000000171",
+} as const;
+
+export const QUIZ = {
+  free: "ff000000-0000-4000-a000-000000000001",
+  locked: "ff000000-0000-4000-a000-000000000002",
+} as const;
+
+/** Lektionen, die Teilnehmer P1 (Gruppe A1) aktuell sehen darf. */
+export const P1_VISIBLE_LESSONS: readonly string[] = [
+  L.immediate,
+  L.atDatetimePast,
+  L.afterSessionReleased,
+  L.afterLesson,
+  L.afterModule,
+  L.miniModule,
+  L.manualReleased,
+  L.beforeSessionReleased,
+  L.profileOverride,
+];
+
+/** Lektionen, die Teilnehmer P1 (Gruppe A1) aktuell NICHT sehen darf. */
+export const P1_LOCKED_LESSONS: readonly string[] = [
+  L.atDatetimeFuture,
+  L.beforeSessionLocked,
+  L.manualLocked,
+  L.expired,
+  L.noRule,
+  L.draft,
+  L.afterSessionLocked,
+  L.onlyB,
+  L.window2027,
+];

@@ -18,7 +18,7 @@ import { requireActor, requireCan, type ActorContext } from "../_shared/auth.ts"
 import { writeAudit } from "../_shared/audit.ts";
 import { corsHeaders, preflightResponse } from "../_shared/cors.ts";
 import { fail, json, readJsonBody, toErrorResponse } from "../_shared/errors.ts";
-import { rateLimit } from "../_shared/ratelimit.ts";
+import { actorKey, rateLimit, rateLimitPersistent } from "../_shared/ratelimit.ts";
 import { invitationEmail, sendEmail } from "../_shared/emails.ts";
 import { generateInvitationToken, sha256Hex } from "../_shared/tokens.ts";
 import type { AdminClient } from "../_shared/supabaseAdmin.ts";
@@ -207,6 +207,15 @@ Deno.serve(async (req) => {
 
     const admin = supabaseAdmin();
     const actor = await requireActor(req, admin);
+
+    // Persistentes Limit je Akteur (global ueber alle Instanzen; Schluessel =
+    // Hash der Profil-ID, 0008). Kapazitaet deckt einen vollen CSV-Import des
+    // Cockpits (500 Zeilen = 500 Aufrufe) ab; das Cockpit begrenzt zusaetzlich
+    // die Einladungs-AKTIONEN je Akteur auf 60/Stunde (apps/admin rate-limit.ts).
+    await rateLimitPersistent(admin, await actorKey(actor.profileId, "invite-user"), {
+      capacity: 500,
+      refillPerMinute: 10,
+    });
 
     const raw = await readJsonBody(req);
     // Ohne explizite action ist "create" gemeint (Haupt-Endpunkt laut API).

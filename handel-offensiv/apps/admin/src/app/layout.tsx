@@ -14,6 +14,16 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+/**
+ * CSP mit Nonce (src/middleware.ts, script-src 'nonce-…' 'strict-dynamic'):
+ * Next traegt den Nonce nur in DYNAMISCH gerenderte Seiten ein. Statisch
+ * vorgerenderte Routen (/hinweis-app, /login/passwort-vergessen, 404) haetten
+ * Skripte ohne Nonce – der Browser blockierte sie komplett (keine Hydration).
+ * Daher wird das gesamte Cockpit dynamisch gerendert (gilt fuer alle Segmente
+ * unter diesem Root-Layout inkl. not-found.tsx).
+ */
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="de">

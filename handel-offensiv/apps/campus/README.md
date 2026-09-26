@@ -27,3 +27,37 @@ pnpm dev:campus                                       # http://localhost:3001
 ```
 
 Demo-Konten: `supabase/seed.sql` + `node supabase/seed-users.mjs` (Passwort aus `SEED_DEMO_PASSWORD`).
+
+## Testing
+
+```bash
+pnpm --filter @handel-offensiv/campus typecheck   # tsc --noEmit (inkl. e2e/ und playwright.config.ts)
+pnpm --filter @handel-offensiv/campus lint        # ESLint, 0 Warnungen erlaubt
+```
+
+### Playwright-Smoke-Tests (`e2e/`)
+
+Die Smoke-Tests laufen **ohne Supabase-Backend** (Platzhalter-Env) und brauchen keinen gültigen Login. Sie prüfen:
+
+- `e2e/auth.spec.ts` – Login-Formular und Links, Einladung (Schritt 1), Passwort vergessen (neutrale Antwort, nie ein Konto-Urteil), Auth-Gate (`/`, `/heute`, `/passwort-neu` → `/login`; `?weiter=` nur relativ), 404-Seite.
+- `e2e/rechtliches.spec.ts` – `/datenschutz` und `/impressum` ohne Sitzung, Entwurfskennzeichnung, kein horizontales Scrollen auf 360 px.
+- `e2e/sicherheit.spec.ts` – Sicherheits-Header (`X-Robots-Tag: noindex`, `nosniff`, `X-Frame-Options`, `Referrer-Policy`, kein `X-Powered-By`), Content-Security-Policy mit Nonce (tolerant, solange die Middleware-CSP fehlt: Annotation statt Fehler), Robots-Meta.
+
+Lokal gegen den gebauten Stand (wie in CI, Job `campus-e2e`):
+
+```bash
+cd handel-offensiv
+export NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co \
+       NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder \
+       NEXT_PUBLIC_APP_URL=http://localhost:3001
+pnpm build:campus
+pnpm --filter @handel-offensiv/campus start &          # Port 3001
+pnpm --filter @handel-offensiv/campus exec playwright install chromium   # einmalig
+pnpm --filter @handel-offensiv/campus test:e2e
+```
+
+Oder gegen den laufenden Dev-Server (`pnpm dev:campus`, echte Supabase-Keys in `.env.local`) – dann ist die Passwort-vergessen-Antwort die neutrale Bestätigung.
+
+Umgebungsvariablen: `E2E_BASE_URL` (Default `http://localhost:3001`), `PW_CHROMIUM_PATH` (optional: eigene Chromium-Binary, falls die von Playwright erwartete Revision nicht installiert ist), `CI` (2 Retries, GitHub-Reporter, `test.only` verboten).
+
+Die Tests sind bewusst auf öffentliche Pfade beschränkt. Tests mit Sitzung (Heute, Lektionen, Offensivplan) benötigen `supabase start` + Seed und gehören in einen eigenen, backend-abhängigen Job.

@@ -55,6 +55,16 @@
     outline-offset: 2px;
   }
 
+  /*
+   * Auf Navy-Flaechen (Kopfzeile, untere Leiste, Hero-Bloecke) waere ein
+   * navyfarbener Fokusring unsichtbar (WCAG 2.4.7). Dort: Gold-bright –
+   * innerhalb der Palette (Akzent der aktiven Navigation).
+   */
+  .bg-navy :focus-visible,
+  .bg-navy-deep :focus-visible {
+    outline-color: #d9ae45; /* gold-bright */
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

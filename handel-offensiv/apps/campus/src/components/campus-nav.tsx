@@ -12,6 +12,10 @@ export interface NavItem {
   short?: string;
 }
 
+/** Sichtbarer Fokusring auf Navy (der globale Navy-Ring waere hier unsichtbar). */
+export const FOCUS_ON_NAVY =
+  "focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-bright focus-visible:ring-offset-2 focus-visible:ring-offset-navy";
+
 /** Hauptnavigation: Desktop im Header, mobil als untere Leiste. Aktiv = Gold. */
 export function CampusNav({ items, variant }: { items: NavItem[]; variant: "header" | "bottom" }) {
   const pathname = usePathname();
@@ -29,7 +33,8 @@ export function CampusNav({ items, variant }: { items: NavItem[]; variant: "head
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex min-h-[56px] flex-col items-center justify-center gap-1 px-1 text-[11px] font-bold uppercase tracking-wide",
+                    "flex min-h-[56px] flex-col items-center justify-center gap-1 rounded px-1 text-[11px] font-bold uppercase tracking-wide",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gold-bright",
                     active ? "text-gold-bright" : "text-paper/70 hover:text-paper",
                   )}
                 >
@@ -55,7 +60,8 @@ export function CampusNav({ items, variant }: { items: NavItem[]; variant: "head
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "inline-flex min-h-touch items-center border-b-2 px-3 text-xs font-bold uppercase tracking-kicker transition-colors",
+                  "inline-flex min-h-touch items-center rounded-sm border-b-2 px-3 text-xs font-bold uppercase tracking-kicker transition-colors",
+                  FOCUS_ON_NAVY,
                   active ? "border-gold-bright text-gold-bright" : "border-transparent text-paper/80 hover:text-paper",
                 )}
               >

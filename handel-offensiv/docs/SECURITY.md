@@ -22,7 +22,7 @@ Das Sicherheitskonzept der Kapitel 1–15 gilt als **Zielbild** weiter – einig
 | S‑3 | offen (Phase 2) | Quiz-Bewertung serverseitig zusammen mit dem Campus-Quiz umsetzen (Client-Änderung nötig) |
 | S‑4 | teilweise | Admin nutzt weiterhin Service Role für Schreibvorgänge mit Scope-Bindung; Lesen über Nutzersitzung folgt mit `packages/ui`/Campus (K‑13) |
 | S‑5 | **behoben** | `app.current_profile_id()` nur für aktive Profile; Mitgliedschaft/Gruppe/Organisation inaktiv → sofort kein Zugriff; Konto-Sperre (GoTrue `ban_duration`) bei Deaktivierung; `04_deaktivierung.test.ts` |
-| S‑6 | teilweise | `vercel.json` setzt `X-Robots-Tag`, `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`; CSP und Rate Limit im Admin: Phase 2 |
+| S‑6 | **behoben** | Security-Header: `apps/admin/vercel.json`, `apps/campus/next.config.ts`; CSP mit Nonce je Request (`script-src 'nonce-…' 'strict-dynamic'`, kein `unsafe-inline` für Skripte, `frame-ancestors 'none'`, Supabase-Host in `connect/img/media-src`, Video-Embeds nur im Campus) in `apps/campus/src/middleware.ts` und `apps/admin/src/middleware.ts`; Rate Limit (DB-Bucket, Migration `0008_rate_limit_public.sql`) auf Login (10/10 min je E-Mail-Hash, 30/10 min je IP-Hash), Passwort-Reset (5/15 min je E-Mail-Hash), Einladung annehmen (10/15 min je IP-Hash) und Einladungs-Aktionen im Cockpit (60/h je Akteur): `apps/campus/src/lib/rate-limit.ts`, `apps/admin/src/lib/rate-limit.ts`, `login/actions.ts`, `einladung/actions.ts`, `teilnehmer/actions.ts`; Tests `07_rate_limit.test.ts` |
 | S‑7 | offen (Phase 2) | MFA-Pflicht |
 | S‑8 | **behoben** | Migration 0006: MIME-/Größenlimits je Bucket; Bucket `participant-uploads` mit Pfad-RLS (0004) |
 | S‑9 | **behoben** | Seed v2 ohne Passwörter; Demo-Passwörter nur per `seed-users.mjs` aus Umgebungsvariable |
@@ -32,7 +32,7 @@ Das Sicherheitskonzept der Kapitel 1–15 gilt als **Zielbild** weiter – einig
 | S‑13 | dokumentiert | `WORDPRESS_BACKUP_UND_HAERTUNG.md` (Backup, Sofortmaßnahmen, Staging-Pfad); Umsetzung durch den Auftraggeber |
 | S‑14 | **behoben** | `apps/admin/src/lib/edge-functions.ts`: Nutzer-JWT + `x-region`; Service-Role-Aufrufe entfernt |
 | S‑15 | offen (Phase 2) | Kopien synchronisiert (Rechte-Matrix, Vertrag); Import-Map-Lösung folgt |
-| S‑16 | teilweise | `app.rate_limit_take` (Tabelle `rate_limits`, 0006) bereit; Anbindung der Functions Phase 2 |
+| S‑16 | **behoben** | Persistenter Limiter angebunden: `public.rate_limit_take`/`rate_limit_reset` (nur `service_role`) und `app.rate_limit_cleanup()` in `0008_rate_limit_public.sql`; Edge Functions nutzen zusätzlich zur In-Memory-Schicht `rateLimitPersistent()` (`supabase/functions/_shared/ratelimit.ts`) – `invite-user` je Akteur-Hash, `accept-invitation` je IP-Hash (SHA-256 + `RATE_LIMIT_SALT`, keine Klartext-IPs); Server Actions in Campus/Cockpit über `lib/rate-limit.ts` (fail-open bei DB-Fehler, fail-closed bei erreichtem Limit); Tests `07_rate_limit.test.ts` (Bucket-Semantik, Nachfüllen, Rechte). Offen bleibt: `[auth.rate_limit]` in `config.toml` und Audit-Einträge für Fehlversuche |
 | S‑17 | teilweise | Upload-Policies (0004); Server-Signierung mit kurzer TTL Phase 2 |
 | S‑18 | offen (Phase 4) | Löschanträge-UI |
 | S‑19 | **behoben** | `/login/passwort-vergessen`, `/auth/callback`, `/passwort-neu` (Admin), `passwort-neu` (Mobile), Allowlist |

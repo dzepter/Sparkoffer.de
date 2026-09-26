@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { APP } from "@handel-offensiv/config";
 
 import { Kicker } from "@/components/ui/kicker";
+import { hasRecentRecoverySession } from "@/lib/recovery-session";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import { NewPasswordForm } from "./form";
@@ -11,12 +12,14 @@ import { NewPasswordForm } from "./form";
 export const metadata: Metadata = { title: "Neues Passwort" };
 
 export default async function PasswortNeuPage() {
-  // Nur mit gueltiger (Recovery-)Session erreichbar – sonst neutral zum Login
+  // Nur mit gueltiger Recovery-Session (Link, max. 15 Minuten alt) erreichbar –
+  // ohne Sitzung neutral zum Login, mit normaler Sitzung zurueck ins Cockpit.
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?hinweis=link-ungueltig");
+  if (!(await hasRecentRecoverySession(supabase))) redirect("/");
 
   return (
     <main className="pitch-lines flex min-h-screen items-center justify-center bg-paper px-4 py-12">

@@ -2,9 +2,12 @@
  * Sitzung und Gruppenkontext des angemeldeten Teilnehmers.
  *
  * Laeuft im NUTZER-Kontext (RLS): Profil, eigene Gruppenzuordnungen und
- * Gruppen sind per Policy immer lesbar. Ist das Profil inaktiv, liefert die
- * Datenbank keine Zeilen mehr (app.current_profile_id) – der Campus zeigt dann
- * die neutrale Sperrseite.
+ * Gruppen sind per Policy immer lesbar. Ist das Profil inaktiv (oder fehlt die
+ * Profilzeile), liefert die Datenbank keine Zeilen mehr (app.current_profile_id)
+ * – der Campus zeigt dann die neutrale Sperrseite /zugang-gesperrt.
+ * WICHTIG: In diesem Fall NICHT auf /login umleiten – die Middleware sieht
+ * eine gueltige Auth-Sitzung und wuerde zurueck nach /heute leiten
+ * (Endlosschleife).
  *
  * Aktive Gruppe: Cookie `ho_cohort` (vom Nutzer gewaehlt), sonst die Gruppe
  * mit dem juengsten Startdatum. Teilnehmer in mehreren Gruppen koennen unter
@@ -38,13 +41,25 @@ export interface CampusSession {
   hasCockpitAccess: boolean;
 }
 
-/** Sitzung laden; null, wenn nicht angemeldet oder Profil gesperrt. */
-export async function getCampusSession(): Promise<CampusSession | null> {
+/**
+ * Sitzungszustand:
+ *  - anonymous: keine Auth-Sitzung
+ *  - inactive:  Auth-Sitzung vorhanden, aber kein aktives Profil lesbar
+ *               (profiles.status = 'inactive' oder Profilzeile fehlt)
+ *  - active:    vollstaendige Campus-Sitzung
+ */
+export type CampusSessionState =
+  | { status: "anonymous" }
+  | { status: "inactive"; userId: string; email: string | null }
+  | { status: "active"; session: CampusSession };
+
+/** Sitzungszustand laden (unterscheidet "nicht angemeldet" von "Zugang nicht aktiv"). */
+export async function getCampusSessionState(): Promise<CampusSessionState> {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return null;
+  if (!user) return { status: "anonymous" };
 
   const [profileRes, membersRes, membershipsRes, trainersRes] = await Promise.all([
     supabase
@@ -62,7 +77,10 @@ export async function getCampusSession(): Promise<CampusSession | null> {
   ]);
 
   const profile = profileRes.data as CampusSession["profile"] | null;
-  if (!profile) return null; // inaktives Profil: RLS liefert nichts
+  if (!profile) {
+    // Inaktives oder fehlendes Profil: RLS liefert nichts -> Sperrseite
+    return { status: "inactive", userId: user.id, email: user.email ?? null };
+  }
 
   const cohorts = ((membersRes.data ?? []) as unknown as Array<{ cohorts: CampusCohort | null }>)
     .map((row) => row.cohorts)
@@ -86,21 +104,35 @@ export async function getCampusSession(): Promise<CampusSession | null> {
     ((trainersRes.data ?? []) as unknown[]).length > 0;
 
   return {
-    userId: user.id,
-    email: user.email ?? null,
-    profile,
-    cohort,
-    cohorts,
-    organization,
-    hasCockpitAccess,
+    status: "active",
+    session: {
+      userId: user.id,
+      email: user.email ?? null,
+      profile,
+      cohort,
+      cohorts,
+      organization,
+      hasCockpitAccess,
+    },
   };
 }
 
-/** Wie getCampusSession, leitet ohne Sitzung zum Login um. */
+/** Sitzung laden; null, wenn nicht angemeldet oder Profil gesperrt. */
+export async function getCampusSession(): Promise<CampusSession | null> {
+  const state = await getCampusSessionState();
+  return state.status === "active" ? state.session : null;
+}
+
+/**
+ * Wie getCampusSession, leitet ohne Sitzung zum Login um; mit Auth-Sitzung
+ * ohne aktives Profil zur neutralen Sperrseite (keine Redirect-Schleife mit
+ * der Middleware).
+ */
 export async function requireCampusSession(): Promise<CampusSession> {
-  const session = await getCampusSession();
-  if (!session) redirect("/login");
-  return session;
+  const state = await getCampusSessionState();
+  if (state.status === "anonymous") redirect("/login");
+  if (state.status === "inactive") redirect("/zugang-gesperrt");
+  return state.session;
 }
 
 /** Anzeigename fuer Kopfzeile/Begruessung. */

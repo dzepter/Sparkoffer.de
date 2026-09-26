@@ -6,6 +6,7 @@ import { loginSchema, passwordResetRequestSchema } from "@handel-offensiv/valida
 
 import { appBaseUrl } from "@/lib/env";
 import { ERROR_MESSAGES } from "@/lib/errors";
+import { RATE_LIMITS, RATE_LIMIT_MESSAGE, clientIp, clientKey, takeRateLimitRule } from "@/lib/rate-limit";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export interface LoginFormState {
@@ -28,6 +29,15 @@ export async function loginAction(
 
   if (!parsed.success) {
     return { error: ERROR_MESSAGES.loginFailed };
+  }
+
+  // Rate Limit (0008): je E-Mail-Hash 10/10 min UND je IP-Hash 30/10 min.
+  const [emailOk, ipOk] = await Promise.all([
+    takeRateLimitRule(clientKey("admin:login:email", parsed.data.email), RATE_LIMITS.loginEmail),
+    takeRateLimitRule(clientKey("admin:login:ip", await clientIp()), RATE_LIMITS.loginIp),
+  ]);
+  if (!emailOk || !ipOk) {
+    return { error: RATE_LIMIT_MESSAGE };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -68,6 +78,15 @@ export async function requestPasswordResetAction(
   const parsed = passwordResetRequestSchema.safeParse({ email: formData.get("email") });
   if (!parsed.success) {
     return { done: false, error: "Bitte geben Sie eine gültige E-Mail-Adresse ein." };
+  }
+
+  // Rate Limit (0008): 5 Reset-Anfragen je E-Mail-Hash in 15 Minuten.
+  const allowed = await takeRateLimitRule(
+    clientKey("admin:reset:email", parsed.data.email),
+    RATE_LIMITS.passwordReset,
+  );
+  if (!allowed) {
+    return { done: false, error: RATE_LIMIT_MESSAGE };
   }
 
   const supabase = await createSupabaseServerClient();

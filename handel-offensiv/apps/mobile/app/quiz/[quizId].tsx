@@ -1,9 +1,11 @@
 /**
  * Quiz-Screen (§16): Fragen gescrollt (ruhig, kein Frage-Karussell),
- * Antworten sammeln, Abgeben -> gradeQuizAttempt (@handel-offensiv/domain)
- * für sofortiges Feedback mit Erklärungen + quiz_attempts-Insert
- * (attempt_no fortlaufend, max_attempts respektiert, deutsche Meldungen).
- * Ergebnis dezent mit Punkten/Bestanden – kein Arcade.
+ * Antworten sammeln, Abgeben -> RPC submit_quiz_attempt (Migration 0007).
+ * Die Bewertung passiert ausschliesslich in der Datenbank: der Client kennt
+ * die Loesung nicht (View quiz_options_public ohne is_correct) und zeigt
+ * nach der Abgabe das Ergebnis aus der RPC (richtig/falsch je Frage,
+ * richtige Optionen, Erklaerungen). Deutsche Meldungen, max_attempts wird
+ * serverseitig erzwungen. Ergebnis dezent mit Punkten/Bestanden – kein Arcade.
  */
 import { useMemo, useState } from "react";
 import {
@@ -20,17 +22,13 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Feather } from "@expo/vector-icons";
 import { colors, radius, spacing, touch } from "@handel-offensiv/config";
-import type {
-  QuizAttemptRow,
-  QuizOptionRow,
-  QuizQuestionRow,
-  QuizRow,
-} from "@handel-offensiv/types";
+import type { QuizAttemptRow, QuizQuestionRow, QuizRow } from "@handel-offensiv/types";
 import {
-  gradeQuizAttempt,
+  parseQuizSubmitResult,
   type QuizAnswers,
-  type QuizGradeResult,
-  type QuizQuestionWithOptions,
+  type QuizOptionPublic,
+  type QuizQuestionWithPublicOptions,
+  type QuizSubmitResult,
 } from "@handel-offensiv/domain";
 import {
   Banner,
@@ -47,9 +45,15 @@ import { DetailHeader } from "../../src/features/lesson/DetailHeader";
 
 interface QuizBundle {
   quiz: QuizRow;
-  questions: QuizQuestionWithOptions[];
+  questions: QuizQuestionWithPublicOptions[];
   attempts: QuizAttemptRow[];
 }
+
+const LOAD_ERROR =
+  "Das Quiz konnte gerade nicht geladen werden. Bitte versuchen Sie es erneut.";
+const SUBMIT_ERROR =
+  "Ihre Antworten konnten gerade nicht gespeichert werden. Bitte versuchen Sie es erneut.";
+const MAX_ATTEMPTS_TEXT = "Sie haben die maximale Anzahl an Versuchen erreicht.";
 
 function shuffled<T>(items: readonly T[]): T[] {
   const arr = [...items];
@@ -77,7 +81,7 @@ export default function QuizScreen() {
         supabase.from("quizzes").select("*").eq("id", quizId as string).maybeSingle(),
         supabase
           .from("quiz_questions")
-          .select("*, options:quiz_options(*)")
+          .select("*")
           .eq("quiz_id", quizId as string)
           .order("position"),
         supabase
@@ -88,17 +92,35 @@ export default function QuizScreen() {
           .order("attempt_no", { ascending: false }),
       ]);
       if (quizRes.error || quizRes.data === null || questionsRes.error || attemptsRes.error) {
-        throw new Error(
-          "Das Quiz konnte gerade nicht geladen werden. Bitte versuchen Sie es erneut.",
-        );
+        throw new Error(LOAD_ERROR);
       }
-      const questions = (
-        (questionsRes.data ?? []) as unknown as (QuizQuestionRow & {
-          options: QuizOptionRow[];
-        })[]
-      ).map((q) => ({
+      const questionRows = (questionsRes.data ?? []) as QuizQuestionRow[];
+
+      // Optionen OHNE Loesung ueber die View quiz_options_public
+      let options: QuizOptionPublic[] = [];
+      if (questionRows.length > 0) {
+        const optionsRes = await supabase
+          .from("quiz_options_public")
+          .select("*")
+          .in(
+            "question_id",
+            questionRows.map((q) => q.id),
+          )
+          .order("position");
+        if (optionsRes.error) throw new Error(LOAD_ERROR);
+        options = (optionsRes.data ?? []) as QuizOptionPublic[];
+      }
+      const optionsByQuestion = new Map<string, QuizOptionPublic[]>();
+      for (const option of options) {
+        const list = optionsByQuestion.get(option.question_id) ?? [];
+        list.push(option);
+        optionsByQuestion.set(option.question_id, list);
+      }
+      const questions: QuizQuestionWithPublicOptions[] = questionRows.map((q) => ({
         ...q,
-        options: [...q.options].sort((a, b) => a.position - b.position),
+        options: [...(optionsByQuestion.get(q.id) ?? [])].sort(
+          (a, b) => a.position - b.position,
+        ),
       }));
       return {
         quiz: quizRes.data as QuizRow,
@@ -119,7 +141,7 @@ export default function QuizScreen() {
 
   const [answers, setAnswers] = useState<QuizAnswers>({});
   const [validationHint, setValidationHint] = useState<string | null>(null);
-  const [result, setResult] = useState<QuizGradeResult | null>(null);
+  const [result, setResult] = useState<QuizSubmitResult | null>(null);
 
   const attemptsUsed = bundle?.attempts.filter((a) => a.completed_at !== null).length ?? 0;
   const maxAttempts = bundle?.quiz.max_attempts ?? null;
@@ -146,35 +168,32 @@ export default function QuizScreen() {
   };
 
   const submitMutation = useMutation({
-    mutationFn: async (): Promise<QuizGradeResult> => {
+    mutationFn: async (): Promise<QuizSubmitResult> => {
       if (
         bundle === undefined ||
         profileId === null ||
         activeCohortId === null ||
         typeof quizId !== "string"
       ) {
-        throw new Error(
-          "Ihre Antworten konnten gerade nicht gespeichert werden. Bitte versuchen Sie es erneut.",
-        );
+        throw new Error(SUBMIT_ERROR);
       }
-      const nextAttemptNo = (bundle.attempts[0]?.attempt_no ?? 0) + 1;
-      const grade = gradeQuizAttempt(bundle.questions, answers, bundle.quiz.pass_score);
-      const { error } = await supabase.from("quiz_attempts").insert({
-        quiz_id: quizId,
-        profile_id: profileId,
-        cohort_id: activeCohortId,
-        attempt_no: nextAttemptNo,
-        answers: answers as never,
-        score: grade.score,
-        passed: grade.passed,
-        completed_at: new Date().toISOString(),
+      // Bewertung + Speichern in der Datenbank (Freischaltung, Mitgliedschaft
+      // und max_attempts werden dort geprueft)
+      const { data, error } = await supabase.rpc("submit_quiz_attempt", {
+        p_quiz_id: quizId,
+        p_cohort_id: activeCohortId,
+        p_answers: answers,
       });
       if (error !== null) {
         throw new Error(
-          "Ihre Antworten konnten gerade nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+          error.message.includes("maximale Anzahl an Versuchen")
+            ? MAX_ATTEMPTS_TEXT
+            : SUBMIT_ERROR,
         );
       }
-      return grade;
+      const parsed = parseQuizSubmitResult(data);
+      if (parsed === null) throw new Error(SUBMIT_ERROR);
+      return parsed;
     },
     onSuccess: (grade) => {
       setResult(grade);
@@ -187,7 +206,7 @@ export default function QuizScreen() {
   const submit = (): void => {
     if (bundle === undefined) return;
     if (attemptsLeft !== null && attemptsLeft <= 0) {
-      setValidationHint("Sie haben die maximale Anzahl an Versuchen erreicht.");
+      setValidationHint(MAX_ATTEMPTS_TEXT);
       return;
     }
     const unanswered = bundle.questions.filter((q) => {
@@ -215,9 +234,13 @@ export default function QuizScreen() {
     submitMutation.reset();
   };
 
-  const resultByQuestion = new Map(
-    (result?.perQuestion ?? []).map((r) => [r.questionId, r]),
-  );
+  // Ergebnis je Frage aus der RPC (Loesung erst nach der Abgabe bekannt)
+  const resultByQuestion = new Map((result?.results ?? []).map((r) => [r.question_id, r]));
+  // Nach der Abgabe: verbleibende Versuche aus der RPC-Nummerierung ableiten
+  const attemptsLeftAfter =
+    result !== null && maxAttempts !== null
+      ? Math.max(0, maxAttempts - result.attempt_no)
+      : attemptsLeft;
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "left", "right", "bottom"]}>
@@ -255,12 +278,12 @@ export default function QuizScreen() {
               {maxAttempts !== null && result === null ? (
                 <Text variant="small" muted>
                   {attemptsExhausted
-                    ? "Sie haben die maximale Anzahl an Versuchen erreicht."
+                    ? MAX_ATTEMPTS_TEXT
                     : `Versuch ${attemptsUsed + 1} von ${maxAttempts}.`}
                 </Text>
               ) : null}
 
-              {/* Ergebnis (nach Abgabe) */}
+              {/* Ergebnis (nach Abgabe, aus der Datenbank) */}
               {result !== null ? (
                 <Card tone="dark">
                   <View style={styles.stackSm}>
@@ -276,13 +299,13 @@ export default function QuizScreen() {
                       ) : null}
                     </View>
                     <Text variant="h2" color={colors.greenBright}>
-                      {result.score} von {result.maxScore} Punkten
+                      {result.score} von {result.max_score} Punkten
                     </Text>
-                    {result.passed === false && attemptsLeft !== null ? (
+                    {result.passed === false && attemptsLeftAfter !== null ? (
                       <Text variant="small" color={colors.paper}>
-                        {attemptsLeft > 0
-                          ? `Noch ${attemptsLeft} ${attemptsLeft === 1 ? "Versuch" : "Versuche"} übrig.`
-                          : "Sie haben die maximale Anzahl an Versuchen erreicht."}
+                        {attemptsLeftAfter > 0
+                          ? `Noch ${attemptsLeftAfter} ${attemptsLeftAfter === 1 ? "Versuch" : "Versuche"} übrig.`
+                          : MAX_ATTEMPTS_TEXT}
                       </Text>
                     ) : null}
                   </View>
@@ -292,7 +315,7 @@ export default function QuizScreen() {
               {attemptsExhausted ? (
                 <Banner
                   kind="info"
-                  message="Sie haben die maximale Anzahl an Versuchen erreicht. Ihr letztes Ergebnis bleibt gespeichert."
+                  message={`${MAX_ATTEMPTS_TEXT} Ihr letztes Ergebnis bleibt gespeichert.`}
                 />
               ) : (
                 orderedQuestions.map((question, index) => {
@@ -301,6 +324,7 @@ export default function QuizScreen() {
                   const selectedSet = new Set(
                     Array.isArray(value) ? value : typeof value === "string" ? [value] : [],
                   );
+                  const correctSet = new Set(qResult?.correct_option_ids ?? []);
                   const isMultiple = question.kind === "multiple";
                   const isFreetext = question.kind === "freetext";
                   return (
@@ -340,23 +364,23 @@ export default function QuizScreen() {
                             ) : null}
                             {question.options.map((option) => {
                               const isSelected = selectedSet.has(option.id);
-                              const reveal = result !== null;
-                              const showCorrect = reveal && option.is_correct;
-                              const showWrong = reveal && isSelected && !option.is_correct;
+                              const reveal = qResult !== undefined;
+                              const showCorrect = reveal && correctSet.has(option.id);
+                              const showWrong = reveal && isSelected && !correctSet.has(option.id);
                               return (
                                 <Pressable
                                   key={option.id}
                                   accessibilityRole={isMultiple ? "checkbox" : "radio"}
                                   accessibilityState={{
                                     checked: isSelected,
-                                    disabled: reveal,
+                                    disabled: result !== null,
                                   }}
                                   accessibilityLabel={
                                     reveal
                                       ? `${option.body}. ${showCorrect ? "Richtige Antwort." : showWrong ? "Nicht richtig." : ""}`
                                       : option.body
                                   }
-                                  disabled={reveal}
+                                  disabled={result !== null}
                                   onPress={() =>
                                     isMultiple
                                       ? toggleMultiple(question.id, option.id)
@@ -410,9 +434,7 @@ export default function QuizScreen() {
                             {qResult.correct ? "Richtig beantwortet." : "Nicht richtig."}
                           </Text>
                         ) : null}
-                        {result !== null &&
-                        qResult?.explanation !== null &&
-                        qResult?.explanation !== undefined ? (
+                        {qResult !== undefined && qResult.explanation !== null ? (
                           <Text variant="small" muted>
                             {qResult.explanation}
                           </Text>
@@ -449,7 +471,7 @@ export default function QuizScreen() {
                 ) : null}
                 {result !== null &&
                 result.passed === false &&
-                (attemptsLeft === null || attemptsLeft > 0) ? (
+                (attemptsLeftAfter === null || attemptsLeftAfter > 0) ? (
                   <Button label="Erneut versuchen" variant="secondary" onPress={retry} />
                 ) : null}
                 <Button

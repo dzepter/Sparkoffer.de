@@ -278,3 +278,31 @@ insert into storage.objects (bucket_id, name) values
 -- ---------------------------------------------------------------------------
 update public.organization_memberships set status = 'inactive'
  where profile_id in ('aa000000-0000-4000-a000-000000000006', 'ee000000-0000-4000-a000-000000000001');
+
+-- ---------------------------------------------------------------------------
+-- Quiz-Fixtures fuer die serverseitige Bewertung (Migration 0007, Test 06)
+-- Quiz ff..0003 haengt an der freien Lektion L01 (Block ee..0005, nicht
+-- verpflichtend). Alle Fragearten, pass_score 3 von max. 4 Punkten,
+-- max_attempts 2, keine vorhandenen Versuche.
+-- ---------------------------------------------------------------------------
+insert into public.quizzes (id, title, pass_score, max_attempts) values
+  ('ff000000-0000-4000-a000-000000000003', 'Quiz L01 (Bewertung)', 3, 2);
+
+insert into public.content_blocks (id, lesson_id, position, block_type, config, required) values
+  ('ee000000-0000-4000-a000-000000000005', 'dd000000-0000-4000-a000-000000000001', 5, 'quiz', '{"quizId": "ff000000-0000-4000-a000-000000000003"}', false);
+
+insert into public.quiz_questions (id, quiz_id, position, kind, body, explanation, points) values
+  ('ff000000-0000-4000-a000-000000000031', 'ff000000-0000-4000-a000-000000000003', 1, 'single',    'Q31 single (1 Punkt)',    'Erklaerung Q31', 1),
+  ('ff000000-0000-4000-a000-000000000032', 'ff000000-0000-4000-a000-000000000003', 2, 'multiple',  'Q32 multiple (2 Punkte)', null,             2),
+  ('ff000000-0000-4000-a000-000000000033', 'ff000000-0000-4000-a000-000000000003', 3, 'truefalse', 'Q33 truefalse (1 Punkt)', 'Erklaerung Q33', 1),
+  ('ff000000-0000-4000-a000-000000000034', 'ff000000-0000-4000-a000-000000000003', 4, 'freetext',  'Q34 freetext (ohne Wertung)', 'Erklaerung Q34', 1);
+
+insert into public.quiz_options (id, question_id, position, body, is_correct) values
+  ('ff000000-0000-4000-a000-000000000311', 'ff000000-0000-4000-a000-000000000031', 1, 'Q31 A (richtig)', true),
+  ('ff000000-0000-4000-a000-000000000312', 'ff000000-0000-4000-a000-000000000031', 2, 'Q31 B',           false),
+  ('ff000000-0000-4000-a000-000000000313', 'ff000000-0000-4000-a000-000000000031', 3, 'Q31 C',           false),
+  ('ff000000-0000-4000-a000-000000000321', 'ff000000-0000-4000-a000-000000000032', 1, 'Q32 A (richtig)', true),
+  ('ff000000-0000-4000-a000-000000000322', 'ff000000-0000-4000-a000-000000000032', 2, 'Q32 B (richtig)', true),
+  ('ff000000-0000-4000-a000-000000000323', 'ff000000-0000-4000-a000-000000000032', 3, 'Q32 C',           false),
+  ('ff000000-0000-4000-a000-000000000331', 'ff000000-0000-4000-a000-000000000033', 1, 'Richtig',         true),
+  ('ff000000-0000-4000-a000-000000000332', 'ff000000-0000-4000-a000-000000000033', 2, 'Falsch',          false);

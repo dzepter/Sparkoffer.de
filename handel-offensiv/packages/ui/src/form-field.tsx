@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Fragment, cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
 
 import { cn } from "./cn";
 
@@ -15,6 +15,15 @@ export interface FormFieldProps {
   className?: string;
 }
 
+type DescribableProps = { "aria-describedby"?: string | undefined };
+
+/**
+ * Formularfeld mit Label, Fehler (role=alert) und Hinweis.
+ * Barrierefreiheit: Ist das Kind ein einzelnes Element (Input, Textarea,
+ * Checkbox, ...), erhaelt es automatisch aria-describedby auf den Fehler-
+ * bzw. Hinweistext, damit Screenreader ihn beim Fokussieren vorlesen. Ein
+ * explizit gesetztes aria-describedby des Kindes bleibt erhalten.
+ */
 export function FormField({
   htmlFor,
   label,
@@ -24,6 +33,14 @@ export function FormField({
   children,
   className,
 }: FormFieldProps) {
+  const describedBy = error ? `${htmlFor}-fehler` : hint ? `${htmlFor}-hinweis` : undefined;
+  const content =
+    describedBy !== undefined && isValidElement<DescribableProps>(children) && children.type !== Fragment
+      ? cloneElement(children as ReactElement<DescribableProps>, {
+          "aria-describedby": children.props["aria-describedby"] ?? describedBy,
+        })
+      : children;
+
   return (
     <div className={cn("space-y-1.5", className)}>
       <label htmlFor={htmlFor} className="block text-sm font-bold text-ink">
@@ -34,7 +51,7 @@ export function FormField({
           </span>
         ) : null}
       </label>
-      {children}
+      {content}
       {error ? (
         <p id={`${htmlFor}-fehler`} role="alert" className="text-sm text-danger">
           {error}

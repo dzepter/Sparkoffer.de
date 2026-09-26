@@ -26,6 +26,7 @@ import { writeAuditLog } from "@/lib/audit";
 import { getActorContext } from "@/lib/auth";
 import { callEdgeFunctionAsUser } from "@/lib/edge-functions";
 import { ERROR_MESSAGES, mapSupabaseError } from "@/lib/errors";
+import { RATE_LIMITS, RATE_LIMIT_MESSAGE, clientKey, takeRateLimitRule } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { loadAuthUserMap } from "./auth-users";
 import { parseParticipantCsv } from "./csv";
@@ -81,6 +82,14 @@ async function callInviteFunction(payload: InvitePayload): Promise<string | null
   return result.error ?? "Die Einladung konnte nicht versendet werden. Bitte versuchen Sie es erneut.";
 }
 
+/**
+ * Rate Limit (0008): 60 Einladungs-Aktionen je Akteur pro Stunde – Schluessel
+ * ist ein Hash der Profil-ID (kein Klartext in der Datenbank).
+ */
+function inviteRateLimitOk(profileId: string): Promise<boolean> {
+  return takeRateLimitRule(clientKey("admin:invite:actor", profileId), RATE_LIMITS.invite);
+}
+
 /* ------------------------------ Einladen ------------------------------- */
 
 export interface InviteFormState {
@@ -112,6 +121,9 @@ export async function inviteAction(
   // Rollen oberhalb participant darf nur der Super Admin vergeben
   if (input.role !== "participant" && !session.actor.isSuperAdmin) {
     return { error: ERROR_MESSAGES.forbidden };
+  }
+  if (!(await inviteRateLimitOk(session.actor.profileId))) {
+    return { error: RATE_LIMIT_MESSAGE };
   }
 
   const failure = await callInviteFunction({
@@ -156,6 +168,9 @@ export async function resendInvitationAction(formData: FormData): Promise<void> 
 
   if (!can(session.actor, "users.invite", { organizationId: inv.organization_id })) {
     redirect("/teilnehmer?fehler=recht");
+  }
+  if (!(await inviteRateLimitOk(session.actor.profileId))) {
+    redirect("/teilnehmer?fehler=limit");
   }
 
   const failure = await callInviteFunction({ action: "resend", invitationId: inv.id });
@@ -593,6 +608,11 @@ export async function csvImportAction(
   const rowsParsed = importRowsSchema.safeParse(rawRows);
   if (!rowsParsed.success) {
     return { step: "start", error: "Keine gültigen Zeilen zum Import gefunden." };
+  }
+  // Ein Import zaehlt als EINE Einladungs-Aktion (die Function begrenzt
+  // zusaetzlich die Einzelaufrufe je Akteur).
+  if (!(await inviteRateLimitOk(session.actor.profileId))) {
+    return { step: "start", error: RATE_LIMIT_MESSAGE };
   }
 
   let imported = 0;

@@ -1,7 +1,9 @@
 /**
  * quiz-Block (§13/§16): ruhige Karte mit Stand der Versuche; das Quiz
  * selbst läuft im eigenen Screen app/quiz/[quizId]. Gilt als bearbeitet,
- * sobald ein abgeschlossener Versuch existiert.
+ * sobald ein abgeschlossener Versuch existiert. Versuche entstehen nur über
+ * die RPC submit_quiz_attempt (serverseitige Bewertung, Migration 0007);
+ * hier werden sie ausschliesslich gelesen (eigene Versuche via RLS).
  */
 import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";

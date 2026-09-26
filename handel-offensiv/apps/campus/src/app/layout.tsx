@@ -22,6 +22,16 @@ export const viewport: Viewport = {
   themeColor: "#0F2340",
 };
 
+/**
+ * CSP mit Nonce (src/middleware.ts, script-src 'nonce-…' 'strict-dynamic'):
+ * Next traegt den Nonce nur in DYNAMISCH gerenderte Seiten ein. Statisch
+ * vorgerenderte Routen (z. B. /impressum, /login/passwort-vergessen, 404)
+ * haetten Skripte ohne Nonce – der Browser blockierte sie komplett (keine
+ * Hydration). Daher wird der gesamte Campus dynamisch gerendert; das gilt
+ * fuer alle Segmente unter diesem Root-Layout inkl. not-found.tsx.
+ */
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="de">

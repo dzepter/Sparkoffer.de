@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { getActorContext } from "@/lib/auth";
 import { QUESTION_KIND_LABELS } from "@/lib/content-meta";
 import { ERROR_MESSAGES } from "@/lib/errors";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import { ConfirmSubmit } from "../../_components/confirm-submit";
@@ -74,10 +75,15 @@ export default async function QuizDetailPage({
   if (quiz === null) notFound();
   const questions = (questionsRes.data ?? []) as QuizQuestionRow[];
 
+  // Antwortoptionen INKLUSIVE Loesung (is_correct): Seit Migration 0007 ist
+  // die Spalte fuer die Nutzersession gesperrt (Teilnehmer duerfen die Loesung
+  // nicht lesen). Der Editor liest sie daher – nach der can()-Pruefung oben –
+  // ueber die Service-Rolle, strikt auf die Fragen dieses Quiz begrenzt
+  // (Quiz und Fragen kamen ueber RLS aus der Nutzersession).
   let optionsByQuestion = new Map<string, QuizOptionRow[]>();
   let optionsError = false;
   if (questions.length > 0) {
-    const optionsRes = await supabase
+    const optionsRes = await createSupabaseAdminClient()
       .from("quiz_options")
       .select("*")
       .in(

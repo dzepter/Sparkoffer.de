@@ -24,7 +24,10 @@
  * Folgeschritt scheitert, wird er wieder geloescht (Aufraeumen).
  *
  * Rate-Limit streng: Der Endpunkt ist unauthentifiziert und nimmt Tokens
- * entgegen (Brute-Force-Ziel).
+ * entgegen (Brute-Force-Ziel). Die Limits gelten je Besucher-IP; der
+ * Web-Campus (serverseitiger Aufruf) reicht die Besucher-IP signiert weiter
+ * (x-campus-client-ip + x-campus-signature, Secret CAMPUS_CLIENT_IP_SECRET,
+ * siehe _shared/ratelimit.ts resolveClientIp).
  */
 
 import { z } from "npm:zod@3.23.8";
@@ -32,7 +35,7 @@ import { supabaseAdmin, type AdminClient } from "../_shared/supabaseAdmin.ts";
 import { writeAudit } from "../_shared/audit.ts";
 import { corsHeaders, preflightResponse } from "../_shared/cors.ts";
 import { fail, json, readJsonBody, toErrorResponse } from "../_shared/errors.ts";
-import { rateLimit } from "../_shared/ratelimit.ts";
+import { ipKey, rateLimit, rateLimitPersistent, resolveClientIp } from "../_shared/ratelimit.ts";
 import { sha256Hex } from "../_shared/tokens.ts";
 
 const tokenSchema = z.string().trim().min(20, "Ungültiger Einladungslink.").max(200);
@@ -152,12 +155,21 @@ Deno.serve(async (req) => {
 
     const admin = supabaseAdmin();
     const body = bodySchema.parse(await readJsonBody(req));
+    // Echte Besucher-IP: signiert vom Web-Campus weitergereicht, sonst
+    // x-forwarded-for (Mobile-App, direkte Aufrufe). Ohne diese Aufloesung
+    // teilten sich alle Web-Besucher die Egress-IP des Campus-Servers.
+    const ip = await resolveClientIp(req);
 
     // ----------------------------------------------------------------------
     // validate: Vorschau fuer den Annahme-Screen
     // ----------------------------------------------------------------------
     if (body.action === "validate") {
-      rateLimit(req, "accept-invitation:validate", { capacity: 10, refillPerMinute: 3 });
+      rateLimit(ip, "accept-invitation:validate", { capacity: 10, refillPerMinute: 3 });
+      // Persistent je IP-Hash (nie Klartext-IP): 10 Pruefungen, +2/min (0008).
+      await rateLimitPersistent(admin, await ipKey(ip, "accept-invitation:validate"), {
+        capacity: 10,
+        refillPerMinute: 2,
+      });
       const invitation = await loadValidInvitation(admin, body.token);
       return json(
         200,
@@ -177,7 +189,12 @@ Deno.serve(async (req) => {
     // ----------------------------------------------------------------------
     // complete: Konto anlegen und Einladung abschliessen
     // ----------------------------------------------------------------------
-    rateLimit(req, "accept-invitation:complete", { capacity: 5, refillPerMinute: 1 });
+    rateLimit(ip, "accept-invitation:complete", { capacity: 5, refillPerMinute: 1 });
+    // Persistent je IP-Hash: 5 Abschluesse, +1/min (0008).
+    await rateLimitPersistent(admin, await ipKey(ip, "accept-invitation:complete"), {
+      capacity: 5,
+      refillPerMinute: 1,
+    });
     const invitation = await loadValidInvitation(admin, body.token);
     const email = invitation.email.toLowerCase();
 

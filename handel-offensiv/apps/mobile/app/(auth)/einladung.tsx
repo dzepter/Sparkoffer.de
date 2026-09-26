@@ -7,17 +7,16 @@
  *    und liefert E-Mail + Organisation (Anzeige zur Bestätigung).
  * 3. Name + Passwort setzen (invitationAcceptSchema: min. 10 Zeichen,
  *    Bestätigung) + Datenschutz-Zustimmung (Pflicht-Checkbox).
- * 4. Edge Function (action "accept") legt Konto, Mitgliedschaft und
+ * 4. Edge Function (action "complete") legt Konto, Mitgliedschaft und
  *    user_consents SERVERSEITIG an – danach automatische Anmeldung.
  *
- * Erwarteter Contract der Edge Function (supabase/functions/accept-invitation):
+ * Verbindlicher Contract (Quelle: supabase/functions/accept-invitation/index.ts):
  *   POST { action: "validate", token } ->
- *     200 { ok: true, invitation: { email, organizationName, cohortName?,
- *           firstName?, lastName? } }
- *     4xx { ok: false, code: "invalid" | "expired" | "revoked" | "accepted" }
- *   POST { action: "accept", token, firstName, lastName, password,
- *          consentPrivacy: true } ->
- *     200 { ok: true, email }  |  4xx { ok: false, code: … }
+ *     200 { ok: true, invitation: { email, organizationName, cohortName, role } }
+ *     4xx { ok: false, error, code?: "invalid" | "expired" | "revoked" | "accepted" }
+ *   POST { action: "complete", token, firstName, lastName, password,
+ *          consentPrivacyVersion } ->
+ *     200 { ok: true, email, accountExisted, hinweis }  |  4xx { ok: false, error, code? }
  */
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -31,7 +30,7 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as Linking from "expo-linking";
 import { Feather } from "@expo/vector-icons";
-import { colors, radius, spacing, touch } from "@handel-offensiv/config";
+import { PRIVACY_POLICY_VERSION, colors, radius, spacing, touch } from "@handel-offensiv/config";
 import { invitationAcceptSchema } from "@handel-offensiv/validation";
 import { supabase } from "../../src/lib/supabase";
 import { Banner, Button, Field, Kicker, Text } from "../../src/ui";
@@ -70,6 +69,8 @@ function invitationErrorText(code: unknown): string {
 function readFunctionPayload(data: unknown): {
   ok: boolean;
   code?: unknown;
+  /** Deutsche Fehlermeldung der Function (falls vorhanden) */
+  error?: string;
   invitation?: Partial<Record<keyof InvitationInfo, unknown>>;
 } {
   if (typeof data !== "object" || data === null) return { ok: false };
@@ -77,6 +78,7 @@ function readFunctionPayload(data: unknown): {
   return {
     ok: obj.ok === true,
     code: obj.code,
+    error: typeof obj.error === "string" ? obj.error : undefined,
     invitation:
       typeof obj.invitation === "object" && obj.invitation !== null
         ? (obj.invitation as Partial<Record<keyof InvitationInfo, unknown>>)
@@ -188,13 +190,14 @@ export default function EinladungScreen() {
         "accept-invitation",
         {
           body: {
-            action: "accept",
+            action: "complete",
             token: parsed.data.token,
             firstName: parsed.data.firstName,
             lastName: parsed.data.lastName,
             password: parsed.data.password,
-            // user_consents schreibt der Server (DSGVO-Nachweis inkl. Version)
-            consentPrivacy: parsed.data.consentPrivacy,
+            // user_consents schreibt der Server (DSGVO-Nachweis inkl. Version);
+            // die Checkbox (consentPrivacy) ist clientseitig Pflicht (Schema).
+            consentPrivacyVersion: PRIVACY_POLICY_VERSION,
           },
         },
       );
@@ -203,7 +206,8 @@ export default function EinladungScreen() {
         setError(
           payload.code
             ? invitationErrorText(payload.code)
-            : "Die Einladung konnte gerade nicht angenommen werden. Bitte versuchen Sie es erneut.",
+            : (payload.error ??
+              "Die Einladung konnte gerade nicht angenommen werden. Bitte versuchen Sie es erneut."),
         );
         return;
       }

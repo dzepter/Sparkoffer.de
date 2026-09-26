@@ -181,7 +181,7 @@ export function TransferTaskBlock({
           file_path: filePath ?? submission?.file_path ?? null,
           visibility,
         },
-        { onConflict: "content_block_id,profile_id" },
+        { onConflict: "content_block_id,profile_id,cohort_id" },
       );
       if (error !== null) {
         throw new Error(

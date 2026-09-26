@@ -27,6 +27,14 @@ export const PROGRAM_DEFAULTS = {
   ],
 } as const;
 
+/**
+ * Version der Datenschutzerklaerung, der Nutzer bei der Kontoeinrichtung
+ * zustimmen (user_consents.version). Bei jeder inhaltlichen Aenderung der
+ * Erklaerung erhoehen – bestehende Nutzer werden dann erneut gefragt.
+ * ENTWURF: finale Fassung nach juristischer Pruefung (NEEDED_FROM_CLIENT.md).
+ */
+export const PRIVACY_POLICY_VERSION = "2026-09-entwurf";
+
 export const LIMITS = {
   /** Datei-Uploads (Storage §29) */
   maxUploadBytes: 25 * 1024 * 1024,

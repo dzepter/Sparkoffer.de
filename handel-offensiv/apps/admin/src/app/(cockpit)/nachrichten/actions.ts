@@ -18,7 +18,7 @@ import { can } from "@handel-offensiv/domain";
 
 import { writeAuditLog } from "@/lib/audit";
 import { getActorContext, type SessionActor } from "@/lib/auth";
-import { supabaseServiceRoleKey, supabaseUrl } from "@/lib/env";
+import { callEdgeFunctionAsUser } from "@/lib/edge-functions";
 import { ERROR_MESSAGES, mapSupabaseError } from "@/lib/errors";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -54,31 +54,22 @@ function canSendToCohort(
   );
 }
 
-/** Push-Versand ueber die Edge Function; Rueckgabe: Fehlertext oder null. */
+/**
+ * Push-Versand ueber die Edge Function send-push – mit dem JWT der
+ * angemeldeten Person (die Function prueft notifications.send selbst).
+ * Vertrag: { cohortId, title, body, deepLink?, kind }.
+ * Rueckgabe: Fehlertext oder null.
+ */
 async function callSendPush(payload: {
-  target: "cohort";
   cohortId: string;
   title: string;
   body: string;
   kind: "announcement";
-  announcementId: string;
+  deepLink: string;
 }): Promise<string | null> {
-  try {
-    const res = await fetch(`${supabaseUrl()}/functions/v1/send-push`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // Service-Role-Key: nur hier serverseitig – niemals im Client
-        Authorization: `Bearer ${supabaseServiceRoleKey()}`,
-      },
-      body: JSON.stringify(payload),
-      cache: "no-store",
-    });
-    if (res.ok) return null;
-    return "Die Ankündigung wurde gespeichert, die Push-Benachrichtigung konnte aber nicht versendet werden.";
-  } catch {
-    return "Die Ankündigung wurde gespeichert, die Push-Benachrichtigung konnte aber nicht versendet werden.";
-  }
+  const result = await callEdgeFunctionAsUser("send-push", payload);
+  if (result.ok) return null;
+  return "Die Ankündigung wurde gespeichert, die Push-Benachrichtigung konnte aber nicht versendet werden.";
 }
 
 export async function createAnnouncementAction(
@@ -144,12 +135,11 @@ export async function createAnnouncementAction(
   let pushWarning: string | null = null;
   if (input.sendPush) {
     pushWarning = await callSendPush({
-      target: "cohort",
       cohortId: input.cohortId,
       title: input.title,
       body: input.body,
       kind: "announcement",
-      announcementId,
+      deepLink: `/nachrichten/${announcementId}`,
     });
     if (pushWarning === null) {
       await writeAuditLog({

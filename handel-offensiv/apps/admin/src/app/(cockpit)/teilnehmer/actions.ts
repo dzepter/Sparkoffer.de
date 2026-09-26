@@ -7,8 +7,11 @@
  *  - KEIN Hard-Delete: deaktivieren/reaktivieren statt loeschen (§23).
  *  - Einladungen laufen ueber die Edge Function POST /functions/v1/invite-user
  *    (legt die Einladung an, hasht das Token und versendet die E-Mail). Der
- *    Aufruf erfolgt HIER serverseitig mit Service-Kontext; die URL kommt aus
- *    NEXT_PUBLIC_SUPABASE_URL, der Key aus SUPABASE_SERVICE_ROLE_KEY (env).
+ *    Aufruf erfolgt serverseitig MIT DEM JWT DER ANGEMELDETEN PERSON
+ *    (lib/edge-functions.ts) – die Function prueft die Berechtigung selbst.
+ *    Der Service-Role-Key wird dafuer NICHT verwendet (Befund I-1/S-14).
+ *  - Jede Aenderung an Mitgliedschaften ist an die Organisation gebunden, fuer
+ *    die die Berechtigung geprueft wurde (Befund S-2: keine IDOR ueber IDs).
  *  - Jede Operation: getActorContext() -> can() -> Ausfuehrung -> Audit-Log.
  */
 
@@ -21,7 +24,7 @@ import { csvParticipantRowSchema, invitationCreateSchema } from "@handel-offensi
 
 import { writeAuditLog } from "@/lib/audit";
 import { getActorContext } from "@/lib/auth";
-import { supabaseServiceRoleKey, supabaseUrl } from "@/lib/env";
+import { callEdgeFunctionAsUser } from "@/lib/edge-functions";
 import { ERROR_MESSAGES, mapSupabaseError } from "@/lib/errors";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { loadAuthUserMap } from "./auth-users";
@@ -45,41 +48,37 @@ function firstFieldErrors(error: z.ZodError): Record<string, string> {
 
 /* ------------------------- Edge Function Aufruf ------------------------- */
 
-interface InvitePayload {
-  email?: string;
-  organizationId?: string;
-  cohortId?: string | null;
-  role?: string;
-  firstName?: string;
-  lastName?: string;
-  invitedBy?: string;
-  /** Erneut senden einer bestehenden Einladung */
-  invitationId?: string;
-  resend?: boolean;
-}
+/**
+ * Vertrag der Edge Function invite-user (supabase/functions/invite-user):
+ *   { action: "create", email, organizationId, cohortId?, role }
+ *   { action: "resend", invitationId }
+ *   { action: "revoke", invitationId }
+ */
+type InvitePayload =
+  | {
+      action: "create";
+      email: string;
+      organizationId: string;
+      cohortId?: string;
+      role: "org_admin" | "trainer" | "participant";
+    }
+  | { action: "resend"; invitationId: string }
+  | { action: "revoke"; invitationId: string };
 
 /**
- * Ruft die Edge Function invite-user im Service-Kontext auf.
+ * Ruft die Edge Function invite-user mit dem JWT der angemeldeten Person auf.
  * Rueckgabe: null bei Erfolg, sonst deutsche Fehlermeldung.
  */
 async function callInviteFunction(payload: InvitePayload): Promise<string | null> {
-  try {
-    const res = await fetch(`${supabaseUrl()}/functions/v1/invite-user`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // Service-Role-Key: nur hier serverseitig – niemals im Client
-        Authorization: `Bearer ${supabaseServiceRoleKey()}`,
-      },
-      body: JSON.stringify(payload),
-      cache: "no-store",
-    });
-    if (res.ok) return null;
-    if (res.status === 409) return "Für diese E-Mail-Adresse besteht bereits eine Einladung oder ein Konto.";
-    return "Die Einladung konnte nicht versendet werden. Bitte versuchen Sie es erneut.";
-  } catch {
-    return ERROR_MESSAGES.network;
+  const result = await callEdgeFunctionAsUser("invite-user", payload);
+  if (result.ok) return null;
+  if (result.status === 0) return ERROR_MESSAGES.network;
+  if (result.status === 401) return ERROR_MESSAGES.sessionExpired;
+  if (result.status === 403) return ERROR_MESSAGES.forbidden;
+  if (result.status === 409) {
+    return result.error ?? "Für diese E-Mail-Adresse besteht bereits eine Einladung oder ein Konto.";
   }
+  return result.error ?? "Die Einladung konnte nicht versendet werden. Bitte versuchen Sie es erneut.";
 }
 
 /* ------------------------------ Einladen ------------------------------- */
@@ -116,11 +115,11 @@ export async function inviteAction(
   }
 
   const failure = await callInviteFunction({
+    action: "create",
     email: input.email,
     organizationId: input.organizationId,
-    cohortId: input.cohortId ?? null,
+    ...(input.cohortId !== undefined ? { cohortId: input.cohortId } : {}),
     role: input.role,
-    invitedBy: session.actor.profileId,
   });
   if (failure !== null) return { error: failure };
 
@@ -159,7 +158,7 @@ export async function resendInvitationAction(formData: FormData): Promise<void> 
     redirect("/teilnehmer?fehler=recht");
   }
 
-  const failure = await callInviteFunction({ invitationId: inv.id, resend: true });
+  const failure = await callInviteFunction({ action: "resend", invitationId: inv.id });
   if (failure !== null) redirect("/teilnehmer?fehler=einladung");
 
   await writeAuditLog({
@@ -248,7 +247,19 @@ export async function changeCohortAction(
 
   const admin = createSupabaseAdminClient();
 
-  // Bisherige Gruppen-Zugehoerigkeiten innerhalb DIESER Organisation abloesen
+  // Mandantenbindung (S-2): Die Person MUSS Mitglied der Organisation sein,
+  // fuer die die Berechtigung geprueft wurde – sonst koennte ein Org-Admin
+  // beliebige Profil-IDs in seine Gruppen ziehen.
+  const { data: membership, error: membershipError } = await admin
+    .from("organization_memberships")
+    .select("id")
+    .eq("organization_id", v.organizationId)
+    .eq("profile_id", v.profileId)
+    .maybeSingle();
+  if (membershipError) return { error: mapSupabaseError(membershipError, ERROR_MESSAGES.save), done: false };
+  if (!membership) return { error: ERROR_MESSAGES.notFound, done: false };
+
+  // Alle Gruppen DIESER Organisation; die Zielgruppe muss dazugehoeren.
   const { data: orgCohorts, error: cohortsError } = await admin
     .from("cohorts")
     .select("id")
@@ -256,27 +267,51 @@ export async function changeCohortAction(
   if (cohortsError) return { error: mapSupabaseError(cohortsError, ERROR_MESSAGES.save), done: false };
 
   const cohortIds = ((orgCohorts ?? []) as Array<{ id: string }>).map((c) => c.id);
+  if (v.cohortId !== undefined && !cohortIds.includes(v.cohortId)) {
+    return { error: ERROR_MESSAGES.notFound, done: false };
+  }
+
+  // Bisherige Gruppen-Zugehoerigkeiten und Einschreibungen innerhalb DIESER
+  // Organisation abloesen
   if (cohortIds.length > 0) {
-    const { error } = await admin
+    const { error: membersError } = await admin
       .from("cohort_members")
       .delete()
       .eq("profile_id", v.profileId)
       .in("cohort_id", cohortIds);
-    if (error) return { error: mapSupabaseError(error, ERROR_MESSAGES.save), done: false };
+    if (membersError) return { error: mapSupabaseError(membersError, ERROR_MESSAGES.save), done: false };
+
+    const { error: enrollmentsError } = await admin
+      .from("course_enrollments")
+      .delete()
+      .eq("profile_id", v.profileId)
+      .in("cohort_id", cohortIds);
+    if (enrollmentsError) return { error: mapSupabaseError(enrollmentsError, ERROR_MESSAGES.save), done: false };
   }
 
   if (v.cohortId !== undefined) {
-    const { error } = await admin
+    // Zuordnung UND Einschreibung – beides ist fuer die Freischaltung noetig
+    // (app.lesson_is_released prueft cohort_members + course_enrollments).
+    const { error: memberError } = await admin
       .from("cohort_members")
       .upsert(
         { cohort_id: v.cohortId, profile_id: v.profileId, status: "active" },
         { onConflict: "cohort_id,profile_id" },
       );
-    if (error) return { error: mapSupabaseError(error, ERROR_MESSAGES.save), done: false };
+    if (memberError) return { error: mapSupabaseError(memberError, ERROR_MESSAGES.save), done: false };
+
+    const { error: enrollError } = await admin
+      .from("course_enrollments")
+      .upsert(
+        { cohort_id: v.cohortId, profile_id: v.profileId },
+        { onConflict: "profile_id,cohort_id", ignoreDuplicates: true },
+      );
+    if (enrollError) return { error: mapSupabaseError(enrollError, ERROR_MESSAGES.save), done: false };
   }
 
   await writeAuditLog({
     actorProfileId: session.actor.profileId,
+    organizationId: v.organizationId,
     action: "members.change_cohort",
     targetType: "profile",
     targetId: v.profileId,
@@ -354,22 +389,65 @@ export async function setMembershipStatusAction(formData: FormData): Promise<voi
   }
 
   const admin = createSupabaseAdminClient();
-  const { error } = await admin
+
+  // Mandantenbindung (S-2): Update NUR innerhalb der geprueften Organisation.
+  // Eine fremde membershipId trifft damit keine Zeile.
+  const { data: updated, error } = await admin
     .from("organization_memberships")
     .update({ status: v.status })
-    .eq("id", v.membershipId);
+    .eq("id", v.membershipId)
+    .eq("organization_id", v.organizationId)
+    .select("id, profile_id");
   if (error) redirect("/teilnehmer?fehler=1");
+  const rows = (updated ?? []) as Array<{ id: string; profile_id: string }>;
+  if (rows.length !== 1) redirect("/teilnehmer?fehler=1");
+  const profileId = rows[0]!.profile_id;
+
+  // Deaktivierungskaskade (S-5): Hat die Person keine aktive Mitgliedschaft
+  // mehr (und ist kein Super Admin), wird das KONTO deaktiviert – RLS
+  // (app.current_profile_id) sperrt dann sofort jeden Datenzugriff, GoTrue
+  // sperrt neue Anmeldungen/Token-Refresh. Reaktivierung hebt beides auf.
+  const cascade = await applyAccountStatusCascade(admin, profileId);
 
   await writeAuditLog({
     actorProfileId: session.actor.profileId,
+    organizationId: v.organizationId,
     action: v.status === "inactive" ? "members.deactivate" : "members.reactivate",
     targetType: "organization_membership",
     targetId: v.membershipId,
-    metadata: { status: v.status },
+    metadata: { status: v.status, profile_id: profileId, account_status: cascade },
   });
 
   revalidatePath("/teilnehmer");
   redirect("/teilnehmer");
+}
+
+/**
+ * Setzt profiles.status und die GoTrue-Sperre passend zum Mitgliedschafts-
+ * bestand: keine aktive Mitgliedschaft und kein Super Admin -> Konto inaktiv
+ * + gesperrt; sonst Konto aktiv + entsperrt. Liefert den resultierenden Status.
+ */
+async function applyAccountStatusCascade(
+  admin: ReturnType<typeof createSupabaseAdminClient>,
+  profileId: string,
+): Promise<"active" | "inactive"> {
+  const [{ data: profile }, { count }] = await Promise.all([
+    admin.from("profiles").select("id, is_super_admin").eq("id", profileId).maybeSingle(),
+    admin
+      .from("organization_memberships")
+      .select("id", { count: "exact", head: true })
+      .eq("profile_id", profileId)
+      .eq("status", "active"),
+  ]);
+  const isSuperAdmin = Boolean((profile as { is_super_admin?: boolean } | null)?.is_super_admin);
+  const nextStatus: "active" | "inactive" = isSuperAdmin || (count ?? 0) > 0 ? "active" : "inactive";
+
+  await admin.from("profiles").update({ status: nextStatus }).eq("id", profileId);
+  // GoTrue: gesperrte Konten koennen sich nicht anmelden und keine Tokens erneuern.
+  await admin.auth.admin.updateUserById(profileId, {
+    ban_duration: nextStatus === "inactive" ? "876600h" : "none",
+  });
+  return nextStatus;
 }
 
 /* ------------------------------ CSV-Import ------------------------------ */
@@ -520,14 +598,14 @@ export async function csvImportAction(
   let imported = 0;
   const failed: string[] = [];
   for (const row of rowsParsed.data) {
+    // Vor-/Nachname werden bei der Annahme der Einladung von der Person
+    // selbst gesetzt (accept-invitation); die Einladung traegt nur die E-Mail.
     const failure = await callInviteFunction({
+      action: "create",
       email: row.email,
-      firstName: row.firstName,
-      lastName: row.lastName,
       organizationId: ctx.data.organizationId,
-      cohortId: ctx.data.cohortId ?? null,
+      ...(ctx.data.cohortId !== undefined ? { cohortId: ctx.data.cohortId } : {}),
       role: "participant",
-      invitedBy: session.actor.profileId,
     });
     if (failure === null) imported += 1;
     else failed.push(row.email);

@@ -107,7 +107,7 @@ export function ReflectionBlock({
           body: parsed.data.body,
           visibility: parsed.data.visibility,
         },
-        { onConflict: "content_block_id,profile_id" },
+        { onConflict: "content_block_id,profile_id,cohort_id" },
       );
       if (error !== null) {
         throw new Error(

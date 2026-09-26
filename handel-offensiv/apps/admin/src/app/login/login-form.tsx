@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,15 @@ export function LoginForm({ weiter }: { weiter?: string }) {
       <Button type="submit" disabled={pending} className="w-full">
         {pending ? "Wird geprüft …" : "Anmelden"}
       </Button>
+
+      <p className="text-center text-sm">
+        <Link
+          href="/login/passwort-vergessen"
+          className="font-bold text-ink-soft underline-offset-2 hover:text-ink hover:underline"
+        >
+          Passwort vergessen?
+        </Link>
+      </p>
     </form>
   );
 }

@@ -2,8 +2,9 @@
 
 import { redirect } from "next/navigation";
 
-import { loginSchema } from "@handel-offensiv/validation";
+import { loginSchema, passwordResetRequestSchema } from "@handel-offensiv/validation";
 
+import { appBaseUrl } from "@/lib/env";
 import { ERROR_MESSAGES } from "@/lib/errors";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -46,4 +47,37 @@ export async function loginAction(
       ? weiter
       : "/";
   redirect(target);
+}
+
+export interface PasswordResetRequestState {
+  /** true = neutrale Bestaetigung anzeigen (unabhaengig davon, ob das Konto existiert) */
+  done: boolean;
+  error: string | null;
+}
+
+/**
+ * Passwort vergessen (Befund I-3): loest die Supabase-Recovery-Mail aus.
+ * Der Link fuehrt auf /auth/callback (Code-Tausch) und weiter zu /passwort-neu.
+ * SICHERHEIT: Antwort ist IMMER dieselbe – keine Aussage, ob die Adresse
+ * existiert (Account-Enumeration). Supabase begrenzt die Versandrate.
+ */
+export async function requestPasswordResetAction(
+  _prev: PasswordResetRequestState,
+  formData: FormData,
+): Promise<PasswordResetRequestState> {
+  const parsed = passwordResetRequestSchema.safeParse({ email: formData.get("email") });
+  if (!parsed.success) {
+    return { done: false, error: "Bitte geben Sie eine gültige E-Mail-Adresse ein." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  try {
+    await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+      redirectTo: `${appBaseUrl()}/auth/callback?weiter=/passwort-neu`,
+    });
+  } catch {
+    // Netzfehler nicht als Erfolg tarnen – hier gibt es nichts zu enumerieren.
+    return { done: false, error: ERROR_MESSAGES.network };
+  }
+  return { done: true, error: null };
 }

@@ -34,7 +34,12 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Passwort erforderlich"),
 });
 
-/** Einladung annehmen: Passwort setzen + Datenschutz-Einwilligung (Pflicht). */
+/**
+ * Einladung annehmen: Passwort setzen + Datenschutz-Einwilligung (Pflicht).
+ * Client-Schema; an die Edge Function accept-invitation geht
+ * { action: "complete", token, firstName, lastName, password, consentPrivacyVersion }
+ * (consentPrivacyVersion = PRIVACY_POLICY_VERSION aus @handel-offensiv/config).
+ */
 export const invitationAcceptSchema = z
   .object({
     token: nonEmpty("Einladungstoken erforderlich"),
@@ -45,6 +50,22 @@ export const invitationAcceptSchema = z
     consentPrivacy: z.literal(true, {
       errorMap: () => ({ message: "Die Datenschutzerklärung muss akzeptiert werden" }),
     }),
+  })
+  .refine((v) => v.password === v.passwordConfirm, {
+    message: "Die Passwörter stimmen nicht überein",
+    path: ["passwordConfirm"],
+  });
+
+/** Passwort vergessen: nur E-Mail (Antwort ist IMMER neutral, kein Enumeration-Leak). */
+export const passwordResetRequestSchema = z.object({
+  email: emailSchema,
+});
+
+/** Neues Passwort setzen (nach Recovery-Link). */
+export const passwordResetSchema = z
+  .object({
+    password: passwordSchema,
+    passwordConfirm: z.string(),
   })
   .refine((v) => v.password === v.passwordConfirm, {
     message: "Die Passwörter stimmen nicht überein",

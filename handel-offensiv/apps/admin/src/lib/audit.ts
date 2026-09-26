@@ -13,6 +13,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 export interface AuditLogEntry {
   /** Ausfuehrende Person (null nur fuer Systemvorgaenge) */
   actorProfileId: Uuid | null;
+  /** Betroffene Organisation (Mandantenbezug fuer Auswertungen; optional) */
+  organizationId?: Uuid | null;
   /** Kurzform "bereich.verb", z. B. "invitations.create", "lessons.publish" */
   action: string;
   /** Zieltyp, z. B. "invitation", "lesson", "organization" */
@@ -27,6 +29,7 @@ export async function writeAuditLog(entry: AuditLogEntry): Promise<void> {
 
   const { error } = await admin.from("audit_logs").insert({
     actor_profile_id: entry.actorProfileId,
+    organization_id: entry.organizationId ?? null,
     action: entry.action,
     target_type: entry.targetType ?? null,
     target_id: entry.targetId ?? null,

@@ -8,12 +8,19 @@ import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "Anmelden" };
 
+const HINWEISE: Record<string, string> = {
+  "passwort-gesetzt": "Ihr neues Passwort wurde gespeichert. Bitte melden Sie sich damit an.",
+  "link-ungueltig":
+    "Dieser Link ist nicht mehr gültig. Bitte fordern Sie über „Passwort vergessen?“ einen neuen an.",
+};
+
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ weiter?: string }>;
+  searchParams: Promise<{ weiter?: string; hinweis?: string }>;
 }) {
-  const { weiter } = await searchParams;
+  const { weiter, hinweis } = await searchParams;
+  const hinweisText = hinweis !== undefined ? HINWEISE[hinweis] : undefined;
 
   return (
     <main className="pitch-lines flex min-h-screen items-center justify-center bg-paper px-4 py-12">
@@ -28,6 +35,12 @@ export default async function LoginPage({
             Bitte melden Sie sich mit Ihren Zugangsdaten an.
           </p>
         </div>
+
+        {hinweisText ? (
+          <p role="status" className="mb-4 rounded border border-line bg-white px-3 py-2.5 text-sm text-ink">
+            {hinweisText}
+          </p>
+        ) : null}
 
         <div className="rounded border border-line bg-white p-6">
           <LoginForm weiter={weiter} />

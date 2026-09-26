@@ -130,7 +130,7 @@ export async function completeLesson(params: {
       status: "completed",
       completed_at: new Date().toISOString(),
     },
-    { onConflict: "lesson_id,profile_id" },
+    { onConflict: "lesson_id,profile_id,cohort_id" },
   );
   if (error !== null) {
     throw new Error(

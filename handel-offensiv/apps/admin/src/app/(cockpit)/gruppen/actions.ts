@@ -135,6 +135,26 @@ export async function assignTrainerAction(formData: FormData): Promise<void> {
   if (!session) redirect(`${back}&fehler=recht`);
 
   const admin = createSupabaseAdminClient();
+
+  // Trainer brauchen eine aktive Mitgliedschaft in der Organisation der
+  // Gruppe (app.is_cohort_trainer prueft das seit Migration 0003). Fehlt sie,
+  // wird sie mit Rolle "trainer" angelegt; bestehende Rollen bleiben unberuehrt.
+  const { data: cohort, error: cohortError } = await admin
+    .from("cohorts")
+    .select("id, organization_id")
+    .eq("id", parsed.data.cohortId)
+    .maybeSingle();
+  if (cohortError || !cohort) redirect(`${back}&fehler=1`);
+  const organizationId = (cohort as { organization_id: string }).organization_id;
+
+  const { error: membershipError } = await admin
+    .from("organization_memberships")
+    .upsert(
+      { organization_id: organizationId, profile_id: parsed.data.trainerProfileId, role: "trainer" },
+      { onConflict: "organization_id,profile_id", ignoreDuplicates: true },
+    );
+  if (membershipError) redirect(`${back}&fehler=1`);
+
   const { error } = await admin
     .from("cohort_trainers")
     .upsert(

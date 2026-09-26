@@ -26,3 +26,13 @@ export function supabaseAnonKey(): string {
 export function supabaseServiceRoleKey(): string {
   return required("SUPABASE_SERVICE_ROLE_KEY");
 }
+
+/**
+ * Oeffentliche Basis-URL dieses Cockpits (fuer Redirects in Auth-Mails, z. B.
+ * Passwort-Reset). Muss in Supabase unter additional_redirect_urls stehen.
+ * Default fuer die lokale Entwicklung.
+ */
+export function appBaseUrl(): string {
+  const value = process.env.NEXT_PUBLIC_APP_URL;
+  return (value === undefined || value === "" ? "http://localhost:3000" : value).replace(/\/$/, "");
+}

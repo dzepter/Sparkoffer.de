@@ -3,3 +3,4 @@ export * from './capabilities';
 export * from './release-engine';
 export * from './progress';
 export * from './quiz';
+export * from './video-provider';

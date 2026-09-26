@@ -13,7 +13,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = new Set(["/login", "/hinweis-app"]);
+const PUBLIC_PATHS = new Set(["/login", "/login/passwort-vergessen", "/auth/callback", "/hinweis-app"]);
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });

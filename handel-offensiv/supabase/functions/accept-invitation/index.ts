@@ -2,13 +2,19 @@
  * Edge Function: accept-invitation (oeffentlich, OHNE JWT – Deploy mit
  * --no-verify-jwt bzw. verify_jwt = false, siehe README).
  *
- * Aktionen (POST, JSON):
- *   { token, action: "validate" }
- *       -> prueft Hash + Ablauf + Status, liefert { email, organizationName, role }
- *   { token, action: "complete", password, firstName, lastName, consentPrivacyVersion }
- *       -> legt auth-User an (email_confirmed), profile, organization_membership,
- *          ggf. cohort_member/cohort_trainer + enrollment, user_consents(privacy),
- *          markiert die Einladung als accepted.
+ * VERBINDLICHER VERTRAG (gilt fuer Web-Campus, Mobile-App und Admin; Spiegel:
+ * packages/validation invitationAcceptSchema, apps/mobile/app/(auth)/einladung.tsx):
+ *
+ *   POST { action: "validate", token }
+ *     200 { ok: true, invitation: { email, organizationName, cohortName, role } }
+ *   POST { action: "complete", token, password, firstName, lastName, consentPrivacyVersion }
+ *     200 { ok: true, email, accountExisted, hinweis }
+ *   Fehler: 4xx { ok: false, error: <deutsche Meldung>, code?: "invalid" | "expired" |
+ *            "revoked" | "accepted" | "invalid_input" }
+ *
+ * "complete" legt auth-User an (email_confirmed), profile, organization_membership,
+ * ggf. cohort_member/cohort_trainer + enrollment, user_consents(privacy, Version),
+ * und markiert die Einladung als accepted.
  *
  * Idempotenz/Transaktionssicherheit: Edge Functions haben keine DB-Transaktion
  * ueber PostgREST. Daher: (1) Reihenfolge so, dass jeder Schritt einzeln
@@ -61,6 +67,7 @@ interface InvitationRow {
   status: "pending" | "accepted" | "revoked" | "expired";
   expires_at: string;
   organizations: { name: string } | null;
+  cohorts: { name: string } | null;
 }
 
 /**
@@ -73,7 +80,7 @@ async function loadValidInvitation(admin: AdminClient, token: string): Promise<I
   const { data, error } = await admin
     .from("invitations")
     .select(
-      "id, email, organization_id, cohort_id, role, status, expires_at, organizations ( name )",
+      "id, email, organization_id, cohort_id, role, status, expires_at, organizations ( name ), cohorts ( name )",
     )
     .eq("token_hash", tokenHash)
     .maybeSingle();
@@ -84,15 +91,19 @@ async function loadValidInvitation(admin: AdminClient, token: string): Promise<I
   }
   // Bewusst dieselbe Meldung fuer "nicht gefunden" – kein Orakel fuer
   // Token-Raten.
-  if (!data) fail(404, "Dieser Einladungslink ist ungültig.");
+  if (!data) fail(404, "Dieser Einladungslink ist ungültig.", "invalid");
 
   const invitation = data as unknown as InvitationRow;
 
   if (invitation.status === "accepted") {
-    fail(409, "Diese Einladung wurde bereits angenommen. Bitte melden Sie sich an.");
+    fail(409, "Diese Einladung wurde bereits angenommen. Bitte melden Sie sich an.", "accepted");
   }
   if (invitation.status === "revoked") {
-    fail(410, "Diese Einladung wurde zurückgezogen. Bitte wenden Sie sich an Ihre Ansprechperson.");
+    fail(
+      410,
+      "Diese Einladung wurde zurückgezogen. Bitte wenden Sie sich an Ihre Ansprechperson.",
+      "revoked",
+    );
   }
   const expired =
     invitation.status === "expired" || new Date(invitation.expires_at).getTime() < Date.now();
@@ -100,7 +111,11 @@ async function loadValidInvitation(admin: AdminClient, token: string): Promise<I
     if (invitation.status === "pending") {
       await admin.from("invitations").update({ status: "expired" }).eq("id", invitation.id);
     }
-    fail(410, "Diese Einladung ist abgelaufen. Bitte wenden Sie sich an Ihre Ansprechperson.");
+    fail(
+      410,
+      "Diese Einladung ist abgelaufen. Bitte wenden Sie sich an Ihre Ansprechperson.",
+      "expired",
+    );
   }
 
   return invitation;
@@ -147,9 +162,13 @@ Deno.serve(async (req) => {
       return json(
         200,
         {
-          email: invitation.email,
-          organizationName: invitation.organizations?.name ?? "",
-          role: invitation.role,
+          ok: true,
+          invitation: {
+            email: invitation.email,
+            organizationName: invitation.organizations?.name ?? "",
+            cohortName: invitation.cohorts?.name ?? null,
+            role: invitation.role,
+          },
         },
         cors,
       );
@@ -281,6 +300,7 @@ Deno.serve(async (req) => {
         200,
         {
           ok: true,
+          email,
           accountExisted,
           hinweis: accountExisted
             ? "Sie besitzen bereits ein Konto. Bitte melden Sie sich mit Ihrem bestehenden Passwort an."

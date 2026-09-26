@@ -1,4 +1,11 @@
-# Supabase-CLI-Konfiguration – Handel Offensiv Learning App
+# Supabase-CLI-Konfiguration – Aigner Offensiv Digital (Campus + Admin)
+#
+# Hinweise
+#  - Produktions-/Staging-Projekte liegen in der Region EU (Frankfurt,
+#    eu-central-1). Diese Datei steuert die LOKALE Umgebung und wird per
+#    `supabase link` + `supabase db push` auf die Remote-Projekte gespiegelt.
+#  - Keine Secrets in dieser Datei: Werte wie env(RESEND_API_KEY) kommen aus
+#    der Umgebung bzw. `supabase secrets set`.
 project_id = "handel-offensiv"
 
 [api]
@@ -25,9 +32,23 @@ file_size_limit = "50MiB"
 
 [auth]
 enabled = true
-# TODO: Produktions-URL eintragen (Deep-Link-/Redirect-Basis)
-site_url = "http://localhost:3000"
-additional_redirect_urls = []
+# Basis fuer Auth-Links (Passwort-Reset, E-Mail-Aenderung). Lokal: Admin-Cockpit.
+# Produktion: https://campus.aigner-offensiv.de (Web-Campus) – wird beim
+# Anlegen der Remote-Projekte gesetzt.
+site_url = "env(SUPABASE_AUTH_SITE_URL)"
+# Erlaubte Redirect-Ziele (Passwort-Reset: /auth/callback der Web-Apps,
+# Deep-Link der nativen App). Nur exakte URLs bzw. Wildcards je Host.
+additional_redirect_urls = [
+  "http://localhost:3000/auth/callback",
+  "http://localhost:3000/auth/callback?weiter=/passwort-neu",
+  "http://localhost:3001/auth/callback",
+  "http://localhost:3001/auth/callback?weiter=/passwort-neu",
+  "https://admin.aigner-offensiv.de/auth/callback",
+  "https://admin.aigner-offensiv.de/auth/callback?weiter=/passwort-neu",
+  "https://campus.aigner-offensiv.de/auth/callback",
+  "https://campus.aigner-offensiv.de/auth/callback?weiter=/passwort-neu",
+  "handeloffensiv://passwort-neu",
+]
 # Access-Token 1 Stunde gueltig, Refresh-Token-Rotation aktiv
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
@@ -35,8 +56,39 @@ refresh_token_reuse_interval = 10
 # Keine Selbstregistrierung: Zugang ausschliesslich per Einladung
 # (Admin-Invite / Edge Function mit Service Role)
 enable_signup = false
+# Passwortregeln: Mindestlaenge wie im Client-Schema (10), HaveIBeenPwned-Abgleich
+minimum_password_length = 10
+password_requirements = ""
 
 [auth.email]
 enable_signup = false
 double_confirm_changes = true
 enable_confirmations = true
+# Sicherheitsabstand zwischen zwei Auth-Mails an dieselbe Adresse
+max_frequency = "1m0s"
+
+# Transaktionaler Versand ueber Resend (K-4): Absender-Subdomain
+# mail.aigner-offensiv.de, Microsoft-365-MX bleibt unangetastet.
+# Lokal (supabase start) bleibt Inbucket aktiv, solange RESEND_API_KEY leer ist.
+[auth.email.smtp]
+enabled = false
+host = "smtp.resend.com"
+port = 465
+user = "resend"
+pass = "env(RESEND_API_KEY)"
+admin_email = "campus@mail.aigner-offensiv.de"
+sender_name = "Aigner Offensiv Campus"
+
+[auth.mfa]
+max_enrolled_factors = 10
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+# Edge Functions ohne JWT-Pflicht (Token- bzw. Secret-basiert, siehe functions/README.md)
+[functions.accept-invitation]
+verify_jwt = false
+
+[functions.release-scheduler]
+verify_jwt = false

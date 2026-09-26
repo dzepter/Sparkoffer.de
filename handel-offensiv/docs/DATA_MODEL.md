@@ -833,4 +833,4 @@ Organisations-Offboarding (Vertragsende einer Kundenfirma) ist ein separater Pro
 - RLS-Policies im Detail, Auth-Flüsse, MFA: `docs/SECURITY.md`
 - Release-Engine-Algorithmus (reine Funktionen, Tests): `packages/domain`
 - Zod-Schemas der Block-Configs: `packages/validation`
-- Migrationsworkflow und Environments (local/staging/production): `docs/ENVIRONMENTS.md`
+- Migrationsworkflow und Environments (local/staging/production): `docs/ENVIRONMENT_SETUP.md`

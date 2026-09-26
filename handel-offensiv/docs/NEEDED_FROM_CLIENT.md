@@ -10,7 +10,8 @@ Legende: **[P0]** vor Phase 1 nötig · **[P2]** vor dem Vertical Slice · **[P5
 - [ ] **[P0]** K‑1 Domainstrategie: alles unter `aigner-offensiv.de`, `handel-offensiv.de` leitet weiter (Empfehlung) – **Bestätigung**, da dies die Entscheidung vom September umkehrt
 - [ ] **[P0]** K‑2 Website in Next.js mit Redaktion im Admin-Cockpit (Empfehlung) statt PHP-CMS
 - [ ] **[P0]** K‑3 Campus als Next.js-Web-App (Empfehlung)
-- [ ] **[P0]** K‑4 Systemmails über das eigene Postfach (SMTP) – gewünschte **Absenderadresse** (Vorschlag: `mannschaftsraum@aigner-offensiv.de`)
+- [ ] **[P0]** K‑4 Systemmails über einen Transaktionsmail-Dienst (Empfehlung Resend, EU-Region) mit Versand-Subdomain `mail.aigner-offensiv.de` – gewünschte **Absenderadresse** (Vorschlag: `campus@aigner-offensiv.de`). Hintergrund: Ihr Mailsystem ist Microsoft 365 mit DMARC `p=reject`; ohne passende DNS-Einträge (SPF/DKIM) würden Einladungs- und Reset-Mails abgewiesen.
+- [ ] **[P0]** K‑12 Eigenes privates Repository für die Plattform (Empfehlung) · K‑13 Admin liest über Nutzersitzung (Empfehlung) · K‑14 eigenes UI-Paket statt shadcn (Empfehlung)
 - [ ] **[P0]** K‑5 Hosting Vercel (EU) – Bestätigung
 - [ ] **[P0]** K‑7 Farbwelt Blau (Empfehlung) – Bestätigung; Gold nur, wenn ausdrücklich gewünscht
 - [ ] **[P0]** K‑8 Alt-Inhalte (LEARN TO LEAD®, Vorträge, Blog) als Unterseiten behalten
@@ -22,7 +23,9 @@ Legende: **[P0]** vor Phase 1 nötig · **[P2]** vor dem Vertical Slice · **[P5
 - [ ] **[P0] Supabase-Konto** (Organisation „Aigner Offensiv"), Projekte Staging + Production, Region **EU/Frankfurt**; Auftragsverarbeitungsvertrag (AVV) mit Supabase abschließen
 - [ ] **[P0] Vercel-Konto** (Team „Aigner Offensiv"), AVV; Team-Einladung für die Entwicklung
 - [ ] **[P0] Strato-Zugang oder DNS-Änderungen durch den Kunden**: CNAME `campus.` und `admin.` → Vercel (sofort möglich); später `www`/Apex → Vercel; **MX unangetastet**
-- [ ] **[P2] SMTP-Zugangsdaten** des Absenderpostfachs (Server, Port, Benutzer, Passwort) – nur als Secret hinterlegt, nie im Repo
+- [ ] **[P0] Resend-Konto** (oder gewählter Dienst) im Namen von Aigner Offensiv, EU-Region, AVV; DNS-Einträge für `mail.aigner-offensiv.de` bei Strato setzen (Werte liefern wir) – API-Schlüssel nur als Secret, nie im Repo
+- [ ] **[P0] Hoster und FTP-Zugang von `handel-offensiv.de` klären** (Webspace liegt im IONOS/1&1-Adressraum, DNS bei Strato): Wer hat Zugang, welcher Vertrag?
+- [ ] **[P0] Originale der echten Fotos** von der alten Website: Porträt (`10.png`), Rainer vor Gebäude (`vortrag-1-1.jpg`), Bühne (`vortrag-2.jpg`) – bisher nur grün eingefärbt vorhanden; sowie Zugang zum WordPress-Backend für ein Vollbackup
 - [ ] **[P9] Apple Developer Account** (Organisation), Bundle Identifier bestätigen (Vorschlag `de.aigneroffensiv.handeloffensiv`)
 - [ ] Wer erhält **Super-Admin-Zugänge**? (Namen + E-Mail-Adressen; MFA wird Pflicht)
 - [ ] *(zurückgestellt)* Google-Play-Konto
@@ -38,6 +41,7 @@ Legende: **[P0]** vor Phase 1 nötig · **[P2]** vor dem Vertical Slice · **[P5
 - [ ] **[P5] Video** (optional): 60–90 Sekunden Programm-Erklärung durch Rainer
 - [ ] **[P5] Freigabe der fünf Blogartikel (2020)** zur Wiederveröffentlichung als „Impulse" (ggf. Überarbeitung)
 - [ ] Antwortversprechen für Anfragen (z. B. „binnen 24 Stunden") und ggf. eigene Anfrage-Adresse
+- [ ] **[P5] Freigaben für Namen auf der bestehenden Website**: Testimonials mit Klarnamen/Firmen und das Zitat mit Firmenname – liegen schriftliche Einwilligungen vor? Sonst entfernen.
 
 ## 4. Inhalte für den Campus
 

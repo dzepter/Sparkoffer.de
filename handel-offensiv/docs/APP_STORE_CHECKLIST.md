@@ -1,5 +1,7 @@
 # App-Store-Checkliste (iOS)
 
+> **Stand Version 1 (Sommer 2026) – wird in Phase 5/8 überarbeitet.** Angaben zu Domain (`cockpit.handel-offensiv.de`), Farbwelt (grün), Demo-Daten (2026, „Aigner Offensiv Demo") und Teilnehmerzugang („die App") sind überholt. Gültig sind `admin.aigner-offensiv.de` / `campus.aigner-offensiv.de`, Blau, Demo 2027 und der Web-Campus – maßgeblich: `IMPLEMENTATION_PLAN.md`, `CURRENT_STATE.md`.
+
 Vor der Einreichung Punkt für Punkt abhaken. Aktuelle Apple-Vorgaben
 immer gegen die offizielle Dokumentation prüfen (App Review Guidelines,
 App Privacy Details, Privacy Manifest).

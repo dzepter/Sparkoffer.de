@@ -9,7 +9,7 @@ dass sie auch ohne IT-Hintergrund verständlich sind.
 
 ## 0. Version 2 – Änderungen und Befunde (Entwurf zur Freigabe, 26.09.2026)
 
-Das Sicherheitskonzept der Kapitel 1–15 gilt weiter. Mit dem Web-Campus, der Website aus der Datenbank und dem Admin-Cockpit unter `admin.aigner-offensiv.de` kommen neue Angriffsflächen hinzu; zugleich hat die Bestandsanalyse (§45-Lens) konkrete Schwachstellen im vorhandenen Code gefunden. Beides ist hier verbindlich festgehalten und in `IMPLEMENTATION_PLAN.md` terminiert.
+Das Sicherheitskonzept der Kapitel 1–15 gilt als **Zielbild** weiter – einige Kapitel formulieren jedoch Maßnahmen als vorhanden, die es noch nicht gibt (RLS-Tests in CI, Security-Header, Secret-Scanning, Datenexport-Function; vgl. S‑6, S‑20). **Für den Ist-Zustand sind Kapitel 0 und `CURRENT_STATE.md` maßgeblich**; die Angleichung der Kapitel 1–15 erfolgt in Phase 7. Mit dem Web-Campus, der Website aus der Datenbank und dem Admin-Cockpit unter `admin.aigner-offensiv.de` kommen neue Angriffsflächen hinzu; zugleich hat die Bestandsanalyse (§45-Lens) konkrete Schwachstellen im vorhandenen Code gefunden. Beides ist hier verbindlich festgehalten und in `IMPLEMENTATION_PLAN.md` terminiert.
 
 ### 0.1 Befunde im Bestand (zu beheben vor dem Vertical Slice)
 
@@ -51,7 +51,7 @@ Das Sicherheitskonzept der Kapitel 1–15 gilt weiter. Mit dem Web-Campus, der W
 ### 0.3 Datenschutz-Ergänzungen (§39–§43)
 
 - Vercel (Rendering) und Supabase (Daten, EU) als Auftragsverarbeiter mit AVV; Unterauftragnehmerliste aktualisieren. Website ohne Tracking; Vercel Web Analytics nur, wenn cookielos und in der Datenschutzerklärung genannt.
-- Systemmails über das Kunden-Postfach (SMTP) – kein zusätzlicher Auftragsverarbeiter, sofern **[ENTSCHEIDUNG K‑4]** so getroffen wird.
+- Systemmails über einen Transaktionsmail-Dienst mit EU-Region (Empfehlung Resend) und eigene Versand-Subdomain `mail.aigner-offensiv.de` (SPF/DKIM/Return-Path) – erforderlich, weil `aigner-offensiv.de` DMARC `p=reject` und SPF `-all` (Microsoft 365) führt; zusätzlicher Auftragsverarbeiter mit AVV **[ENTSCHEIDUNG K‑4]**.
 - Keine Ranglisten, keine Vergleiche zwischen Teilnehmern, keine Sichtbarkeit privater Reflexionen für Organisationsadmins – unverändert und in RLS verankert.
 - Löschkonzept (Kapitel 13) um Website-Anfragen (`inquiries`, Löschung nach 12 Monaten) und Browser-Entwürfe ergänzen.
 

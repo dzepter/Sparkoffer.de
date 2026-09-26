@@ -11,6 +11,6 @@ Sicherung der bis dahin live geschalteten WordPress-Website **vor** dem Relaunch
 | `INDEX.json` | Beiträge/Seiten aus der REST-API (URL, Titel, Datum, Wortzahl, Bilder) |
 | `PAGES_INDEX.json` | Gerenderte Seiten (URL, Titel, Meta-Description, Wortzahl, verwendete Upload-Bilder) |
 | `MEDIA.json` | Medienbibliothek (76 Dateien mit URL, Maßen) |
-| `media/` | Nur das alte Logo (`logo.jpg`, `aigner-offensiv.png`). Die übrigen Medien sind eingefärbte Stock-Grafiken (u. a. `stage-aigner-*.jpg`, `lust-auf-erfolg.jpg`) – keine authentischen Fotos; sie bleiben über die URLs in `MEDIA.json` erreichbar, solange die alte Site läuft. |
+| `media/` | Altes Logo (`logo.jpg`, `aigner-offensiv.png`) sowie die **drei echten Fotos von Rainer Aigner** der alten Site – grün eingefärbt, Originale beim Kunden anzufordern: `10.png` (freigestelltes Porträt, 800×1045, aus dem Theme-Ordner), `vortrag-1-1.jpg` (vor Gebäude, 2000×850), `vortrag-2.jpg` (Bühne, 2000×850). Die übrigen Medien (`stage-aigner-*.jpg`, `lust-auf-erfolg.jpg` …) sind eingefärbte Stock-Grafiken und bleiben über `MEDIA.json` erreichbar, solange die alte Site läuft. Hinweis: Die `*.raw.html`-Dateien liegen nicht im Repo (nur Scratch), die Markdown-Fassungen sind vollständig. |
 
 Redirect-Karte (alte → neue URLs) siehe `docs/IMPLEMENTATION_PLAN.md`, Abschnitt Migration.

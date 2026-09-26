@@ -2,7 +2,7 @@
 
 Aigner Offensiv Digital – Website · Campus · Admin
 
-Dieses Dokument beschreibt verbindlich, **wer im System was darf** – und mindestens genauso wichtig: **was nicht**. Es richtet sich an Entwickler (Abschnitte 4–7) und an Nicht-IT-Leser (Abschnitte 1–3 genügen für den Überblick). Kapitel 0 enthält die **Änderungen der Version 2** (Master-Prompt September 2026); das Grundmodell der Kapitel 1–8 ist umgesetzt (`packages/domain/src/capabilities.ts`, `0002_rls.sql`) und bleibt gültig.
+Dieses Dokument beschreibt verbindlich, **wer im System was darf** – und mindestens genauso wichtig: **was nicht**. Es richtet sich an Entwickler (Abschnitte 4–7) und an Nicht-IT-Leser (Abschnitte 1–3 genügen für den Überblick). Kapitel 0 enthält die **Änderungen der Version 2** (Master-Prompt September 2026); das Grundmodell der Kapitel 1–8 ist umgesetzt (`packages/domain/src/capabilities.ts`, `0002_rls.sql`); wo Kapitel 3 vom Code abweicht (Org-Admin-Basisrechte), gilt der Code – siehe Kapitel 0.1.
 
 ---
 
@@ -24,6 +24,8 @@ Die vier Rollen **Super Admin, Organisationsadmin, Trainer, Teilnehmer** sind vo
 **Klarstellung `submissions.read`:** umfasst `assignment_submissions` **und** `reflection_entries` mit `visibility = 'trainer'` in zugewiesenen Cohorts. Das Admin-Cockpit zeigt Trainern heute nur Einreichungen, keine freigegebenen Reflexionen – das ist eine UI-Lücke (§20), keine Rechtelücke; sie wird im Trainer-Bereich geschlossen.
 
 **Trainer** erhalten damit: `cohorts.read`, `users.read` (Teilnehmerstatus **ansehen**), `content.read`, `submissions.read`, `submissions.feedback`, `notifications.send` (Gruppennachricht), `analytics.read`, **`releases.manage`** – jeweils nur in zugewiesenen Cohorts. Weiterhin **nicht**: andere Unternehmen sehen, Systemrechte ändern, andere Trainer administrieren, globale Einstellungen (§20).
+
+**Abweichung Kapitel 3 ↔ Code (Befund der Analyse):** Die Matrix in Kapitel 3 gewährt Organisationsadmins `users.manage` und `cohorts.manage` als Basis sowie `content.edit/publish` per Override; der Code (`packages/domain/src/capabilities.ts`) gibt Org-Admins als Basis nur `organizations.read`, `users.read`, `users.invite`, `cohorts.read`, `analytics.read` – alles Weitere ausschließlich per `permissions`-Override. Außerdem fehlt das in Kapitel 4.2 genannte Zod-Schema für zulässige `permissions`-Schlüssel. **Maßgeblich ist der Code (bewusst restriktiv, fail-closed).** Kapitel 3 wird in Phase 1 auf den Code-Stand korrigiert; das `permissions`-Schema wird ergänzt.
 
 ### 0.2 Vier Durchsetzungsebenen (Erweiterung von Kapitel 6)
 

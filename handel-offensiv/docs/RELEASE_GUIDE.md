@@ -1,5 +1,7 @@
 # Release Guide (iOS-Fokus)
 
+> **Stand Version 1 (Sommer 2026) – wird in Phase 5/8 überarbeitet.** Angaben zu Domain (`cockpit.handel-offensiv.de`), Farbwelt (grün), Demo-Daten (2026, „Aigner Offensiv Demo") und Teilnehmerzugang („die App") sind überholt. Gültig sind `admin.aigner-offensiv.de` / `campus.aigner-offensiv.de`, Blau, Demo 2027 und der Web-Campus – maßgeblich: `IMPLEMENTATION_PLAN.md`, `CURRENT_STATE.md`.
+
 Android ist auf Kundenwunsch zurückgestellt; die Codebasis ist dieselbe,
 nur die Play-Store-Einrichtung entfällt vorerst (siehe GOOGLE_PLAY_CHECKLIST.md).
 

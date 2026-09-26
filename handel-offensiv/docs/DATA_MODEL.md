@@ -1,6 +1,6 @@
 # Datenmodell – Aigner Offensiv Digital (Website · Campus · Admin)
 
-Dieses Dokument beschreibt das vollständige relationale Datenmodell der Plattform (Supabase/PostgreSQL). Kapitel 0 fasst die **Änderungen der Version 2** (Master-Prompt September 2026) zusammen; die Kapitel 1–13 beschreiben das bestehende, in `0001_schema.sql`/`0002_rls.sql` umgesetzte Modell, das unverändert Grundlage bleibt. Es richtet sich an Entwickler (Detailkapitel) und an fachliche Leser (Überblickskapitel 1–3). Alle Änderungen am Schema erfolgen ausschließlich über versionierte Migrationen in `supabase/migrations/`.
+Dieses Dokument beschreibt das vollständige relationale Datenmodell der Plattform (Supabase/PostgreSQL). Kapitel 0 fasst die **Änderungen der Version 2** (Master-Prompt September 2026) zusammen; die Kapitel 1–13 beschreiben das Modell der Version 1. Die Analyse fand dort Abweichungen zum umgesetzten Schema (u. a. Enum-Namen `membership_role`→`member_role`, `record_visibility`→`visibility_level`, `action_item_status`→`plan_item_status`; einzelne Spalten in `action_plan_items`, `audit_logs`, `notifications`). **Maßgeblich sind `0001_schema.sql`/`0002_rls.sql` und Kapitel 0**; die Angleichung der Kapitel 1–13 erfolgt in Phase 1 zusammen mit der Typgenerierung (`supabase gen types`). Es richtet sich an Entwickler (Detailkapitel) und an fachliche Leser (Überblickskapitel 1–3). Alle Änderungen am Schema erfolgen ausschließlich über versionierte Migrationen in `supabase/migrations/`.
 
 ---
 

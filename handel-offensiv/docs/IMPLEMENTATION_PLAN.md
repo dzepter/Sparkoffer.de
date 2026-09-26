@@ -118,7 +118,11 @@ Kein Ausfall, kein Inhaltsverlust, keine SEO-Einbußen: alte Inhalte sind gesich
 | `/blog/` | `/impulse` |
 | `/impressum/`, `/datenschutz/` | `/impressum`, `/datenschutz` |
 | 5 Blogartikel `/abkuerzungen-…/`, `/das-wohlstandsproblem-loesen/`, `/krisensituationen-…/` | `/impulse/<gleicher-slug>` (bis zur Freigabe der Artikel: `/impulse`) |
-| `/wp-json/*`, `/wp-content/*`, `/xmlrpc.php`, `/sitemap_index.xml` | 410 Gone bzw. neue `sitemap.xml` |
+| `/angebote/fuhrung-leicht-gemacht/`, `/angebote/generation-y/`, `/angebote/high-potentials-intern/`, `/high-potentials-intern/` (heute 301 bzw. 404) | `/fuer-unternehmen` |
+| `/category/allgemein/`, `/2020/*`, `/author/*`, `/feed/`, `/blog/page/*` | `/impulse` |
+| Groß-/Kleinschreibung, Trailing Slash, `index.php` | Normalisierung in der Middleware, kettenfrei (kein 308→301-Doppelsprung) |
+| `/wp-content/uploads/*` | erst **nach** Migration der Blogbilder 410 Gone |
+| `/wp-json/*`, `/xmlrpc.php`, `/wp-login.php`, `/readme.html`, `/sitemap_index.xml` | 410 Gone bzw. neue `sitemap.xml` |
 | `https://www.handel-offensiv.de/` und `/index.html` | `https://www.aigner-offensiv.de/` **[ENTSCHEIDUNG K‑1]** |
 | `handel-offensiv.de/login.html` | `https://campus.aigner-offensiv.de/login` |
 | `handel-offensiv.de/kontakt.html`, `/impressum.html`, `/datenschutz.html`, `/account-loeschen.html` | gleichnamige Seiten unter `www.aigner-offensiv.de` |
@@ -126,9 +130,10 @@ Kein Ausfall, kein Inhaltsverlust, keine SEO-Einbußen: alte Inhalte sind gesich
 
 ### 4.3 Cutover-Reihenfolge
 
-1. **Sofort (Risikominderung):** PHP-Version der WordPress-Site im Strato-Panel anheben, WordPress und Plugins aktualisieren oder Site schreibgeschützt stellen (S‑13).
-2. **Phase 1:** Supabase-Projekte Staging/Production (Frankfurt) anlegen, AVV abschließen; Vercel-Projekte anlegen; `campus.` und `admin.` als CNAME auf Vercel setzen (keine Auswirkung auf Website oder E-Mail).
-3. **Phase 2–4:** Campus und Admin auf Staging betreiben; Kunde testet mit Demo-Daten 2027.
+0. **Sofort (Sichern):** WordPress-Vollbackup (DB-Dump, `wp-content/uploads`, Theme-Ordner mit `img/10.png`), Originale der echten Fotos und Blogbilder sichern; `content.json` und alle Live-Dateien von `handel-offensiv.de` sichern (Texte erledigt); Redaktionsstopp im PHP-CMS mit dem Kunden vereinbaren.
+1. **Sofort (Risikominderung, ohne Designänderung):** PHP im Strato-Panel auf 8.2/8.3, WordPress-Core und Plugins aktualisieren, Auto-Updates aktivieren; per `.htaccess` `/readme.html`, `/wp-json/wp/v2/users`, `xmlrpc.php` sperren; totes Analytics-Script und externe Google Fonts entfernen; Security-Header setzen (S‑13).
+2. **Phase 0/1:** Supabase-Projekte Staging/Production (Frankfurt) anlegen, AVV abschließen; Vercel-Team mit drei Projekten (website, campus, admin), Region `fra1`, AVV; Resend-Konto (EU) mit Versand-Subdomain `mail.aigner-offensiv.de` – SPF/DKIM/Return-Path-Records bei Strato setzen (DMARC-Apex bleibt `p=reject`); `campus.` und `admin.` als CNAME `cname.vercel-dns.com` (keine Auswirkung auf Website oder E-Mail).
+3. **Phase 2–4:** Campus und Admin auf Staging, dann unter den Subdomains produktiv (beide `noindex` + `X-Robots-Tag`); Kunde testet mit Demo-Daten 2027. **Minimal-Patch der Live-Site `handel-offensiv.de`** beim Campus-Go-Live (einziger weiterer Upload): `login.html` mit aktivem Button „Zum Campus" → `campus.aigner-offensiv.de/login`, Texte „iPhone-App/App Store/cockpit.handel-offensiv.de" entfernen, `login.html` aus der Sitemap nehmen und `noindex` setzen.
 4. **Phase 5:** Website auf Staging (Vercel-Preview-URL) abnehmen; Texte aus dem Handel-Offensiv-CMS importieren; Rechtstexte anwaltlich geprüft einspielen.
 5. **Cutover Website:** DNS `www`/Apex von Strato auf Vercel (A/AAAA/CNAME) – **MX unangetastet**; Redirect-Map aktiv; Search Console: neue Sitemap einreichen, alte URLs beobachten.
 6. **Cutover handel-offensiv.de:** Strato-Weiterleitung (301) auf `www.aigner-offensiv.de`; Ordner `handel-offensiv` archivieren.
@@ -245,8 +250,34 @@ Vollständig zu bauen (Sitemap 1.1); Inhalte aus `handel-offensiv-website/` (Tex
 | Domain-/URL-Konstanten (www/campus/admin) zentral in `packages/config` | 2, 5 | ✖ | K | 1 |
 | `formatBerlin()` ignoriert `cohort_sessions.timezone` | 17 | ◐ | K | 3 |
 
-### 5.8 Websites, Live-Site/SEO, Dokumentation
-*Ergänzung folgt aus den restlichen Analyseberichten.*
+### 5.8 Öffentliche Website (Bestand der statischen Sites → `apps/website`)
+| Lücke | § | Status | Aufwand | Phase |
+|---|---|---|---|---|
+| Navigation und Seiten nach §5 (DIE 5 OFFENSIVTAGE mit §10-Untertiteln und 4-Phasen-Logik, FÜR UNTERNEHMEN, RAINER AIGNER, IMPULSE als eigene Routen) | 5, 10, 11 | ◐ | G | 5 |
+| TEILNEHMER-LOGIN rechts → `campus.aigner-offensiv.de`; Live-Texte versprechen „iPhone-App", „Bald im App Store", `cockpit.handel-offensiv.de` | 5, 6 | ✖ | K | 2 (Minimal-Patch), 5 |
+| CTA-Hierarchie: primär OFFENSIVTAG ANFRAGEN, sekundär DIE 5 OFFENSIVTAGE ENTDECKEN | 5 | ◐ | K | 5 |
+| Botschaft „100 PROZENT PRÄSENZ" fehlt (Leitgedanken-Raster 3-spaltig) | 4 | ◐ | K | 5 |
+| Hero beider Sites = Fußball-Stockfoto im Stadion; weitere Stock-Motive (Sprinter, Geschäftsmann); Rainer erst in der Trainer-Sektion; kein Video | 4, 34 | ✖ | M (+ Kunde: Fotos/Video) | 5 |
+| Kontaktformular nur `mailto:` (keine Zustellung ohne Mail-Client, kein Spam-Schutz, keine Speicherung) | 5 | ◐ | M | 5 |
+| Impulse: 5 Altartikel nur gekürzt (34–72 % des Textes) in `impulse.html`; Volltexte im Archiv; keine eigenen URLs/Meta | 5 | ◐ | M | 5 |
+| SEO: `login.html` indexierbar und in der Sitemap (§42-Verstoß live); AO-Site ohne robots/sitemap/canonical/OG; kein JSON-LD | 42 | ◐ | K | 2 (Minimal-Patch), 5 |
+| Security-Header (HSTS, CSP, X-Frame-Options) auf beiden Live-Hosts fehlen | 45 | ✖ | K | 5 |
+| Personenbezogene Inhalte auf den Sites: Testimonials mit Klarnamen/Firmen, Phone-Mock-Name – Freigaben nicht dokumentiert | 46 | ◐ | K (Kunde) | 5 |
+| CSS-Tokens semantisch falsch (`--green` = Blau), 8 hart kodierte grünstichige Grautöne, keine Spacing-Skala; Breakpoints desktop-first und uneinheitlich | 34, 36 | ◐ | M | 1 |
+| Logo nur als Inline-SVG; keine Logodatei, kein Icon-Set, kein Manifest | 34, 37 | ✖ | K | 1 |
+| Datenschutzerklärungen nennen keinen Hoster und decken Campus/Supabase/Vercel/E-Mail nicht ab | 39 | ✖ | M (Anwalt) | 5 |
+| Deployment-Drift `handel-offensiv.de` (Live ≠ Repo; Kundentexte nur auf dem Server; Hoster/FTP-Zugang unklar) | 1, 49 | ◐ | K | 0 (Live-Stand sichern, Redaktionsstopp vereinbaren) |
+
+### 5.9 Live-Site, SEO-Migration, Dokumentation
+| Lücke | § | Status | Aufwand | Phase |
+|---|---|---|---|---|
+| Sofort-Härtung WordPress (PHP 8.x, Updates, REST-User-Endpoint/`readme.html`/`xmlrpc.php` sperren, Tracker entfernen, Backup) | 1, 45 | ✖ | K (Kunde/Strato) | 0 |
+| Originale der echten Fotos (`10.png`, `vortrag-1-1.jpg`, `vortrag-2.jpg`) und Blogbilder sichern; WP-Vollbackup (DB + `uploads`) | 1, 4 | ◐ | K | 0 |
+| Redirect-Karte vollständig (inkl. `/angebote/*`, `/high-potentials-intern/`, `/category/allgemein/`, `/2020/*`, `/author/*`, `/feed/`, Trailing-Slash/Case) als `next.config` + Middleware, kettenfrei, nur echte Routen als Ziel | 1, 42 | ◐ | K | 5 |
+| Search Console: neue Sitemap, Adressänderung `handel-offensiv.de` → `aigner-offensiv.de`, 404-Monitoring 6 Monate | 42 | ✖ | K | 8 |
+| Dokumentation: Kapitel 1 ff. von `DATA_MODEL`/`RBAC`/`SECURITY` an Code angleichen; `docs/README.md` als Index (erledigt); V1-Guides gebannert (erledigt); Campus-Handbuch neu; Guides neu; `ENVIRONMENT_SETUP` um Campus/Website/pg_cron/Resend; `PRIVACY_TECHNICAL` um Website/Campus/Vercel; `BACKUP_RESTORE` um neue Buckets/Website-Tabellen | 1, 49 | ◐ | M | 1, 5, 7, 8 |
+| Master-Prompt im Repository versioniert (erledigt: `docs/briefings/`); Briefing V1 beschaffen oder Zitate kennzeichnen | 1 | ◐ | K | 0 |
+| Repository-Hygiene: projektfremde Dateien im Root (Check24-Scraper) neben der Kundenplattform in einem öffentlichen Repo | 49 | ✖ | K | 0 (Entscheidung K‑12) |
 
 ---
 
@@ -264,6 +295,10 @@ Vollständig zu bauen (Sitemap 1.1); Inhalte aus `handel-offensiv-website/` (Tex
 | **DSGVO Auftragsverarbeitung** (Vercel US-Anbieter, Supabase) | mittel | EU-Regionen, AVVs, Unterauftragnehmerliste, kein Tracking |
 | **E-Mail-Zustellbarkeit** (SMTP-Limits, SPF/DKIM) | mittel | SPF/DKIM für Absender prüfen, Testversand in Phase 2, Fallback-Anbieter definiert |
 | **React 18/19-Split** Mobile/Admin bei gemeinsamem `packages/ui` | niedrig | `packages/ui` nur für Web-Apps; Mobile behält eigene UI-Primitive |
+| **Systemmails werden abgewiesen** (DMARC `p=reject`, SPF `-all` auf Microsoft 365; kein Versender autorisiert) | hoch | K‑4: Resend EU über `mail.aigner-offensiv.de` mit SPF/DKIM/Return-Path; Testversand vor Phase 2 |
+| **Deployment-Drift handel-offensiv.de** (Live ≠ Repo, Kundentexte nur auf dem Server, Hoster/FTP unklar) | mittel | Live-Dateien und `content.json` sofort sichern (erledigt für Texte), Redaktionsstopp vereinbaren, Zugang klären, nur noch ein Minimal-Patch (Login → Campus) |
+| **Personenbezogene Inhalte auf den Sites ohne dokumentierte Freigabe** (Testimonials mit Klarnamen, Zitat mit Firmenname) | mittel | Freigaben einholen oder entfernen (P5) |
+| **Dokumentation mit zwei Wahrheiten** (V1-Kapitel vs. Code/Kap. 0) | mittel | Banner gesetzt, `docs/README.md` als Index; Angleichung in Phase 1/7; Guides erst nach Neufassung an den Kunden |
 | **Offline-Entwürfe mit persönlichen Inhalten im Browser** | mittel | verschlüsselt, Logout löscht, kein `localStorage` |
 | **Seed/Demo mit echter Marke oder Personen** | niedrig | Seed v2 mit erfundener Firma; Demo-Teilnehmer nur mit Freigabe (K‑10) |
 
@@ -276,7 +311,7 @@ Vollständig zu bauen (Sitemap 1.1); Inhalte aus `handel-offensiv-website/` (Tex
 | **K‑1** | **Domainstrategie** | A) alles unter `aigner-offensiv.de` (www/campus/admin), `handel-offensiv.de` → 301 · B) zwei Marken-Sites, Campus unter `handel-offensiv.de` | **A** | Master-Prompt §2; eine Marke; SEO-Autorität der seit Jahren bestehenden Domain; `handel-offensiv.de` bleibt als merkfähige Kurzadresse erhalten. **Achtung:** kehrt die Kundenentscheidung vom September („komplett neue Seite handel-offensiv.de") um – ausdrückliche Bestätigung nötig. |
 | **K‑2** | **Website-Technologie & Redaktion** | A) Next.js auf Vercel, Texte im Admin-Cockpit (`site_content`) · B) statische Site + PHP-CMS behalten und auf aigner-offensiv.de umziehen · C) Next.js statisch exportiert auf Strato (Texte nur per Build) | **A** (B als Übergang) | ein Designsystem, ein Login, Impulse aus der DB, serverseitiges Formular, Revalidation statt Client-Injektion. B bleibt bis zum Cutover live; C ist nicht „für Dummies". |
 | **K‑3** | **Campus-Technologie** | A) neue Next.js-App · B) Expo-Web-Build der bestehenden App | **A** | gleiches Designsystem wie Website/Admin, beste Browser-UX/PWA/Barrierefreiheit; Expo-Code bleibt für Phase 9. B wäre schneller, wirkt aber als Fremdkörper (§2). |
-| **K‑4** | **E-Mail-Versand** | A) SMTP des Kunden-Postfachs (Strato) in Supabase Auth + Functions · B) Resend/Postmark (US-Anbieter, AVV) | **A** | kein neuer Auftragsverarbeiter, Absender der Marke; Limits reichen für Einladungen/Reset. Voraussetzung: SPF/DKIM korrekt, Absenderadresse z. B. `mannschaftsraum@aigner-offensiv.de`. B als Fallback. |
+| **K‑4** | **E-Mail-Versand** | A) SMTP über das Kunden-Postfach (**Microsoft 365** – tatsächlicher Mailanbieter) · B) **Resend** (EU-Region) über Versand-Subdomain `mail.aigner-offensiv.de`, zugleich Custom-SMTP für Supabase Auth · C) Brevo (EU-Unternehmen) | **B** | `aigner-offensiv.de` führt **DMARC `p=reject` + SPF `-all`**: ohne SPF-Include und DKIM wird jede Systemmail abgewiesen – der Vertical Slice scheiterte an der Zustellung. M365-SMTP-AUTH ist kontingentiert, Basic Auth wird abgeschaltet, kein Bounce-Handling. Resend passt zur vorhandenen HTTP-Relay-Abstraktion, liefert Zustellstatus, AVV, EU-Region. Absender z. B. `campus@aigner-offensiv.de`. C als Alternative, falls ein europäischer Anbieter gewünscht ist. |
 | **K‑5** | **Hosting Next.js** | A) Vercel (Region Frankfurt, AVV) · B) eigener EU-Server (Hetzner + Docker) | **A** | Referenz-Host, Preview-Deployments, kein Serverbetrieb; personenbezogene Daten liegen bei Supabase (EU). |
 | **K‑6** | **Video** | A) privater Supabase Storage + Signed URLs · B) Vimeo Pro/Bunny Stream | **A zuerst** | ohne Drittanbieter startklar; Abstraktion erlaubt späteren Wechsel bei vielen/langen Videos. |
 | **K‑7** | **Farbwelt** | A) Blau (live, Kundenentscheidung) · B) Dunkelblau + Gold | **A** | Master-Prompt erlaubt „bestehende Markenakzentfarbe"; Gold verwässert. Plattform-Tokens werden auf Blau gezogen. |
@@ -284,6 +319,9 @@ Vollständig zu bauen (Sitemap 1.1); Inhalte aus `handel-offensiv-website/` (Tex
 | **K‑9** | **Go-Live-Reihenfolge** | A) Campus/Admin zuerst, Website in Phase 5 · B) Website zuerst | **A** | Website läuft bereits (handel-offensiv.de); der Campus ist das fehlende Produkt. WordPress-Risiko separat sofort mindern. |
 | **K‑10** | **Demo-Teilnehmer „Dennis Zepter"** | nur intern mit schriftlicher Freigabe · sonst fiktiv | fiktiv im Seed, real nur in Präsentationen | §46 |
 | **K‑11** | **Rechtekatalog** | Code (`packages/domain`) + JSONB · DB-Tabellen `roles/permissions` | **Code** | getestet, konsistent, ohne Deployment keine Rechteänderung; §30-Abweichung dokumentiert (`DATA_MODEL.md` 0.1). |
+| **K‑12** | **Repository** | A) eigenes **privates** Repository für die Kundenplattform · B) weiter im öffentlichen `Sparkoffer.de` neben einem projektfremden Scraper | **A** | Kundenplattform mit Rechtstexten, Seed und Betriebsdoku gehört nicht in ein öffentliches Repo mit fremdem Projekt (Verwechslungs-/Reputationsrisiko, Secret-Hygiene). Umzug per `git subtree`/Filter ohne Historienverlust. |
+| **K‑13** | **Datenzugriff im Admin-Cockpit** | A) alles über Service Role mit `can()` · B) **Lesen über Nutzersitzung (RLS), Schreiben über Service Role mit Scope-Bindung** · C) alles über RLS | **B** | §27/§31: DB-seitige Absicherung „nicht nur UI". Heute schützt nur Code (zwei IDOR-Befunde). C wäre für Stammdaten des Super Admins unnötig komplex. |
+| **K‑14** | **UI-Bibliothek** | A) shadcn/ui neu einführen · B) **`packages/ui` aus den 16 bestehenden Admin-Komponenten** (+ Radix-Primitives nur für Dialog/Select/Tabs) | **B** | §35 verbietet den generischen shadcn-Look, §28 gilt nur „wenn nichts Besseres im Bestand"; der Bestand ist tokenbasiert und frameworkfrei. |
 
 ---
 

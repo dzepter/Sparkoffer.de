@@ -14,7 +14,7 @@
 5. Das **Admin-Cockpit** hat exakt die in §21 geforderte Navigation (Übersicht … System → Benutzer & Rollen, Audit Log, Einstellungen), CSV-Import, ICS-Export und eine MFA-Einstellungsseite.
 6. Das **Teilnehmer-Erlebnis existiert bisher nur als native Expo-App** (HEUTE, Programm, Lektion mit 14 Block-Renderern, Offensivplan, Termine, Profil). Der im Master-Prompt geforderte **Web-Campus** (`campus.aigner-offensiv.de`) ist der **größte fehlende Baustein**.
 7. Die **Design-Tokens der Plattform sind noch grün** (`#A8C62B`), während der Kunde für Handel Offensiv **Blau** (`#2E6FB0` auf Navy `#101C2A`) entschieden hat und diese Farbwelt live ist.
-8. **Authentisches Bildmaterial** beschränkt sich auf fünf vom Kunden gelieferte Porträts (354–1170 px breit); die Medienbibliothek der alten Site enthält ausschließlich eingefärbte Stock-Grafiken. Videos gibt es keine.
+8. **Authentisches Bildmaterial** ist knapp: fünf vom Kunden gelieferte Porträts (354–1170 px breit) sowie drei echte Aufnahmen auf der alten Site (freigestelltes Porträt `10.png` 800×1045, Rainer vor Gebäude, Rainer auf der Bühne – nur grün eingefärbt, Originale beim Kunden anzufordern). Alle übrigen Motive – auch der Hero beider neuen Sites (Fußballer im Stadion) – sind Stock. Videos gibt es keine.
 9. Die alte Site hat **16 indexierte URLs** (11 Seiten, 5 Blogartikel aus 2020) und lädt Google Tag Manager, Google Fonts, YouTube und reCAPTCHA – die neuen Sites laden **keine Drittanbieter**.
 10. **Rechtstexte** (Impressum mit HRB-Eintrag ohne Rechtsform, Datenschutzerklärungen) stammen von der alten Site und sind zur anwaltlichen Prüfung markiert.
 
@@ -24,11 +24,11 @@
 
 | Domain / Host | Zeigt auf | Hoster | Zustand |
 |---|---|---|---|
-| `www.aigner-offensiv.de` | WordPress (Theme `aigner_theme`, Bootstrap 3) | Strato (IPv6 `2a01:238:…`), Apache 2.4.68, **PHP 7.4.33** | live, HTTPS ok, http→https 301, non-www→www 301 |
-| `www.handel-offensiv.de` | statische Site + `cms/admin.php` | Strato-Webspace, Ordner `handel-offensiv` (IPv6 `2001:8d8:…`) | live seit Sept. 2026, HTTPS ok, http→https 301, eigene 404-Seite aktiv |
+| `www.aigner-offensiv.de` | **WordPress 6.7.9** (Theme `aigner_theme`, Bootstrap 3.3.7, Yoast, Borlabs 3.3.7, CF7) | Strato (A 81.169.145.157, IPv6 `2a01:238:…`), Apache 2.4.68, **PHP 7.4.33** | live, HTTPS ok (Sectigo bis 06.12.2026), http→https 301, non-www→www 301; `/wp-json/wp/v2/users` listet 2 Nutzer, `/readme.html` offen, keine Security-Header |
+| `www.handel-offensiv.de` | statische Site + `cms/admin.php` | Webspace im **IONOS/1&1-Adressraum** (A 217.160.0.88, PTR `*.elastic-ssl.ui-r.com`), DNS-Zone und MX (`smtpin.rzone.de`) bei **Strato** – **welcher Vertrag den Webspace stellt und wer FTP-Zugang hat, ist zu klären** | live seit 11.08.2026, HTTPS ok (Sectigo bis 07.02.2027), http→https 301, eigene 404-Seite aktiv; kein SPF/DMARC/CAA |
 | `cockpit.handel-offensiv.de` | – | kein DNS-Eintrag | im Code/Docs als Cockpit-Domain vorgesehen, **nicht existent** |
 | `campus.aigner-offensiv.de`, `admin.aigner-offensiv.de` | – | kein DNS-Eintrag | im Master-Prompt gewünscht, **nicht existent** |
-| E-Mail `info@aigner-offensiv.de` | Postfach beim Hoster (vermutlich Strato) | Strato | in Betrieb; **MX-Einträge dürfen bei DNS-Änderungen nicht angefasst werden** |
+| E-Mail `info@aigner-offensiv.de` | **Microsoft 365** (MX `aigneroffensiv-de01e.mail.protection.outlook.com`), SPF `include:spf.protection.outlook.com -all`, **DMARC `p=reject`** | Microsoft (DNS bei Strato) | in Betrieb; **MX/SPF/DMARC dürfen nicht angefasst werden.** Folge: **Jeder Systemmail-Versender (Supabase-Auth, Resend, SMTP-Relay) muss per SPF-Include + DKIM autorisiert werden – sonst Abweisung.** Entscheidung K‑4 |
 
 Strato-Shared-Hosting kann **kein Node.js/Next.js** ausführen – nur statische Dateien und PHP. Alles, was Next.js braucht (Campus, Admin, ggf. neue Website), benötigt einen anderen Host (z. B. Vercel), an den Subdomains per CNAME gehängt werden.
 
@@ -39,7 +39,9 @@ Strato-Shared-Hosting kann **kein Node.js/Next.js** ausführen – nur statische
 ### 3.1 www.aigner-offensiv.de – alte WordPress-Site (nicht im Repository)
 
 - **Titel:** „Unternehmensberatung für Vertriebsmanagement | Rainer Aigner" · Copyright 2017 · Plugins: Borlabs Cookie, Contact Form 7 (reCAPTCHA/Turnstile), Dracula Dark Mode, Accessibility-Widget, Yoast SEO.
-- **Drittanbieter:** Google Tag Manager, Google Fonts, YouTube-Embeds, LinkedIn, reCAPTCHA – datenschutzrechtlich heikel, auf den neuen Sites bewusst nicht vorhanden.
+- **Drittanbieter:** `gtag.js` mit **toter Universal-Analytics-Property** (`UA-101261501-1`, liefert seit 2023 keine Daten), Google Fonts extern (Oswald, Roboto – ohne Erwähnung in der Datenschutzerklärung), YouTube-Embed (`xWTZC0n7LB4`, Erklärvideo), LinkedIn-Verweis, reCAPTCHA/Turnstile – datenschutzrechtlich heikel, auf den neuen Sites bewusst nicht vorhanden.
+- **Indexierbare URLs:** 17 (11 Seiten, 5 Beiträge, Kategorie `/category/allgemein/`), dazu 301-Ziele `/angebote/*` und zwei tote Links (`/high-potentials-intern/`, `/angebote/high-potentials-intern/` → 404, obwohl von der Startseite verlinkt). Alle Angebotsseiten teilen dieselbe Meta-Description; Blog, Impressum, Datenschutz und Beiträge haben keine.
+- **Authentische Fotos auf der Live-Site** (Sichtprüfung): `themes/aigner_theme/img/10.png` (800×1045, freigestelltes Porträt), `uploads/2020/02/vortrag-1-1.jpg` (Rainer vor Gebäude) und `vortrag-2.jpg` (Bühne) – jeweils nur grün eingefärbt vorhanden; **Originale beim Kunden anfordern**. Die übrigen Medien sind Stock-Grafiken.
 - **Indexierte URLs (Redirect-relevant):**
 
 | Alte URL | Titel (Yoast) | Inhalt |
@@ -58,7 +60,7 @@ Strato-Shared-Hosting kann **kein Node.js/Next.js** ausführen – nur statische
 
 - **Sitemap:** `/sitemap.xml` → 301 → `/sitemap_index.xml` (Yoast). `robots.txt` sperrt nur `/wp-admin/`, `/wp-includes/`.
 - **Vollständige Sicherung:** `docs/archive/aigner-offensiv-wordpress-2026-09/` (Texte aller 16 Inhalte, Indizes, Medienliste, altes Logo).
-- **Risiko:** PHP 7.4 ist seit November 2022 ohne Sicherheitsupdates; WordPress-Version unbekannt. Die Site ist ein **offenes Sicherheitsrisiko**, solange sie läuft.
+- **Risiko:** PHP 7.4.33 ist seit November 2022 ohne Sicherheitsupdates; WordPress 6.7.9 erhält nur Sicherheits-Backports; Nutzer-Enumeration über die REST-API, `readme.html` offen, keine Security-Header. Die Site ist ein **offenes Sicherheitsrisiko** unter der Hauptdomain – Sofort-Härtung siehe `IMPLEMENTATION_PLAN.md` 4.3 Schritt 1.
 
 ### 3.2 www.handel-offensiv.de – neue statische Programm-Website (im Repository: `handel-offensiv-website/`)
 
@@ -182,7 +184,8 @@ Die Teilsysteme sind einzeln plausibel, aber ihre **Verträge** untereinander wu
 | Logo | Zwei schräge Balken („//") als Inline-SVG + Wortmarke „HANDEL OFFENSIV / AIGNER OFFENSIV"; altes WP-Logo gesichert (`logo.jpg`, `aigner-offensiv.png`) |
 | Gestaltungsmerkmale | kantige Radien (2 px), schräge Akzentbalken („Hero-Slash"), große Modulnummern 01–05, Fußball-Sprache |
 | **Authentische Fotos** | `rainer-aigner-1.jpg` 354×496 · `-2` 1033×953 · `-3` 660×738 · `-4` 1170×1546 (Hochformat, im Einsatz) · `-5` 1035×955 · `Rainer-Aigner.jpg` 1998×1125 (Hero, alt) · Buchcover `book-1/2.jpg` 279×324 (klein; besseres Cover vom Kunden **nie angekommen**) |
-| Stock/Grafik | `uber-rainer-aigner.jpg`, `vortrag-*.jpg`, `header-1.jpg`, `grafik.jpg` sowie alle 76 WP-Medien (`stage-aigner-*`, `lust-auf-erfolg.jpg` …) – eingefärbte Stock-Motive, **kein Rainer** |
+| **Echte Fotos der alten Site** (grün eingefärbt, gesichert in `docs/archive/…/media/`) | `10.png` 800×1045 (freigestelltes Porträt, Theme-Ordner) · `vortrag-1-1.jpg` 2000×850 (vor Gebäude) · `vortrag-2.jpg` 2000×850 (Bühne) – **Originale beim Kunden anfordern** |
+| Stock/Grafik | `uber-rainer-aigner.jpg` (Hero beider neuen Sites: Fußballer im Stadion – **verstößt gegen §4**), `header-1.jpg` (Sprinter), `grafik.jpg`, `Rainer-Aigner.jpg` (Taktiktafel) sowie die übrigen WP-Medien (`stage-aigner-*`, `lust-auf-erfolg.jpg` …) – eingefärbte Stock-Motive |
 | Videos | **keine** vorhanden |
 | Social-Vorschaubild | `og-image.jpg` 1200×630 (Handel Offensiv, blau) |
 

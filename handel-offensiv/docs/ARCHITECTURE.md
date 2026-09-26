@@ -76,7 +76,7 @@ Nach jedem Modul füllt der Teilnehmer seinen **Offensivplan** (Erkenntnis, näc
         │  invite-user · accept-invitation · release-scheduler (Cron) · send-push ·               │
         │  process-deletion-request · [neu] send-mail · [neu] revalidate-website                  │
         └───────────────────────────────┬──────────────────────────────┬─────────────────────────┘
-                                        │ SMTP (Kunden-Postfach)       │ Expo Push (später, App)
+                                        │ Mail-Dienst EU (DKIM)        │ Expo Push (später, App)
                                         ▼                              ▼
                                    E-MAIL (Einladung, Reset,      NATIVE APP (Phase 9,
                                    Löschanfrage, optional         bestehender Expo-Code,
@@ -164,7 +164,7 @@ Die beiden statischen Sites (`aigner-offensiv/`, `handel-offensiv-website/`) ble
 ### 5.4 Backend – Supabase (Bestand, erweitert)
 
 - PostgreSQL + RLS auf allen Client-Tabellen, Hilfsfunktionen `app.*` (SECURITY DEFINER). Erweiterungen v2: Blocktypen `practice_task`, `file_upload`, `photo_upload`, `announcement`; Tabellen `site_content`, `site_posts`, `inquiries`; Seed 2027 (Details `DATA_MODEL.md`).
-- **Auth**: E-Mail + Passwort, Einladung (Token-Hash, Ablauf), Reset mit Redirect auf den Campus, MFA vorbereitet. Systemmails über **SMTP des Kunden-Postfachs** (z. B. `mannschaftsraum@aigner-offensiv.de`) – kein neuer Anbieter, EU, Absender der Marke. **[ENTSCHEIDUNG K‑4]**
+- **Auth**: E-Mail + Passwort, Einladung (Token-Hash, Ablauf), Reset mit Redirect auf den Campus, MFA vorbereitet. **Systemmails** über einen Transaktionsmail-Dienst mit EU-Region (Empfehlung **Resend**) und eigener Versand-Subdomain `mail.aigner-offensiv.de` (SPF/DKIM/Return-Path), zugleich als Custom-SMTP in Supabase Auth. Grund: `aigner-offensiv.de` läuft auf Microsoft 365 mit **DMARC `p=reject` und SPF `-all`** – jeder nicht autorisierte Absender wird abgewiesen; M365-SMTP-AUTH ist kontingentiert, ohne Bounce-Handling und für Supabase-Custom-SMTP fehleranfällig. Absender der Marke, z. B. `campus@aigner-offensiv.de`. **[ENTSCHEIDUNG K‑4]**
 - **Storage**: private Buckets, Signed URLs (kurz), Typ-/Größenprüfung, Pfad `organizations/{orgId}/…`; neue Buckets für Teilnehmer-Uploads (Datei/Foto) mit strikter RLS.
 - **Edge Functions**: bestehend + `send-mail` (Template-Rendering im Markendesign) + `revalidate-website`.
 

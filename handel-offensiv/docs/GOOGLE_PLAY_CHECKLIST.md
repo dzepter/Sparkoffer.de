@@ -1,5 +1,7 @@
 # Google-Play-Checkliste (Android)
 
+> **Stand Version 1 (Sommer 2026) – wird in Phase 5/8 überarbeitet.** Angaben zu Domain (`cockpit.handel-offensiv.de`), Farbwelt (grün), Demo-Daten (2026, „Aigner Offensiv Demo") und Teilnehmerzugang („die App") sind überholt. Gültig sind `admin.aigner-offensiv.de` / `campus.aigner-offensiv.de`, Blau, Demo 2027 und der Web-Campus – maßgeblich: `IMPLEMENTATION_PLAN.md`, `CURRENT_STATE.md`.
+
 > **Status: zurückgestellt.** Auf Wunsch des Auftraggebers wird zunächst nur
 > iOS veröffentlicht. Die App-Codebasis ist identisch (Expo/React Native) –
 > für den späteren Android-Start ist ausschließlich diese Checkliste

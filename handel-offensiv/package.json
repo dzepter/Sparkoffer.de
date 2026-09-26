@@ -13,6 +13,8 @@
     "test": "pnpm -r --if-present test",
     "build:admin": "pnpm --filter @handel-offensiv/admin build",
     "dev:admin": "pnpm --filter @handel-offensiv/admin dev",
-    "dev:mobile": "pnpm --filter @handel-offensiv/mobile start"
+    "dev:mobile": "pnpm --filter @handel-offensiv/mobile start",
+    "build:campus": "pnpm --filter @handel-offensiv/campus build",
+    "dev:campus": "pnpm --filter @handel-offensiv/campus dev"
   }
 }

@@ -82,6 +82,8 @@ Bevor weitere Features entstehen, muss dieser Ablauf **auf Staging, mit echten E
 
 ## 3. Phasen und Fertigstellungskriterien
 
+> **Priorisierung (Auftraggeber, 26.09.2026, nach dem Phase‑1‑Bericht):** Der Relaunch von `aigner-offensiv.de` (Phase 5: Website in Next.js, WordPress-Ablösung, Redirect-Karte) wird **zurückgestellt**, bis Dateien und Zugänge (WordPress-Backend, Strato-Hosting der alten Site, Originalfotos) vorliegen. Im Vordergrund stehen **Handel Offensiv und die Lernplattform**: Web-Campus, Admin-Cockpit, Einladung → E‑Mail → Annahme → Lernen. Die bestehende statische Website `handel-offensiv.de` bleibt unverändert live. Campus und Cockpit gehen unter `campus.` / `admin.aigner-offensiv.de` an den Start (nur zwei neue CNAME-Einträge, kein Eingriff in WordPress). Die Website-Tabellen (Migration 0005) und das Redaktionsmodul bleiben vorbereitet und werden aktiviert, sobald Phase 5 wieder ansteht.
+
 Reihenfolge: 0 → 1 → 2 → (3 ∥ 4) → 5 → 6 → 7 → 8 → 9. Jede Phase endet mit Typecheck, Lint (verbindlich), Tests, Production Build, Security-Check, Sichtprüfung Desktop + Mobile und einem Git-Checkpoint (§49).
 
 | Phase | Name | Inhalt | Fertig, wenn … |

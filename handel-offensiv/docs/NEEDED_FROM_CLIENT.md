@@ -32,6 +32,8 @@ Legende: **[P0]** vor Phase 1 nötig · **[P2]** vor dem Vertical Slice · **[P5
 
 ## 3. Inhalte für die Website (Fragen aus dem Gesprächsleitfaden „50 Fragen")
 
+> **Zurückgestellt (Entscheidung 26.09.2026):** Der Relaunch von `aigner-offensiv.de` folgt erst, wenn Dateien und Zugänge vorliegen. Die Punkte dieses Abschnitts sind bis dahin **nicht blockierend**; Priorität haben Abschnitt 2 (Konten) und Abschnitt 4 (Campus-Inhalte).
+
 - [ ] **[P5] Format in Zahlen**: Dauer eines Offensivtags, Abstand zwischen den Tagen, Gesamtdauer der Saison, Gruppengröße min/max
 - [ ] **[P5] Termine 2027** (falls veröffentlicht) und Orte offener Gruppen
 - [ ] **[P5] Preise**: nennen oder „auf Anfrage"; falls nennen: Beträge und Leistungsumfang

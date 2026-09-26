@@ -26,7 +26,12 @@ import {
 
 export const metadata: Metadata = { title: "Profil" };
 
-const DEFAULT_ADMIN_URL = "https://admin.aigner-offensiv.de";
+/**
+ * Cockpit liegt unter demselben Host wie die Akademie (www.handel-offensiv.de/admin).
+ * Relativer Pfad: funktioniert lokal (Website-Shell), auf Staging und in Produktion.
+ * Ueberschreibbar per NEXT_PUBLIC_ADMIN_URL (z. B. Cockpit-Vorschau ohne Shell).
+ */
+const DEFAULT_ADMIN_URL = "/admin";
 
 const dateFormat = new Intl.DateTimeFormat("de-DE", { dateStyle: "long", timeZone: "Europe/Berlin" });
 

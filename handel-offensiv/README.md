@@ -12,8 +12,11 @@ Ihre Aufgabe: **Vorbereiten. Vertiefen. Umsetzen. Reflektieren.**
 
 | Ordner | Inhalt |
 |---|---|
-| `apps/mobile` | Native App für iOS & Android (Expo / React Native / TypeScript) |
-| `apps/admin` | Admin- & Trainer-Cockpit (Next.js / Tailwind) |
+| `apps/web` | Website-Shell `www.handel-offensiv.de`: statische Website + Rewrites auf Akademie (`/login`, `/akademie`) und Cockpit (`/admin`) – Vercel-Root-Projekt (`docs/DEPLOYMENT.md`) |
+| `apps/campus` | HANDEL OFFENSIV CAMPUS / Teilnehmer-Akademie im Browser (Next.js, `basePath /akademie`) |
+| `apps/admin` | Admin- & Trainer-Cockpit (Next.js / Tailwind, `basePath /admin`) |
+| `apps/mobile` | Native App für iOS & Android (Expo / React Native / TypeScript) – Phase 9 |
+| `packages/ui` | Gemeinsame Web-Komponenten (Palette v2) |
 | `packages/types` | Gemeinsame Domain- und Datenbank-Typen |
 | `packages/validation` | Zod-Schemas (u. a. Content-Block-Konfiguration) |
 | `packages/domain` | RBAC-Capabilities, Release Engine, Fortschrittslogik (reine Funktionen) |
@@ -32,7 +35,9 @@ cp .env.example .env       # Werte eintragen (siehe docs/ENVIRONMENT_SETUP.md)
 npx supabase start
 npx supabase db reset      # spielt Migrationen + Seed ein
 
-pnpm dev:admin             # Admin-Cockpit auf http://localhost:3000
+pnpm dev:admin             # Cockpit auf http://localhost:3000/admin
+pnpm dev:campus            # Akademie auf http://localhost:3001/akademie (Login: /akademie/login)
+pnpm dev:web               # Website-Shell auf http://localhost:3100 – bündelt alles: /login, /akademie, /admin
 pnpm dev:mobile            # Expo Dev Server (Expo Go oder Dev Build)
 ```
 

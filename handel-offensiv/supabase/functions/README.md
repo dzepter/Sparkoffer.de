@@ -33,14 +33,14 @@ Zusätzlich setzen (`supabase secrets set NAME=wert`):
 | Secret | Pflicht | Verwendung |
 | --- | --- | --- |
 | `ALLOWED_ORIGINS` | ja (Web) | Kommaseparierte CORS-Origins, z. B. `https://app.example.de` |
-| `APP_BASE_URL` | ja | Basis der Einladungslinks (`/einladung?token=…`) |
+| `APP_BASE_URL` | ja | Basis der Einladungslinks (`/einladung?token=…`) – öffentliche Basis der Akademie **inklusive** Präfix, Produktion `https://www.handel-offensiv.de/akademie` |
 | `CRON_SECRET` | ja | Zugriffsschutz für `release-scheduler` |
 | `RATE_LIMIT_SALT` | ja (Staging/Prod) | Salt für die Hashes der persistenten Rate-Limit-Schlüssel (`_shared/ratelimit.ts`) – derselbe Wert wie in Campus/Cockpit |
 | `CAMPUS_CLIENT_IP_SECRET` | ja (Web-Campus) | Gemeinsames Secret mit dem Campus (`apps/campus`): `accept-invitation` akzeptiert die serverseitig weitergereichte Besucher-IP (`x-campus-client-ip` + HMAC `x-campus-signature`) nur mit gültiger Signatur; sonst gilt `x-forwarded-for` (= Egress-IP des Campus, ein gemeinsamer Bucket für alle Web-Besucher) |
 | `RESEND_API_KEY` | ja (Staging/Prod) | Resend-API-Schlüssel (K‑4). Fehlt er, wird nicht versendet; `invite-user` liefert dann die `inviteUrl` zum manuellen Versand zurück. |
-| `EMAIL_FROM` | optional | Absender, Default `Aigner Offensiv Campus <campus@mail.aigner-offensiv.de>` – muss in `EMAIL_SENDER_DOMAIN` liegen |
+| `EMAIL_FROM` | optional | Absender, Default `Handel Offensiv Akademie <akademie@mail.handel-offensiv.de>` – muss in `EMAIL_SENDER_DOMAIN` liegen |
 | `EMAIL_REPLY_TO` | empfohlen | Antwortadresse (bestehendes Microsoft-365-Postfach, z. B. `info@aigner-offensiv.de`) |
-| `EMAIL_SENDER_DOMAIN` | optional | erlaubte Absenderdomain, Default `mail.aigner-offensiv.de` (fail-closed: andere Absender werden verweigert – DMARC `p=reject`) |
+| `EMAIL_SENDER_DOMAIN` | optional | erlaubte Absenderdomain, Default `mail.handel-offensiv.de` (fail-closed: andere Absender werden verweigert – DMARC `p=reject`) |
 | `EMAIL_PROVIDER` | optional | erzwingt `resend` / `http` / `none`; Default: automatisch nach vorhandenen Schlüsseln |
 | `EMAIL_PROVIDER_URL` / `EMAIL_PROVIDER_TOKEN` | optional (Altpfad) | generischer JSON-Relay `{from,to,subject,html,text}` |
 | `EXPO_ACCESS_TOKEN` | optional | Expo Enhanced Push Security |

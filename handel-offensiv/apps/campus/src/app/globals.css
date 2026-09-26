@@ -4,33 +4,35 @@
 
 /*
  * Archivo lokal gebuendelt (public/fonts) – KEIN Google-Fonts-CDN (DSGVO).
+ * Absolute URLs in CSS erhalten den basePath (/akademie) NICHT automatisch,
+ * deshalb steht das Praefix hier ausdruecklich (next.config.ts: basePath).
  * Fehlen die woff2-Dateien (siehe public/fonts/README.md), faellt der Browser
  * lautlos auf den System-Stack aus dem Tailwind-Preset zurueck.
  */
 @font-face {
   font-family: "Archivo";
-  src: url("/fonts/Archivo-Regular.woff2") format("woff2");
+  src: url("/akademie/fonts/Archivo-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Archivo";
-  src: url("/fonts/Archivo-Medium.woff2") format("woff2");
+  src: url("/akademie/fonts/Archivo-Medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Archivo";
-  src: url("/fonts/Archivo-Bold.woff2") format("woff2");
+  src: url("/akademie/fonts/Archivo-Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Archivo";
-  src: url("/fonts/Archivo-ExtraBold.woff2") format("woff2");
+  src: url("/akademie/fonts/Archivo-ExtraBold.woff2") format("woff2");
   font-weight: 800;
   font-style: normal;
   font-display: swap;

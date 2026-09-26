@@ -17,6 +17,8 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { AUTH_COOKIE_OPTIONS } from "@/lib/supabase/cookie";
+
 const PUBLIC_PATHS = new Set(["/login", "/login/passwort-vergessen", "/auth/callback", "/hinweis-app"]);
 
 /** Supabase-Origin (https + wss fuer Realtime) aus NEXT_PUBLIC_SUPABASE_URL. */
@@ -79,6 +81,7 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
     {
+      cookieOptions: AUTH_COOKIE_OPTIONS,
       cookies: {
         getAll() {
           return request.cookies.getAll();

@@ -33,20 +33,27 @@ file_size_limit = "50MiB"
 [auth]
 enabled = true
 # Basis fuer Auth-Links (Passwort-Reset, E-Mail-Aenderung). Lokal: Admin-Cockpit.
-# Produktion: https://campus.aigner-offensiv.de (Web-Campus) – wird beim
-# Anlegen der Remote-Projekte gesetzt.
+# Produktion: https://www.handel-offensiv.de/akademie (Akademie, eine Domain –
+# keine Subdomains) – wird beim Anlegen der Remote-Projekte gesetzt.
 site_url = "env(SUPABASE_AUTH_SITE_URL)"
-# Erlaubte Redirect-Ziele (Passwort-Reset: /auth/callback der Web-Apps,
-# Deep-Link der nativen App). Nur exakte URLs bzw. Wildcards je Host.
+# Erlaubte Redirect-Ziele (Passwort-Reset: <Basis>/auth/callback der Web-Apps
+# mit Pfad-Praefix /akademie bzw. /admin, Deep-Link der nativen App).
+# Nur exakte URLs bzw. Wildcards je Host. Staging: die Vorschau-Hosts der
+# Website-Shell (Vercel) werden im Supabase-Dashboard des Staging-Projekts
+# ergaenzt – keine Produktions-Hosts im Staging-Projekt.
 additional_redirect_urls = [
-  "http://localhost:3000/auth/callback",
-  "http://localhost:3000/auth/callback?weiter=/passwort-neu",
-  "http://localhost:3001/auth/callback",
-  "http://localhost:3001/auth/callback?weiter=/passwort-neu",
-  "https://admin.aigner-offensiv.de/auth/callback",
-  "https://admin.aigner-offensiv.de/auth/callback?weiter=/passwort-neu",
-  "https://campus.aigner-offensiv.de/auth/callback",
-  "https://campus.aigner-offensiv.de/auth/callback?weiter=/passwort-neu",
+  "http://localhost:3000/admin/auth/callback",
+  "http://localhost:3000/admin/auth/callback?weiter=/passwort-neu",
+  "http://localhost:3001/akademie/auth/callback",
+  "http://localhost:3001/akademie/auth/callback?weiter=/passwort-neu",
+  "http://localhost:3100/admin/auth/callback",
+  "http://localhost:3100/admin/auth/callback?weiter=/passwort-neu",
+  "http://localhost:3100/akademie/auth/callback",
+  "http://localhost:3100/akademie/auth/callback?weiter=/passwort-neu",
+  "https://www.handel-offensiv.de/admin/auth/callback",
+  "https://www.handel-offensiv.de/admin/auth/callback?weiter=/passwort-neu",
+  "https://www.handel-offensiv.de/akademie/auth/callback",
+  "https://www.handel-offensiv.de/akademie/auth/callback?weiter=/passwort-neu",
   "handeloffensiv://passwort-neu",
 ]
 # Access-Token 1 Stunde gueltig, Refresh-Token-Rotation aktiv
@@ -68,7 +75,8 @@ enable_confirmations = true
 max_frequency = "1m0s"
 
 # Transaktionaler Versand ueber Resend (K-4): Absender-Subdomain
-# mail.aigner-offensiv.de, Microsoft-365-MX bleibt unangetastet.
+# mail.handel-offensiv.de; MX-Eintraege der Hauptdomains (Microsoft 365 /
+# Strato) bleiben unangetastet.
 # Lokal (supabase start) bleibt Inbucket aktiv, solange RESEND_API_KEY leer ist.
 [auth.email.smtp]
 enabled = false
@@ -76,8 +84,8 @@ host = "smtp.resend.com"
 port = 465
 user = "resend"
 pass = "env(RESEND_API_KEY)"
-admin_email = "campus@mail.aigner-offensiv.de"
-sender_name = "Aigner Offensiv Campus"
+admin_email = "akademie@mail.handel-offensiv.de"
+sender_name = "Handel Offensiv Akademie"
 
 [auth.mfa]
 max_enrolled_factors = 10

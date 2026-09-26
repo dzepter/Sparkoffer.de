@@ -57,7 +57,8 @@ interface InvitationRow {
 }
 
 function inviteUrl(token: string): string {
-  const base = (Deno.env.get("APP_BASE_URL") ?? "http://localhost:3000").replace(/\/$/, "");
+  // APP_BASE_URL = oeffentliche Basis der Akademie INKLUSIVE Praefix, z. B. https://www.handel-offensiv.de/akademie
+  const base = (Deno.env.get("APP_BASE_URL") ?? "http://localhost:3001/akademie").replace(/\/$/, "");
   return `${base}/einladung?token=${token}`;
 }
 

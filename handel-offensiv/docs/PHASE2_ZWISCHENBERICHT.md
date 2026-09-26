@@ -44,12 +44,12 @@ Screenshots (Desktop 1440 px, Mobil 390 px): `docs/design/screenshots/campus-log
 
 ## Was noch fehlt (bis zum echten Durchlauf)
 
-1. **Konten des Auftraggebers:** Supabase-Projekt (Frankfurt), Vercel, Resend + DNS `mail.aigner-offensiv.de`, privates Repository. Erst damit: Staging, echte Einladungs-E-Mail, Ende-zu-Ende-Test mit Demo-Gruppe 2027.
+1. **Konten des Auftraggebers:** Supabase-Projekt (Frankfurt), Vercel, Resend + DNS `mail.aigner-offensiv.de` (seit 26.09.2026: `mail.handel-offensiv.de`), privates Repository. Erst damit: Staging, echte Einladungs-E-Mail, Ende-zu-Ende-Test mit Demo-Gruppe 2027.
 2. Cockpit (Admin) auf `packages/ui` umstellen und um Website-Redaktion ergänzen (Phase 4/5, Website zurückgestellt).
 3. Restliche Befunde aus Phase 1: MFA-Pflicht für Admins/Trainer (S‑7), paginierte Teilnehmerliste (S‑10), Löschanträge-UI (S‑18).
 4. Native App (Phase 9): neue Blocktypen und Palette v2 in der Expo-App.
 
 ## Ankündigung produktiver Änderungen (noch nichts ausgeführt)
 
-- DNS: `campus.` und `admin.aigner-offensiv.de` → Vercel (CNAME), vier Einträge für `mail.aigner-offensiv.de` (Resend). Auswirkung: keine auf Website oder Microsoft 365; Rollback: Einträge löschen.
+- ~~DNS: `campus.` und `admin.aigner-offensiv.de` → Vercel (CNAME), vier Einträge für `mail.aigner-offensiv.de` (Resend).~~ **Überholt durch die Architekturaktualisierung vom 26.09.2026** (eine Domain `handel-offensiv.de`, `mail.handel-offensiv.de`): siehe `ARCHITEKTUR_UPDATE_EINE_DOMAIN.md`, `DEPLOYMENT.md` §4 und `EMAIL_DNS_PLAN.md`.
 - Datenbank: Migrationen 0001–0008 auf ein leeres Staging-Projekt; Rollback: Projekt zurücksetzen.

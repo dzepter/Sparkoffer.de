@@ -26,10 +26,14 @@ export function supabaseServiceRoleKey(): string {
   return required("SUPABASE_SERVICE_ROLE_KEY");
 }
 
-/** Oeffentliche Basis-URL des Campus (Auth-Redirects). Default: lokale Entwicklung. */
+/**
+ * Oeffentliche Basis-URL der Akademie INKLUSIVE Pfad-Praefix (Auth-Redirects,
+ * z. B. https://www.handel-offensiv.de/akademie). Default: lokale Entwicklung
+ * ohne Website-Shell. Die Callback-Route liegt unter <Basis>/auth/callback.
+ */
 export function appBaseUrl(): string {
   const value = process.env.NEXT_PUBLIC_APP_URL;
-  return (value === undefined || value === "" ? "http://localhost:3001" : value).replace(/\/$/, "");
+  return (value === undefined || value === "" ? "http://localhost:3001/akademie" : value).replace(/\/$/, "");
 }
 
 /**

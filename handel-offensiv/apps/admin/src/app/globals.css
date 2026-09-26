@@ -4,34 +4,36 @@
 
 /*
  * Archivo lokal gebuendelt (public/fonts) – KEIN Google-Fonts-CDN (DSGVO).
+ * Absolute URLs in CSS erhalten den basePath (/admin) NICHT automatisch,
+ * deshalb steht das Praefix hier ausdruecklich (next.config.ts: basePath).
  * Deklarationen sind defensiv: fehlen die woff2-Dateien (siehe
  * public/fonts/README.md), faellt der Browser lautlos auf den System-Stack
  * aus tailwind.config.ts zurueck.
  */
 @font-face {
   font-family: "Archivo";
-  src: url("/fonts/Archivo-Regular.woff2") format("woff2");
+  src: url("/admin/fonts/Archivo-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Archivo";
-  src: url("/fonts/Archivo-Medium.woff2") format("woff2");
+  src: url("/admin/fonts/Archivo-Medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Archivo";
-  src: url("/fonts/Archivo-Bold.woff2") format("woff2");
+  src: url("/admin/fonts/Archivo-Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Archivo";
-  src: url("/fonts/Archivo-ExtraBold.woff2") format("woff2");
+  src: url("/admin/fonts/Archivo-ExtraBold.woff2") format("woff2");
   font-weight: 800;
   font-style: normal;
   font-display: swap;

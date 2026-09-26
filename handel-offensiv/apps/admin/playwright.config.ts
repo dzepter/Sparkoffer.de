@@ -4,6 +4,9 @@ import { defineConfig, devices } from "@playwright/test";
  * E2E-Basis-Setup.
  * baseURL kommt aus E2E_BASE_URL (Default: lokaler Dev-Server).
  */
+/** PW_CHROMIUM_PATH: optionaler Pfad zu einer Chromium-Binary (wie apps/campus). */
+const chromiumPath = process.env.PW_CHROMIUM_PATH;
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -13,6 +16,7 @@ export default defineConfig({
     baseURL: process.env.E2E_BASE_URL ?? "http://localhost:3000",
     trace: "on-first-retry",
     locale: "de-DE",
+    ...(chromiumPath ? { launchOptions: { executablePath: chromiumPath } } : {}),
   },
   projects: [
     {

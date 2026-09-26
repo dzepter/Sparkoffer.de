@@ -2,7 +2,7 @@
   "name": "@handel-offensiv/campus",
   "version": "0.1.0",
   "private": true,
-  "description": "HANDEL OFFENSIV CAMPUS – der digitale Mannschaftsraum im Browser (campus.aigner-offensiv.de).",
+  "description": "HANDEL OFFENSIV CAMPUS – der digitale Mannschaftsraum im Browser (www.handel-offensiv.de/akademie).",
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",

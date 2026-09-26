@@ -1,5 +1,7 @@
 # Umsetzungsplan – Aigner Offensiv Digital (Website · Campus · Admin)
 
+> **Architekturaktualisierung (Auftraggeber, 26.09.2026):** Version 1 läuft **vollständig unter `handel-offensiv.de`** – `www.handel-offensiv.de` (Website), `/login` (Teilnehmer-Login), `/akademie` (geschützte Teilnehmer-Akademie), `/admin` (Admin-/Trainerbereich). **Keine produktiven Subdomains** `campus.`/`admin.aigner-offensiv.de`; Vercel-Preview-/Staging-URLs sind erlaubt. E-Mail-Versand über `mail.handel-offensiv.de`. Umsetzung: Website-Shell `apps/web` mit Rewrites auf die Zonen `apps/campus` (`basePath /akademie`) und `apps/admin` (`basePath /admin`) – siehe `DEPLOYMENT.md`. Ältere Angaben zu Subdomains in diesem Dokument sind damit überholt.
+
 **Version 2 – Entwurf zur Freigabe (26.09.2026).** Grundlage: Master-Prompt September 2026 (§1–§54), Bestandsaufnahme `CURRENT_STATE.md`, Zielbild `ARCHITECTURE.md`. Dieser Plan ersetzt den neunphasigen Plan der Version 1 (Sommer 2026); dessen Phasen 1–8 sind umgesetzt (Datenbank, Rechte, Admin-Cockpit, native App, Edge Functions, Doku), Phase 9 (Store-Release) wurde zurückgestellt. **Es wird nichts davon verworfen** – Version 2 baut darauf auf.
 
 **Wie dieses Dokument zu lesen ist:** Abschnitte 1–4 sind auch ohne IT-Hintergrund verständlich (Sitemaps, erster durchgehender Ablauf, Phasen, Migration). Abschnitte 5–9 sind die technische Arbeitsliste. Kalendertermine enthält der Plan bewusst nicht; verbindlich sind Reihenfolge und Fertigstellungskriterien.
@@ -10,9 +12,9 @@
 
 ## 1. Sitemaps
 
-### 1.1 Öffentliche Website – `www.aigner-offensiv.de` (§4, §5, §42)
+### 1.1 Öffentliche Website – `www.handel-offensiv.de` (Version 1; Relaunch `aigner-offensiv.de` zurückgestellt) (§4, §5, §42)
 
-Navigation: **HANDEL OFFENSIV · DIE 5 OFFENSIVTAGE · FÜR UNTERNEHMEN · RAINER AIGNER · IMPULSE · KONTAKT** — rechts abgesetzt **TEILNEHMER-LOGIN** (→ `campus.aigner-offensiv.de`). Primärer CTA **OFFENSIVTAG ANFRAGEN**, sekundär **DIE 5 OFFENSIVTAGE ENTDECKEN**.
+Navigation: **HANDEL OFFENSIV · DIE 5 OFFENSIVTAGE · FÜR UNTERNEHMEN · RAINER AIGNER · IMPULSE · KONTAKT** — rechts abgesetzt **TEILNEHMER-LOGIN** (→ `/login`). Primärer CTA **OFFENSIVTAG ANFRAGEN**, sekundär **DIE 5 OFFENSIVTAGE ENTDECKEN**.
 
 | Pfad | Seite | Inhalt (Quelle) |
 |---|---|---|
@@ -27,7 +29,7 @@ Navigation: **HANDEL OFFENSIV · DIE 5 OFFENSIVTAGE · FÜR UNTERNEHMEN · RAINE
 | `/404` | Fehlerseite | „Abseitsstellung." |
 | `sitemap.xml`, `robots.txt` | SEO | nur öffentliche Seiten |
 
-### 1.2 HANDEL OFFENSIV CAMPUS – `campus.aigner-offensiv.de` (§6–§9, §14, §17, §40, §42; komplett `noindex`)
+### 1.2 HANDEL OFFENSIV CAMPUS / Teilnehmer-Akademie – `www.handel-offensiv.de/akademie`, Login `/login` (§6–§9, §14, §17, §40, §42; komplett `noindex`)
 
 Navigation Desktop **HEUTE · MEIN PROGRAMM · OFFENSIVPLAN · TERMINE · MATERIAL · PROFIL**; Mobile **HEUTE · PROGRAMM · OFFENSIVPLAN · TERMINE · PROFIL** (Material in den Modulen).
 
@@ -47,7 +49,7 @@ Navigation Desktop **HEUTE · MEIN PROGRAMM · OFFENSIVPLAN · TERMINE · MATERI
 | `/profil`, `/profil/datenschutz-konto` | Profil | Name, Foto, Passwort, Benachrichtigungen; ACCOUNTLÖSCHUNG ANFRAGEN |
 | `/impressum`, `/datenschutz`, `/support` | Rechtliches/Support | – |
 
-### 1.3 Admin-/Trainer-Cockpit – `admin.aigner-offensiv.de` (§20–§25, `noindex`)
+### 1.3 Admin-/Trainer-Cockpit – `www.handel-offensiv.de/admin` (§20–§25, `noindex`)
 
 Bestehende Navigation bleibt (entspricht §21). **Ergänzungen:** `/teilnehmer/[id]` (Detail: Stammdaten, Gruppen, Einladungsstatus, Fortschritt, Aktionen) · `/unternehmen/[id]` (Detail mit Gruppen, Trainern, Programmen, Logo) · `/nachrichten/[id]` (bearbeiten/zurückziehen) · `/trainer` (Trainer-Startseite: Feedback-Queue, offene Transferaufgaben, freigegebene Reflexionen, nächste Termine) · `/website` (Texte), `/website/impulse`, `/website/anfragen` · `/profil/sicherheit` (MFA für alle Rollen) · `/login` mit „Passwort vergessen".
 
@@ -82,7 +84,7 @@ Bevor weitere Features entstehen, muss dieser Ablauf **auf Staging, mit echten E
 
 ## 3. Phasen und Fertigstellungskriterien
 
-> **Priorisierung (Auftraggeber, 26.09.2026, nach dem Phase‑1‑Bericht):** Der Relaunch von `aigner-offensiv.de` (Phase 5: Website in Next.js, WordPress-Ablösung, Redirect-Karte) wird **zurückgestellt**, bis Dateien und Zugänge (WordPress-Backend, Strato-Hosting der alten Site, Originalfotos) vorliegen. Im Vordergrund stehen **Handel Offensiv und die Lernplattform**: Web-Campus, Admin-Cockpit, Einladung → E‑Mail → Annahme → Lernen. Die bestehende statische Website `handel-offensiv.de` bleibt unverändert live. Campus und Cockpit gehen unter `campus.` / `admin.aigner-offensiv.de` an den Start (nur zwei neue CNAME-Einträge, kein Eingriff in WordPress). Die Website-Tabellen (Migration 0005) und das Redaktionsmodul bleiben vorbereitet und werden aktiviert, sobald Phase 5 wieder ansteht.
+> **Priorisierung (Auftraggeber, 26.09.2026, nach dem Phase‑1‑Bericht):** Der Relaunch von `aigner-offensiv.de` (Phase 5: Website in Next.js, WordPress-Ablösung, Redirect-Karte) wird **zurückgestellt**, bis Dateien und Zugänge (WordPress-Backend, Strato-Hosting der alten Site, Originalfotos) vorliegen. Im Vordergrund stehen **Handel Offensiv und die Lernplattform**: Web-Campus, Admin-Cockpit, Einladung → E‑Mail → Annahme → Lernen. **Architekturaktualisierung 26.09.2026:** Version 1 läuft vollständig unter `handel-offensiv.de` – Website `www.`, Login `/login`, Akademie `/akademie`, Cockpit `/admin`; keine produktiven Subdomains. Die bestehende statische Website wird dafür als Website-Shell (`apps/web`) auf Vercel betrieben; die DNS-Umstellung von `www` erfolgt erst nach Ankündigung und Bestätigung (`DEPLOYMENT.md` §4). Kein Eingriff in WordPress (`aigner-offensiv.de`). Die Website-Tabellen (Migration 0005) und das Redaktionsmodul bleiben vorbereitet und werden aktiviert, sobald Phase 5 wieder ansteht.
 
 Reihenfolge: 0 → 1 → 2 → (3 ∥ 4) → 5 → 6 → 7 → 8 → 9. Jede Phase endet mit Typecheck, Lint (verbindlich), Tests, Production Build, Security-Check, Sichtprüfung Desktop + Mobile und einem Git-Checkpoint (§49).
 
@@ -125,17 +127,18 @@ Kein Ausfall, kein Inhaltsverlust, keine SEO-Einbußen: alte Inhalte sind gesich
 | Groß-/Kleinschreibung, Trailing Slash, `index.php` | Normalisierung in der Middleware, kettenfrei (kein 308→301-Doppelsprung) |
 | `/wp-content/uploads/*` | erst **nach** Migration der Blogbilder 410 Gone |
 | `/wp-json/*`, `/xmlrpc.php`, `/wp-login.php`, `/readme.html`, `/sitemap_index.xml` | 410 Gone bzw. neue `sitemap.xml` |
-| `https://www.handel-offensiv.de/` und `/index.html` | `https://www.aigner-offensiv.de/` **[ENTSCHEIDUNG K‑1]** |
-| `handel-offensiv.de/login.html` | `https://campus.aigner-offensiv.de/login` |
-| `handel-offensiv.de/kontakt.html`, `/impressum.html`, `/datenschutz.html`, `/account-loeschen.html` | gleichnamige Seiten unter `www.aigner-offensiv.de` |
-| `handel-offensiv.de/cms/*` | 410 Gone (Redaktion läuft im Admin) |
+| `https://www.handel-offensiv.de/index.html` | `https://www.handel-offensiv.de/` (308, `apps/web`) – **Version 1 bleibt auf `handel-offensiv.de`**; die frühere Zusammenführung unter `aigner-offensiv.de` ist zurückgestellt |
+| `handel-offensiv.de/login.html` | `/login` (308, Teilnehmer-Login der Akademie) – umgesetzt in `apps/web/next.config.ts` |
+| `/akademie/login[/…]` | `/login[/…]` (307, eine kanonische Login-Adresse) |
+| `handel-offensiv.de/kontakt.html`, `/impressum.html`, `/datenschutz.html`, `/account-loeschen.html` | unverändert (statische Seiten der Shell) |
+| `handel-offensiv.de/cms/*` | 404 (PHP-CMS entfällt auf Vercel; Redaktion später im Admin) |
 
 ### 4.3 Cutover-Reihenfolge
 
 0. **Sofort (Sichern):** WordPress-Vollbackup (DB-Dump, `wp-content/uploads`, Theme-Ordner mit `img/10.png`), Originale der echten Fotos und Blogbilder sichern; `content.json` und alle Live-Dateien von `handel-offensiv.de` sichern (Texte erledigt); Redaktionsstopp im PHP-CMS mit dem Kunden vereinbaren.
 1. **Sofort (Risikominderung, ohne Designänderung):** PHP im Strato-Panel auf 8.2/8.3, WordPress-Core und Plugins aktualisieren, Auto-Updates aktivieren; per `.htaccess` `/readme.html`, `/wp-json/wp/v2/users`, `xmlrpc.php` sperren; totes Analytics-Script und externe Google Fonts entfernen; Security-Header setzen (S‑13).
-2. **Phase 0/1:** Supabase-Projekte Staging/Production (Frankfurt) anlegen, AVV abschließen; Vercel-Team mit drei Projekten (website, campus, admin), Region `fra1`, AVV; Resend-Konto (EU) mit Versand-Subdomain `mail.aigner-offensiv.de` – SPF/DKIM/Return-Path-Records bei Strato setzen (DMARC-Apex bleibt `p=reject`); `campus.` und `admin.` als CNAME `cname.vercel-dns.com` (keine Auswirkung auf Website oder E-Mail).
-3. **Phase 2–4:** Campus und Admin auf Staging, dann unter den Subdomains produktiv (beide `noindex` + `X-Robots-Tag`); Kunde testet mit Demo-Daten 2027. **Minimal-Patch der Live-Site `handel-offensiv.de`** beim Campus-Go-Live (einziger weiterer Upload): `login.html` mit aktivem Button „Zum Campus" → `campus.aigner-offensiv.de/login`, Texte „iPhone-App/App Store/cockpit.handel-offensiv.de" entfernen, `login.html` aus der Sitemap nehmen und `noindex` setzen.
+2. **Phase 0/1 (aktualisiert 26.09.2026):** Supabase-Projekt `handel-offensiv-staging` (Frankfurt) anlegen, AVV abschließen; Vercel-Team mit drei Projekten (`ho-web` Shell, `ho-akademie`, `ho-admin`), Region `fra1`, AVV; Resend-Konto (EU) mit Versand-Subdomain `mail.handel-offensiv.de` – vier Einträge bei Strato nach Ankündigung/Bestätigung (`EMAIL_DNS_PLAN.md`). **Keine CNAMEs für Subdomains.**
+3. **Phase 2–4:** Shell, Akademie und Cockpit auf Staging (eine Vercel-Adresse mit `/login`, `/akademie`, `/admin`); Kunde testet mit Demo-Daten 2027. Produktiv: DNS `www`/Apex `handel-offensiv.de` → Vercel (`DEPLOYMENT.md` §4, nur nach Bestätigung); dabei entfällt das PHP-Mini-CMS, Texte vorher aus `cms/content.json` übernehmen. Die Website-Navigation zeigt bereits auf `/login` (`login.html` → 308).
 4. **Phase 5:** Website auf Staging (Vercel-Preview-URL) abnehmen; Texte aus dem Handel-Offensiv-CMS importieren; Rechtstexte anwaltlich geprüft einspielen.
 5. **Cutover Website:** DNS `www`/Apex von Strato auf Vercel (A/AAAA/CNAME) – **MX unangetastet**; Redirect-Map aktiv; Search Console: neue Sitemap einreichen, alte URLs beobachten.
 6. **Cutover handel-offensiv.de:** Strato-Weiterleitung (301) auf `www.aigner-offensiv.de`; Ordner `handel-offensiv` archivieren.
@@ -256,7 +259,7 @@ Vollständig zu bauen (Sitemap 1.1); Inhalte aus `handel-offensiv-website/` (Tex
 | Lücke | § | Status | Aufwand | Phase |
 |---|---|---|---|---|
 | Navigation und Seiten nach §5 (DIE 5 OFFENSIVTAGE mit §10-Untertiteln und 4-Phasen-Logik, FÜR UNTERNEHMEN, RAINER AIGNER, IMPULSE als eigene Routen) | 5, 10, 11 | ◐ | G | 5 |
-| TEILNEHMER-LOGIN rechts → `campus.aigner-offensiv.de`; Live-Texte versprechen „iPhone-App", „Bald im App Store", `cockpit.handel-offensiv.de` | 5, 6 | ✖ | K | 2 (Minimal-Patch), 5 |
+| TEILNEHMER-LOGIN rechts → `/login` (Navigation umgestellt, `login.html` → 308); Live-Texte versprechen noch „iPhone-App", „Bald im App Store" | 5, 6 | ◐ | K | 5 |
 | CTA-Hierarchie: primär OFFENSIVTAG ANFRAGEN, sekundär DIE 5 OFFENSIVTAGE ENTDECKEN | 5 | ◐ | K | 5 |
 | Botschaft „100 PROZENT PRÄSENZ" fehlt (Leitgedanken-Raster 3-spaltig) | 4 | ◐ | K | 5 |
 | Hero beider Sites = Fußball-Stockfoto im Stadion; weitere Stock-Motive (Sprinter, Geschäftsmann); Rainer erst in der Trainer-Sektion; kein Video | 4, 34 | ✖ | M (+ Kunde: Fotos/Video) | 5 |
@@ -297,8 +300,8 @@ Vollständig zu bauen (Sitemap 1.1); Inhalte aus `handel-offensiv-website/` (Tex
 | **DSGVO Auftragsverarbeitung** (Vercel US-Anbieter, Supabase) | mittel | EU-Regionen, AVVs, Unterauftragnehmerliste, kein Tracking |
 | **E-Mail-Zustellbarkeit** (SMTP-Limits, SPF/DKIM) | mittel | SPF/DKIM für Absender prüfen, Testversand in Phase 2, Fallback-Anbieter definiert |
 | **React 18/19-Split** Mobile/Admin bei gemeinsamem `packages/ui` | niedrig | `packages/ui` nur für Web-Apps; Mobile behält eigene UI-Primitive |
-| **Systemmails werden abgewiesen** (DMARC `p=reject`, SPF `-all` auf Microsoft 365; kein Versender autorisiert) | hoch | K‑4: Resend EU über `mail.aigner-offensiv.de` mit SPF/DKIM/Return-Path; Testversand vor Phase 2 |
-| **Deployment-Drift handel-offensiv.de** (Live ≠ Repo, Kundentexte nur auf dem Server, Hoster/FTP unklar) | mittel | Live-Dateien und `content.json` sofort sichern (erledigt für Texte), Redaktionsstopp vereinbaren, Zugang klären, nur noch ein Minimal-Patch (Login → Campus) |
+| **Systemmails werden abgewiesen** (DMARC `p=reject`, SPF `-all` auf Microsoft 365; kein Versender autorisiert) | hoch | K‑4: Resend EU über `mail.handel-offensiv.de` (aktualisiert 26.09.2026) mit SPF/DKIM/Return-Path; Testversand auf Staging |
+| **Deployment-Drift handel-offensiv.de** (Live ≠ Repo, Kundentexte nur auf dem Server, Hoster/FTP unklar) | mittel | Live-Dateien und `content.json` sofort sichern (erledigt für Texte), Redaktionsstopp vereinbaren, Zugang klären, Website wird als Shell `apps/web` auf Vercel betrieben (Navigation → `/login`) |
 | **Personenbezogene Inhalte auf den Sites ohne dokumentierte Freigabe** (Testimonials mit Klarnamen, Zitat mit Firmenname) | mittel | Freigaben einholen oder entfernen (P5) |
 | **Dokumentation mit zwei Wahrheiten** (V1-Kapitel vs. Code/Kap. 0) | mittel | Banner gesetzt, `docs/README.md` als Index; Angleichung in Phase 1/7; Guides erst nach Neufassung an den Kunden |
 | **Offline-Entwürfe mit persönlichen Inhalten im Browser** | mittel | verschlüsselt, Logout löscht, kein `localStorage` |
@@ -313,7 +316,7 @@ Vollständig zu bauen (Sitemap 1.1); Inhalte aus `handel-offensiv-website/` (Tex
 | Nr. | Freigabe | Verbindliche Änderung / Auflage | Umsetzung |
 |---|---|---|---|
 | K‑1 | ✔ | `handel-offensiv.de` bleibt registriert, später permanente Weiterleitung; keine Domain aufgeben | `ARCHITECTURE.md` §3, Redirect-Karte 4.2 |
-| K‑4 | ✔ mit Auflage | Resend; Versand-Subdomain `mail.aigner-offensiv.de`; M365‑MX unverändert; SPF/DKIM/DMARC + echter Zustelltest vor Produktion; Absender `Aigner Offensiv Campus <campus@mail.aigner-offensiv.de>`; Reply‑To auf M365-Postfach erlaubt | `EMAIL_DNS_PLAN.md`, `_shared/emails.ts`, `config.toml` |
+| K‑4 | ✔ mit Auflage | Resend; Versand-Subdomain **`mail.handel-offensiv.de`** (Aktualisierung 26.09.2026, zuvor `mail.aigner-offensiv.de`); MX unverändert; SPF/DKIM/DMARC + echter Zustelltest vor Produktion; Absender `Handel Offensiv Akademie <akademie@mail.handel-offensiv.de>`; Reply‑To = bestehendes M365-Postfach (Adresse folgt) | `EMAIL_DNS_PLAN.md`, `_shared/emails.ts`, `config.toml` |
 | K‑5 | ✔ mit Auflage | Vercel nur mit Functions in `fra1`; Supabase `eu-central-1`; alle Dienste mit möglicher Verarbeitung außerhalb dokumentiert | `REGIONS_AND_DATA_FLOWS.md`, `vercel.json`, `x-region` |
 | K‑6 | ✔ mit Auflage | Supabase Storage für Pilot/kurze Videos; `VideoProvider`-Abstraktion von Beginn an; Lernlogik/DB nicht vom Streaming abhängig | `packages/domain/src/video-provider.ts` |
 | K‑7 | ✘ Empfehlung abgelehnt | Navy Hauptfarbe, Off-White, Gold/Ocker sehr sparsam (Modulnummern, aktive Navigation, wichtige CTA, Fortschritt, Taktiklinien, Hervorhebungen); kein generisches SaaS-Blau; finale Tokens nach Vergleich mit der HO-Website | `DESIGN_TOKENS.md`, `packages/config` |

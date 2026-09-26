@@ -15,11 +15,11 @@ import {
 } from "../../functions/_shared/email-core.ts";
 
 describe("Absender", () => {
-  it("Standard-Absender ist der Campus auf der Versand-Subdomain", () => {
-    expect(DEFAULT_FROM).toBe("Aigner Offensiv Campus <campus@mail.aigner-offensiv.de>");
+  it("Standard-Absender ist die Akademie auf der Versand-Subdomain mail.handel-offensiv.de", () => {
+    expect(DEFAULT_FROM).toBe("Handel Offensiv Akademie <akademie@mail.handel-offensiv.de>");
     expect(parseSender(DEFAULT_FROM)).toEqual({
-      address: "campus@mail.aigner-offensiv.de",
-      domain: "mail.aigner-offensiv.de",
+      address: "akademie@mail.handel-offensiv.de",
+      domain: "mail.handel-offensiv.de",
     });
   });
 
@@ -72,22 +72,22 @@ describe("Vorlagen", () => {
   it("Einladung enthaelt Organisation, Link, Ablauf und ist HTML-sicher", () => {
     const mail = invitationEmail({
       organizationName: 'Muster <Handels> & "Gruppe"',
-      inviteUrl: "https://campus.aigner-offensiv.de/einladung?token=abc",
+      inviteUrl: "https://www.handel-offensiv.de/akademie/einladung?token=abc",
       expiresAtLabel: "12. März 2027",
     });
     expect(mail.subject).toBe("Ihre Einladung zu Handel Offensiv");
     expect(mail.html).toContain("Muster &lt;Handels&gt; &amp; &quot;Gruppe&quot;");
     expect(mail.html).not.toContain("<Handels>");
-    expect(mail.html).toContain("https://campus.aigner-offensiv.de/einladung?token=abc");
+    expect(mail.html).toContain("https://www.handel-offensiv.de/akademie/einladung?token=abc");
     expect(mail.html).toContain("12. März 2027");
-    expect(mail.text).toContain("https://campus.aigner-offensiv.de/einladung?token=abc");
+    expect(mail.text).toContain("https://www.handel-offensiv.de/akademie/einladung?token=abc");
     // Palette v2: Navy statt Gruen
     expect(mail.html).toContain("#0F2340");
     expect(mail.html).not.toContain("#A8C62B");
   });
 
   it("Erinnerung und Loeschbestaetigung liefern Betreff, HTML und Text", () => {
-    const r = reminderEmail({ headline: "Neuer Impuls", message: "Modul 02 ist frei.", appUrl: "https://campus.aigner-offensiv.de" });
+    const r = reminderEmail({ headline: "Neuer Impuls", message: "Modul 02 ist frei.", appUrl: "https://www.handel-offensiv.de/akademie" });
     expect(r.subject).toBe("Neuer Impuls");
     expect(r.html).toContain("Modul 02 ist frei.");
     const d = deletionConfirmedEmail();

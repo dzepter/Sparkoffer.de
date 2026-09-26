@@ -12,12 +12,14 @@ Stand: 26.09.2026 · Grundlage: Master-Prompt September 2026 (`briefings/2026-09
 | `SECURITY.md` | Kapitel 0: Befunde S‑1…S‑20 · Kapitel 1–15: Sicherheitskonzept (teils Zielzustand als Gegenwart formuliert) | v2/v1 | Kap. 0 aktuell; Kap. 1 ff. Angleichung in Phase 7 |
 | `NEEDED_FROM_CLIENT.md` | Entscheidungen und Zulieferungen des Kunden je Phase | v2 | aktuell |
 | `PHASE1_ZWISCHENBERICHT.md` | Zwischenbericht nach Phase 1 (A–H): behobene Befunde, Restrisiken, Migrationen, Testresultate, CI, Screenshots, nächster Schritt | – | abgenommen (Freigabe 26.09.2026) |
-| `PHASE2_ZWISCHENBERICHT.md` | Zwischenbericht Phase 2 (Code): Web-Campus `apps/campus`, `packages/ui`, Quiz serverseitig (0007), Rate Limit (0008), CSP, Smoke-Tests | – | **zur Kenntnis / Freigabe Staging** |
+| `PHASE2_ZWISCHENBERICHT.md` | Zwischenbericht Phase 2 (Code): Web-Campus `apps/campus`, `packages/ui`, Quiz serverseitig (0007), Rate Limit (0008), CSP, Smoke-Tests | – | abgenommen (Freigabe 26.09.2026) |
+| `ARCHITEKTUR_UPDATE_EINE_DOMAIN.md` | Bericht zur Architekturaktualisierung: alles unter `handel-offensiv.de` (`/login`, `/akademie`, `/admin`), Website-Shell `apps/web`, Cookie-Trennung, E-Mail-Domain, Tests | – | **zur Kenntnis; DNS-Änderungen warten auf Bestätigung** |
+| `DEPLOYMENT.md` | Vercel-Projekte (Shell + zwei Zonen, `fra1`), Umgebungsvariablen (nur Namen), Staging-Ablauf, DNS-Umstellung `www` mit Ankündigung/Rollback | – | aktuell |
 | `DESIGN_TOKENS.md` | Palette v2 Navy/Off-White/Gold, Kontrastnachweis, Vergleich mit handel-offensiv.de | v2 | aktuell |
 | `REGIONS_AND_DATA_FLOWS.md` | Alle Dienste mit Regionsbezug (Frankfurt-Vorgabe), Prüfliste vor Produktion | – | aktuell |
-| `EMAIL_DNS_PLAN.md` | Resend über `mail.aigner-offensiv.de`: DNS-Einträge, Ankündigung, Zustelltest | – | aktuell; Zustelltest offen |
+| `EMAIL_DNS_PLAN.md` | Resend über `mail.handel-offensiv.de`: DNS-Einträge, Ankündigung, Zustelltest | – | aktuell; DNS-Bestätigung und Zustelltest offen |
 | `WORDPRESS_BACKUP_UND_HAERTUNG.md` | Vollbackup, Sofortmaßnahmen, PHP-Umstellung nur über Staging | – | aktuell |
-| `supabase/tests/` | RLS-Regressionstests (Vitest + PostgreSQL 16, Supabase-Shim) | – | grün (100 Tests) |
+| `supabase/tests/` | RLS-Regressionstests (Vitest + PostgreSQL 16, Supabase-Shim) | – | grün (144 Tests) |
 | `ADMIN_GUIDE.md`, `TRAINER_GUIDE.md` | Anleitungen Cockpit | v1 | **überholt** (Banner) – Neufassung nach Phase 4/5, zusätzlich Campus-Handbuch |
 | `RELEASE_GUIDE.md`, `APP_STORE_CHECKLIST.md`, `GOOGLE_PLAY_CHECKLIST.md` | Native App / Stores | v1 | überholt (Banner) – Phase 9 |
 | `ENVIRONMENT_SETUP.md`, `BACKUP_RESTORE.md`, `PRIVACY_TECHNICAL.md` | Betrieb, Backup, technischer Datenschutz | v1 | überholt (Banner) – Ergänzung um Campus/Website in Phase 1/7 |

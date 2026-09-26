@@ -17,14 +17,18 @@ export interface EmailMessage {
 }
 
 export interface SenderConfig {
-  /** Anzeigename + Adresse, z. B. "Aigner Offensiv Campus <campus@mail.aigner-offensiv.de>" */
+  /** Anzeigename + Adresse, z. B. "Handel Offensiv Akademie <akademie@mail.handel-offensiv.de>" */
   from: string;
   /** Optional: Antworten landen im bestehenden Microsoft-365-Postfach */
   replyTo?: string;
 }
 
-/** Verbindlicher Standard-Absender (Freigabe K-4, 26.09.2026). */
-export const DEFAULT_FROM = "Aigner Offensiv Campus <campus@mail.aigner-offensiv.de>";
+/**
+ * Verbindlicher Standard-Absender (Freigabe K-4, 26.09.2026; Versand-Subdomain
+ * seit der Architekturaktualisierung 26.09.2026: mail.handel-offensiv.de).
+ * Lokaler Teil "akademie" entspricht dem Pfad /akademie – aenderbar per EMAIL_FROM.
+ */
+export const DEFAULT_FROM = "Handel Offensiv Akademie <akademie@mail.handel-offensiv.de>";
 
 export const COMPANY = "Aigner Offensiv";
 export const SUPPORT_EMAIL = "info@aigner-offensiv.de";

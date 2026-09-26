@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
 
+/** Pfad-Praefix der App (next.config.ts: basePath). Alle Routen liegen darunter. */
+const BASE_PATH = "/akademie";
+const p = (path: string): string => (path === "/" ? BASE_PATH : `${BASE_PATH}${path}`);
+
 /**
  * Sicherheits-Header des Campus (next.config.ts + Middleware).
  * Der Campus ist nie oeffentlich indexierbar; die CSP wird mit Nonce
@@ -11,7 +15,7 @@ const PAGES = ["/login", "/datenschutz"] as const;
 test.describe("Sicherheits-Header", () => {
   for (const path of PAGES) {
     test(`${path}: noindex und Basis-Header vorhanden`, async ({ request }) => {
-      const response = await request.get(path, { maxRedirects: 0 });
+      const response = await request.get(p(path), { maxRedirects: 0 });
       expect(response.status()).toBe(200);
       const headers = response.headers();
 
@@ -24,7 +28,7 @@ test.describe("Sicherheits-Header", () => {
   }
 
   test("Content-Security-Policy mit Nonce (tolerant, solange die Middleware-CSP fehlt)", async ({ request }) => {
-    const response = await request.get("/login", { maxRedirects: 0 });
+    const response = await request.get(p("/login"), { maxRedirects: 0 });
     const csp = response.headers()["content-security-policy"];
 
     if (!csp) {
@@ -41,7 +45,7 @@ test.describe("Sicherheits-Header", () => {
   });
 
   test("Robots-Meta im HTML: noindex", async ({ page }) => {
-    await page.goto("/login");
+    await page.goto(p("/login"));
     const robots = page.locator('meta[name="robots"]');
     await expect(robots).toHaveCount(1);
     await expect(robots).toHaveAttribute("content", /noindex/i);
@@ -75,7 +79,7 @@ test.describe("CSP: keine Verstoesse, Hydration funktioniert", () => {
         if (/content security policy/i.test(msg.text())) violations.push(msg.text());
       });
 
-      const response = await page.goto(path);
+      const response = await page.goto(p(path));
       expect(response?.status()).toBe(200);
       const csp = response?.headers()["content-security-policy"] ?? "";
       const nonce = /'nonce-([^']+)'/.exec(csp)?.[1];

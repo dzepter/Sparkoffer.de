@@ -1,6 +1,6 @@
 # HANDEL OFFENSIV CAMPUS (`apps/campus`)
 
-Der digitale Mannschaftsraum im Browser – Zielhost `campus.aigner-offensiv.de` (Vercel `fra1`, `noindex`).
+Der digitale Mannschaftsraum im Browser – erreichbar unter `https://www.handel-offensiv.de/akademie` (Login: `/login`), ausgeliefert als Zone hinter der Website-Shell `apps/web` (Vercel `fra1`, `noindex`, `basePath: /akademie` in `next.config.ts`). Details: `docs/DEPLOYMENT.md`.
 
 ## Grundsätze
 
@@ -49,7 +49,8 @@ Lokal gegen den gebauten Stand (wie in CI, Job `campus-e2e`):
 cd handel-offensiv
 export NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co \
        NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder \
-       NEXT_PUBLIC_APP_URL=http://localhost:3001
+       NEXT_PUBLIC_APP_URL=http://localhost:3001/akademie \
+       SUPABASE_SERVICE_ROLE_KEY=placeholder-service-role RATE_LIMIT_SALT=placeholder-salt-only-for-local-smoke-tests
 pnpm build:campus
 pnpm --filter @handel-offensiv/campus start &          # Port 3001
 pnpm --filter @handel-offensiv/campus exec playwright install chromium   # einmalig
@@ -58,6 +59,6 @@ pnpm --filter @handel-offensiv/campus test:e2e
 
 Oder gegen den laufenden Dev-Server (`pnpm dev:campus`, echte Supabase-Keys in `.env.local`) – dann ist die Passwort-vergessen-Antwort die neutrale Bestätigung.
 
-Umgebungsvariablen: `E2E_BASE_URL` (Default `http://localhost:3001`), `PW_CHROMIUM_PATH` (optional: eigene Chromium-Binary, falls die von Playwright erwartete Revision nicht installiert ist), `CI` (2 Retries, GitHub-Reporter, `test.only` verboten).
+Umgebungsvariablen: `E2E_BASE_URL` (Default `http://localhost:3001`; die Tests hängen `/akademie` selbst an), `PW_CHROMIUM_PATH` (optional: eigene Chromium-Binary, falls die von Playwright erwartete Revision nicht installiert ist), `CI` (2 Retries, GitHub-Reporter, `test.only` verboten).
 
 Die Tests sind bewusst auf öffentliche Pfade beschränkt. Tests mit Sitzung (Heute, Lektionen, Offensivplan) benötigen `supabase start` + Seed und gehören in einen eigenen, backend-abhängigen Job.

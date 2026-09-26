@@ -9,7 +9,7 @@
  *   http    -> EMAIL_PROVIDER_URL gesetzt (generischer JSON-Relay, Altpfad)
  *   none    -> kein Versand; Aufrufer bieten den Link zum manuellen Versand an
  *
- * Absender (K-4): EMAIL_FROM, Default "Aigner Offensiv Campus <campus@mail.aigner-offensiv.de>".
+ * Absender (K-4): EMAIL_FROM, Default "Handel Offensiv Akademie <akademie@mail.handel-offensiv.de>".
  * Reply-To (optional): EMAIL_REPLY_TO, z. B. das bestehende Microsoft-365-Postfach.
  * Die Absender-Domain MUSS die bei Resend verifizierte Versand-Subdomain sein –
  * sonst wird der Versand hier abgelehnt (Schutz vor DMARC-p=reject-Abweisungen).
@@ -59,12 +59,12 @@ function senderConfig(): SenderConfig {
 }
 
 /**
- * Erlaubte Absender-Domain (Default: mail.aigner-offensiv.de). Ein Absender
+ * Erlaubte Absender-Domain (Default: mail.handel-offensiv.de). Ein Absender
  * ausserhalb dieser Domain wuerde unter DMARC p=reject abgewiesen – daher
  * fail-closed hier statt Bounce beim Empfaenger.
  */
 function allowedSenderDomain(): string {
-  return (Deno.env.get("EMAIL_SENDER_DOMAIN") ?? "mail.aigner-offensiv.de").toLowerCase();
+  return (Deno.env.get("EMAIL_SENDER_DOMAIN") ?? "mail.handel-offensiv.de").toLowerCase();
 }
 
 // --------------------------------------------------------------------------

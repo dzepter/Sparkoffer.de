@@ -34,7 +34,8 @@ export function supabaseServiceRoleKey(): string {
  */
 export function appBaseUrl(): string {
   const value = process.env.NEXT_PUBLIC_APP_URL;
-  return (value === undefined || value === "" ? "http://localhost:3000" : value).replace(/\/$/, "");
+  // INKLUSIVE Pfad-Praefix (z. B. https://www.handel-offensiv.de/admin); Callback: <Basis>/auth/callback
+  return (value === undefined || value === "" ? "http://localhost:3000/admin" : value).replace(/\/$/, "");
 }
 
 /**

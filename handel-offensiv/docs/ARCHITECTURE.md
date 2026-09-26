@@ -1,5 +1,7 @@
 # Architektur – Aigner Offensiv Digital (Website · Campus · Admin)
 
+> **Architekturaktualisierung (Auftraggeber, 26.09.2026):** Version 1 läuft **vollständig unter `handel-offensiv.de`** – `www.handel-offensiv.de` (Website), `/login` (Teilnehmer-Login), `/akademie` (geschützte Teilnehmer-Akademie), `/admin` (Admin-/Trainerbereich). **Keine produktiven Subdomains** `campus.`/`admin.aigner-offensiv.de`; Vercel-Preview-/Staging-URLs sind erlaubt. E-Mail-Versand über `mail.handel-offensiv.de`. Umsetzung: Website-Shell `apps/web` mit Rewrites auf die Zonen `apps/campus` (`basePath /akademie`) und `apps/admin` (`basePath /admin`) – siehe `DEPLOYMENT.md`. Ältere Angaben zu Subdomains in diesem Dokument sind damit überholt.
+
 **Version 2 – Entwurf zur Freigabe (26.09.2026).** Ersetzt die Architektur der „Handel Offensiv Learning App" (Version 1, Sommer 2026), deren Bestand in `CURRENT_STATE.md` dokumentiert ist. Alles, was in Version 1 gebaut wurde (Datenbank, Rechte, Admin-Cockpit, native App, Edge Functions), bleibt Grundlage; neu hinzu kommen der **Web-Campus** für Teilnehmer und die **öffentliche Website** als dritte Anwendung auf derselben Basis.
 
 Kapitel 1–3 sind ohne IT-Vorwissen lesbar. Ab Kapitel 4 wird es technischer; Details stehen in `DATA_MODEL.md`, `RBAC.md`, `SECURITY.md`, `IMPLEMENTATION_PLAN.md`.
@@ -16,9 +18,9 @@ Aigner Offensiv (Institut für Führung und Vertrieb, München) bietet mit **HAN
 
 Das digitale Gesamtsystem hat drei Bereiche, die sich für Nutzer wie **eine** Marke anfühlen:
 
-1. **Öffentliche Website** (`www.aigner-offensiv.de`) – gewinnt Unternehmen und Entscheider.
-2. **HANDEL OFFENSIV CAMPUS** (`campus.aigner-offensiv.de`) – „Der digitale Mannschaftsraum": begleitet Teilnehmer **zwischen** den Offensivtagen. Zugang nur auf Einladung.
-3. **Admin-/Trainer-Cockpit** (`admin.aigner-offensiv.de`) – steuert Unternehmen, Gruppen, Termine, Inhalte, Freischaltungen; Trainer geben Feedback.
+1. **Öffentliche Website** (`www.handel-offensiv.de`; Relaunch von `aigner-offensiv.de` zurückgestellt) – gewinnt Unternehmen und Entscheider.
+2. **HANDEL OFFENSIV CAMPUS / Teilnehmer-Akademie** (`www.handel-offensiv.de/akademie`, Login unter `/login`) – „Der digitale Mannschaftsraum": begleitet Teilnehmer **zwischen** den Offensivtagen. Zugang nur auf Einladung.
+3. **Admin-/Trainer-Cockpit** (`www.handel-offensiv.de/admin`) – steuert Unternehmen, Gruppen, Termine, Inhalte, Freischaltungen; Trainer geben Feedback.
 
 Später kann auf derselben Basis eine **native iOS-/Android-App** veröffentlicht werden (der bestehende Expo-Code bleibt dafür erhalten).
 
@@ -55,7 +57,7 @@ Nach jedem Modul füllt der Teilnehmer seinen **Offensivplan** (Erkenntnis, näc
 ## 2. Systemübersicht
 
 ```
-                  www.aigner-offensiv.de     campus.aigner-offensiv.de     admin.aigner-offensiv.de
+                  www.handel-offensiv.de     …/akademie  (+ /login)         …/admin
                  ┌────────────────────┐     ┌────────────────────────┐    ┌────────────────────────┐
                  │  WEBSITE           │     │  CAMPUS                │    │  ADMIN / TRAINER       │
                  │  Next.js (öffentl.)│     │  Next.js + PWA         │    │  Next.js (bestehend)   │
@@ -96,11 +98,11 @@ Kernprinzipien:
 
 | Bereich | Domain | Hosting | Bemerkung |
 |---|---|---|---|
-| Website | `www.aigner-offensiv.de` (Apex → www) | Vercel (Region `fra1`) | ersetzt die WordPress-Site; `handel-offensiv.de` **bleibt registriert** und leitet später permanent (301) auf `/handel-offensiv` weiter; keine Domain wird aufgegeben **[ENTSCHEIDUNG K‑1, freigegeben]** |
-| Campus | `campus.aigner-offensiv.de` | Vercel (`fra1`) | `noindex`, PWA-fähig |
-| Admin | `admin.aigner-offensiv.de` | Vercel (`fra1`, `apps/admin/vercel.json`) | `noindex`, MFA für Admin/Trainer |
+| Website | `www.handel-offensiv.de` (Apex → www) | Vercel (Region `fra1`), Projekt `ho-web` = Website-Shell `apps/web` | Version 1: bestehende statische Website; Relaunch `aigner-offensiv.de` zurückgestellt (K‑1 angepasst: keine Domain wird aufgegeben, spätere Zusammenführung offen) |
+| Akademie (Campus) | `www.handel-offensiv.de/akademie`, Login `/login` | Vercel (`fra1`), Projekt `ho-akademie` = `apps/campus` (`basePath /akademie`), per Rewrite der Shell | `noindex`, PWA-fähig; **keine Subdomain** |
+| Admin | `www.handel-offensiv.de/admin` | Vercel (`fra1`), Projekt `ho-admin` = `apps/admin` (`basePath /admin`), per Rewrite der Shell | `noindex`, MFA für Admin/Trainer; **keine Subdomain** |
 | Backend | Supabase-Projekt **eu-central-1 (Frankfurt)**, getrennt Staging/Production | Supabase | AVV mit Supabase abschließen; Edge Functions per `x-region: eu-central-1` gepinnt. Vollständige Liste aller Dienste mit Regionsbezug: `REGIONS_AND_DATA_FLOWS.md` **[K‑5, freigegeben mit Auflage]** |
-| DNS, E-Mail, Domain | Strato (bestehend) | Strato | **MX-Einträge unangetastet**; nur A/AAAA/CNAME für www/campus/admin ändern |
+| DNS, E-Mail, Domain | Strato (bestehend) | Strato | **MX-Einträge unangetastet**; nur `www`/Apex von `handel-offensiv.de` → Vercel (nach Ankündigung und Bestätigung, `DEPLOYMENT.md` §4) und vier Einträge unter `mail.handel-offensiv.de` (Resend, `EMAIL_DNS_PLAN.md`) |
 | Alt-System | WordPress auf Strato-Webspace | Strato | nach Cutover abschalten (PHP 7.4, Sicherheitsrisiko) |
 
 **Warum Vercel?** Strato-Shared-Hosting kann kein Next.js ausführen. Vercel ist der Referenz-Host für Next.js (ISR, Preview-Deployments je Pull Request, EU-Region, Auftragsverarbeitungsvertrag verfügbar). Auf der Website werden **keine personenbezogenen Daten verarbeitet** (Anfragen laufen über Supabase/E-Mail, kein Tracking); Campus und Admin übertragen personenbezogene Daten über TLS an Supabase in Frankfurt – Vercel rendert nur. Alternative mit mehr Betriebsaufwand: eigener EU-Server (Hetzner) mit Docker. **[ENTSCHEIDUNG K‑5]**
@@ -164,7 +166,7 @@ Die beiden statischen Sites (`aigner-offensiv/`, `handel-offensiv-website/`) ble
 ### 5.4 Backend – Supabase (Bestand, erweitert)
 
 - PostgreSQL + RLS auf allen Client-Tabellen, Hilfsfunktionen `app.*` (SECURITY DEFINER). Erweiterungen v2: Blocktypen `practice_task`, `file_upload`, `photo_upload`, `announcement`; Tabellen `site_content`, `site_posts`, `inquiries`; Seed 2027 (Details `DATA_MODEL.md`).
-- **Auth**: E-Mail + Passwort, Einladung (Token-Hash, Ablauf), Reset mit Redirect auf den Campus, MFA vorbereitet. **Systemmails** über einen Transaktionsmail-Dienst mit EU-Region (Empfehlung **Resend**) und eigener Versand-Subdomain `mail.aigner-offensiv.de` (SPF/DKIM/Return-Path), zugleich als Custom-SMTP in Supabase Auth. Grund: `aigner-offensiv.de` läuft auf Microsoft 365 mit **DMARC `p=reject` und SPF `-all`** – jeder nicht autorisierte Absender wird abgewiesen; M365-SMTP-AUTH ist kontingentiert, ohne Bounce-Handling und für Supabase-Custom-SMTP fehleranfällig. Absender der Marke, z. B. `campus@aigner-offensiv.de`. **[ENTSCHEIDUNG K‑4]**
+- **Auth**: E-Mail + Passwort, Einladung (Token-Hash, Ablauf), Reset mit Redirect auf den Campus, MFA vorbereitet. **Systemmails** über einen Transaktionsmail-Dienst mit EU-Region (Empfehlung **Resend**) und eigener Versand-Subdomain `mail.handel-offensiv.de` (aktualisiert 26.09.2026; SPF/DKIM/Return-Path), zugleich als Custom-SMTP in Supabase Auth. Grund: `aigner-offensiv.de` läuft auf Microsoft 365 mit **DMARC `p=reject` und SPF `-all`** – jeder nicht autorisierte Absender wird abgewiesen; M365-SMTP-AUTH ist kontingentiert, ohne Bounce-Handling und für Supabase-Custom-SMTP fehleranfällig. Absender der Marke, z. B. `campus@aigner-offensiv.de`. **[ENTSCHEIDUNG K‑4]**
 - **Storage**: private Buckets, Signed URLs (kurz), Typ-/Größenprüfung, Pfad `organizations/{orgId}/…`; neue Buckets für Teilnehmer-Uploads (Datei/Foto) mit strikter RLS.
 - **Edge Functions**: bestehend + `send-mail` (Template-Rendering im Markendesign) + `revalidate-website`.
 

@@ -9,7 +9,7 @@
  * damit stimmt der Termin auch in Kalendern ohne IANA-Datenbank.
  */
 
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -139,7 +139,7 @@ function buildIcs(row: SessionIcsRow): string {
 }
 
 export async function GET(
-  _request: Request,
+  _request: NextRequest,
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
   const { id } = await context.params;
@@ -156,7 +156,11 @@ export async function GET(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.redirect(new URL("/login", _request.url));
+    // nextUrl.clone() behaelt den basePath (/admin) – new URL("/login", …) wuerde ihn verlieren
+    const login = _request.nextUrl.clone();
+    login.pathname = "/login";
+    login.search = "";
+    return NextResponse.redirect(login);
   }
 
   const { data, error } = await supabase

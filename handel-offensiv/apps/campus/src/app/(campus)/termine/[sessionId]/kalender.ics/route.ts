@@ -6,7 +6,7 @@
  * deutsch und ohne technische Codes.
  */
 
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
 import { buildSessionIcs, icsFileName, type SessionIcsInput } from "@/features/termine/ics";
@@ -20,7 +20,7 @@ function plain(message: string, status: number): NextResponse {
   return new NextResponse(message, { status, headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
 }
 
-export async function GET(request: Request, context: { params: Promise<{ sessionId: string }> }): Promise<Response> {
+export async function GET(request: NextRequest, context: { params: Promise<{ sessionId: string }> }): Promise<Response> {
   const { sessionId } = await context.params;
   if (!z.string().uuid().safeParse(sessionId).success) {
     return plain("Der angeforderte Termin wurde nicht gefunden.", 404);
@@ -30,7 +30,13 @@ export async function GET(request: Request, context: { params: Promise<{ session
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.redirect(new URL("/login", request.url));
+  if (!user) {
+    // nextUrl.clone() behaelt den basePath (/akademie) – new URL("/login", …) wuerde ihn verlieren
+    const login = request.nextUrl.clone();
+    login.pathname = "/login";
+    login.search = "";
+    return NextResponse.redirect(login);
+  }
 
   const { data, error } = await supabase
     .from("cohort_sessions")

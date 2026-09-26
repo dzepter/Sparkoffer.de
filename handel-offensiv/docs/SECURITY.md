@@ -76,7 +76,7 @@ Das Sicherheitskonzept der Kapitel 1–15 gilt als **Zielbild** weiter – einig
 ### 0.3 Datenschutz-Ergänzungen (§39–§43)
 
 - Vercel (Rendering) und Supabase (Daten, EU) als Auftragsverarbeiter mit AVV; Unterauftragnehmerliste aktualisieren. Website ohne Tracking; Vercel Web Analytics nur, wenn cookielos und in der Datenschutzerklärung genannt.
-- Systemmails über einen Transaktionsmail-Dienst mit EU-Region (Empfehlung Resend) und eigene Versand-Subdomain `mail.aigner-offensiv.de` (SPF/DKIM/Return-Path) – erforderlich, weil `aigner-offensiv.de` DMARC `p=reject` und SPF `-all` (Microsoft 365) führt; zusätzlicher Auftragsverarbeiter mit AVV **[ENTSCHEIDUNG K‑4]**.
+- Systemmails über einen Transaktionsmail-Dienst mit EU-Region (Empfehlung Resend) und eigene Versand-Subdomain `mail.handel-offensiv.de` (aktualisiert 26.09.2026) (SPF/DKIM/Return-Path) – erforderlich, weil `aigner-offensiv.de` DMARC `p=reject` und SPF `-all` (Microsoft 365) führt; zusätzlicher Auftragsverarbeiter mit AVV **[ENTSCHEIDUNG K‑4]**.
 - Keine Ranglisten, keine Vergleiche zwischen Teilnehmern, keine Sichtbarkeit privater Reflexionen für Organisationsadmins – unverändert und in RLS verankert.
 - Löschkonzept (Kapitel 13) um Website-Anfragen (`inquiries`, Löschung nach 12 Monaten) und Browser-Entwürfe ergänzen.
 

@@ -10,6 +10,8 @@
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { AUTH_COOKIE_OPTIONS } from "@/lib/supabase/cookie";
+
 let client: SupabaseClient | null = null;
 
 export function createSupabaseBrowserClient(): SupabaseClient {
@@ -21,6 +23,6 @@ export function createSupabaseBrowserClient(): SupabaseClient {
     throw new Error("Konfigurationsfehler: NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY fehlen.");
   }
 
-  client = createBrowserClient(url, anonKey);
+  client = createBrowserClient(url, anonKey, { cookieOptions: AUTH_COOKIE_OPTIONS });
   return client;
 }

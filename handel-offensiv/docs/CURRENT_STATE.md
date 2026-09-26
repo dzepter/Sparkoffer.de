@@ -26,8 +26,9 @@
 |---|---|---|---|
 | `www.aigner-offensiv.de` | **WordPress 6.7.9** (Theme `aigner_theme`, Bootstrap 3.3.7, Yoast, Borlabs 3.3.7, CF7) | Strato (A 81.169.145.157, IPv6 `2a01:238:…`), Apache 2.4.68, **PHP 7.4.33** | live, HTTPS ok (Sectigo bis 06.12.2026), http→https 301, non-www→www 301; `/wp-json/wp/v2/users` listet 2 Nutzer, `/readme.html` offen, keine Security-Header |
 | `www.handel-offensiv.de` | statische Site + `cms/admin.php` | Webspace im **IONOS/1&1-Adressraum** (A 217.160.0.88, PTR `*.elastic-ssl.ui-r.com`), DNS-Zone und MX (`smtpin.rzone.de`) bei **Strato** – **welcher Vertrag den Webspace stellt und wer FTP-Zugang hat, ist zu klären** | live seit 11.08.2026, HTTPS ok (Sectigo bis 07.02.2027), http→https 301, eigene 404-Seite aktiv; kein SPF/DMARC/CAA |
-| `cockpit.handel-offensiv.de` | – | kein DNS-Eintrag | im Code/Docs als Cockpit-Domain vorgesehen, **nicht existent** |
-| `campus.aigner-offensiv.de`, `admin.aigner-offensiv.de` | – | kein DNS-Eintrag | im Master-Prompt gewünscht, **nicht existent** |
+| `cockpit.handel-offensiv.de` | – | kein DNS-Eintrag | frühere Cockpit-Domain, **nicht existent, nicht mehr vorgesehen** |
+| `campus.aigner-offensiv.de`, `admin.aigner-offensiv.de` | – | kein DNS-Eintrag | ursprünglich gewünscht; **seit 26.09.2026 nicht mehr vorgesehen** – Version 1 läuft unter `www.handel-offensiv.de/login`, `/akademie`, `/admin` (`DEPLOYMENT.md`) |
+| `mail.handel-offensiv.de` | – | kein DNS-Eintrag | geplante Versand-Subdomain für Resend (`EMAIL_DNS_PLAN.md`), Einträge erst nach Bestätigung |
 | E-Mail `info@aigner-offensiv.de` | **Microsoft 365** (MX `aigneroffensiv-de01e.mail.protection.outlook.com`), SPF `include:spf.protection.outlook.com -all`, **DMARC `p=reject`** | Microsoft (DNS bei Strato) | in Betrieb; **MX/SPF/DMARC dürfen nicht angefasst werden.** Folge: **Jeder Systemmail-Versender (Supabase-Auth, Resend, SMTP-Relay) muss per SPF-Include + DKIM autorisiert werden – sonst Abweisung.** Entscheidung K‑4 |
 
 Strato-Shared-Hosting kann **kein Node.js/Next.js** ausführen – nur statische Dateien und PHP. Alles, was Next.js braucht (Campus, Admin, ggf. neue Website), benötigt einen anderen Host (z. B. Vercel), an den Subdomains per CNAME gehängt werden.

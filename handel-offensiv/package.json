@@ -14,6 +14,5 @@
     "build:admin": "pnpm --filter @handel-offensiv/admin build",
     "dev:admin": "pnpm --filter @handel-offensiv/admin dev",
     "dev:mobile": "pnpm --filter @handel-offensiv/mobile start"
-  },
-  "workspaces": ["apps/*", "packages/*", "supabase/tests"]
+  }
 }

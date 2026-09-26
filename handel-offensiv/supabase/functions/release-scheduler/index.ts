@@ -134,7 +134,23 @@ Deno.serve(async (req) => {
     // ------------------------------------------------------------------
     // 1) Lernimpuls-Freischaltungen (Zeitregeln)
     // ------------------------------------------------------------------
-    const { data: releases, error: releasesError } = await admin
+    // HINWEIS (Freigabe Punkt 7): Dieser Cron loest NUR Benachrichtigungen aus.
+    // Ob eine Lektion lesbar ist, entscheidet ausschliesslich die Datenbank
+    // (app.lesson_is_released in RLS) – ein ausgefallener Lauf sperrt nichts
+    // und gibt nichts frei.
+    interface ReleaseRow {
+      id: string;
+      lesson_id: string;
+      cohort_id: string;
+      profile_id: string | null;
+      release_mode: string;
+      release_at: string | null;
+      offset_days: number | null;
+      session_id: string | null;
+      due_at: string | null;
+      lessons: { id: string; title: string; status: string } | null;
+    }
+    const { data: releasesData, error: releasesError } = await admin
       .from("lesson_releases")
       .select(
         "id, lesson_id, cohort_id, profile_id, release_mode, release_at, offset_days, session_id, due_at, " +
@@ -146,12 +162,13 @@ Deno.serve(async (req) => {
       console.error("lesson_releases konnten nicht geladen werden:", releasesError);
       fail(500, "Die Freischaltungen konnten nicht geladen werden.");
     }
+    const releases = (releasesData ?? []) as unknown as ReleaseRow[];
 
     // Sessions fuer session-relative Modi in einem Rutsch laden
     const sessionIds = [
       ...new Set(
-        (releases ?? [])
-          .map((r) => r.session_id as string | null)
+        releases
+          .map((r) => r.session_id)
           .filter((id): id is string => Boolean(id)),
       ),
     ];
@@ -169,7 +186,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    for (const release of releases ?? []) {
+    for (const release of releases) {
       // Effektiven Freischaltzeitpunkt bestimmen (Logik gespiegelt aus
       // @handel-offensiv/domain release-engine.ts)
       let effectiveMs: number | null = null;
@@ -189,10 +206,10 @@ Deno.serve(async (req) => {
       // Doppelversand bei ueberlappenden Laeufen)
       if (effectiveMs > now || effectiveMs < now - LOOKBACK_MS) continue;
 
-      const lesson = release.lessons as unknown as { title: string };
+      const lesson = release.lessons ?? { title: "Neuer Lernimpuls" };
       const targets = release.profile_id
-        ? [release.profile_id as string]
-        : await membersOf(admin, memberCache, release.cohort_id as string);
+        ? [release.profile_id]
+        : await membersOf(admin, memberCache, release.cohort_id);
 
       releaseNotified += await notifyOnce(
         admin,

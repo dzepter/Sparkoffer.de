@@ -112,7 +112,7 @@ function httpRelayProvider(url: string, token: string | undefined): EmailProvide
         const res = await fetch(url, {
           method: "POST",
           headers,
-          body: JSON.stringify({ from: senderConfig().from, to: message.to, ...message }),
+          body: JSON.stringify({ from: senderConfig().from, ...message }),
         });
         if (!res.ok) {
           console.error("E-Mail-Relay antwortete mit Status", res.status, await res.text());

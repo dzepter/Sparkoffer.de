@@ -94,7 +94,7 @@ jobs:
         run: |
           for f in supabase/functions/*/index.ts; do
             echo "== $f"
-            deno check "$f"
+            deno check --config supabase/functions/deno.json "$f"
           done
 
   build-admin:

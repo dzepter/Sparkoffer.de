@@ -8,8 +8,9 @@
 |---|---|---|
 | MX `aigner-offensiv.de` | Microsoft 365 | Postfächer (Reply-To) bleiben bei M365 – **nicht anfassen** |
 | SPF/DMARC `aigner-offensiv.de` | `-all`, `p=reject` | fremde Absender *@aigner-offensiv.de* werden abgewiesen – deshalb keine Systemmails als `@aigner-offensiv.de` |
-| MX `handel-offensiv.de` | `smtpin.rzone.de` (Strato) | bleibt unverändert |
-| SPF/DMARC `handel-offensiv.de` | **keine Einträge** | die Versand-Subdomain bekommt eigene SPF-/DKIM-/DMARC-Einträge; die Hauptdomain wird nicht verändert (Empfehlung für später, separat zu entscheiden: eigener DMARC-Eintrag für `handel-offensiv.de`) |
+| MX `handel-offensiv.de` | `5 smtpin.rzone.de` (Strato-Standard; 1 von 3 Postfächern genutzt) | bleibt unverändert |
+| SPF `handel-offensiv.de` | **kein TXT-Eintrag** (Stand 17.10.2026) | Hauptdomain wird nicht verändert; die Versand-Subdomain bekommt eigenes SPF |
+| DMARC `_dmarc.handel-offensiv.de` | **`v=DMARC1;p=reject;`** (Strato-Standard, Stand 17.10.2026), **ohne `sp=`** | Nach RFC 7489 gilt die Policy der Organisationsdomain auch für Subdomains, die **keinen eigenen** `_dmarc`-Eintrag haben. Folge für uns: der Eintrag `_dmarc.mail.handel-offensiv.de` ist **Pflicht**, DKIM (d=`mail.handel-offensiv.de`) muss vor der ersten Einladung verifiziert sein – sonst `reject`. Die Hauptdomain wird nicht verändert. |
 
 Das System versendet ausschließlich als **`akademie@mail.handel-offensiv.de`**; DKIM (d=`mail.handel-offensiv.de`) und Return-Path liegen auf derselben Subdomain → SPF und DKIM sind ausgerichtet, DMARC besteht, ohne einen bestehenden Eintrag zu ändern.
 
@@ -30,7 +31,7 @@ Die konkreten Werte (DKIM-Schlüssel, Return-Path-Host) zeigt Resend nach dem An
 | TXT | `resend._domainkey.mail` | `p=MIGf…` (DKIM-Public-Key) | DKIM-Signatur d=mail.handel-offensiv.de |
 | MX | `send.mail` | `feedback-smtp.eu-west-1.amazonses.com` (Prio 10) | Return-Path/Bounces (Resend EU) |
 | TXT | `send.mail` | `v=spf1 include:amazonses.com ~all` | SPF für den Return-Path-Host |
-| TXT | `_dmarc.mail` | `v=DMARC1; p=quarantine; rua=mailto:<Reply-To-Postfach>; adkim=r; aspf=r` | DMARC-Policy der Versand-Subdomain (Berichte an das M365-Postfach) |
+| TXT | `_dmarc.mail` | `v=DMARC1; p=quarantine; rua=mailto:<Reply-To-Postfach>; adkim=r; aspf=r` | **Pflicht:** eigene DMARC-Policy der Versand-Subdomain – ohne sie greift die Apex-Policy `p=reject` (Strato-Standard) auch für `mail.`; Berichte an das M365-Postfach. Nach bestandenem Zustelltest (§5) auf `p=reject` anheben. |
 
 **Nicht ändern:** MX/SPF/DMARC von `aigner-offensiv.de` und `handel-offensiv.de`, `www`/Apex (separater Schritt mit eigener Ankündigung, `DEPLOYMENT.md` §4).
 
@@ -51,6 +52,7 @@ Die konkreten Werte (DKIM-Schlüssel, Return-Path-Host) zeigt Resend nach dem An
 
 ## 5. Zustelltest (vor Produktion, Ergebnis in den Zwischenbericht)
 
+0. **Vorab prüfen (lokale Browser-Sitzung, nur lesen):** Resend zeigt die Domain `mail.handel-offensiv.de` als *Verified* (DKIM, Return-Path); `dig TXT resend._domainkey.mail.handel-offensiv.de` und `dig TXT _dmarc.mail.handel-offensiv.de` liefern die gesetzten Werte. Vorher keine Einladung versenden.
 1. **Testadresse im M365-Postfach** des Auftraggebers und eine externe Adresse (Gmail/GMX) vorbereiten.
 2. Aus dem Staging-Cockpit (`/admin`) eine **Einladung** an beide Adressen senden (`invite-user`); Link muss auf `<Shell-Host>/akademie/einladung?token=…` zeigen.
 3. Aus dem Staging-Login (`/login`) **„Passwort vergessen"** anfordern (Supabase Auth → SMTP); Link muss auf `<Shell-Host>/akademie/auth/callback` zeigen.

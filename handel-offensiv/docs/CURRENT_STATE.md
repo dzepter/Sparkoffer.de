@@ -25,7 +25,7 @@
 | Domain / Host | Zeigt auf | Hoster | Zustand |
 |---|---|---|---|
 | `www.aigner-offensiv.de` | **WordPress 6.7.9** (Theme `aigner_theme`, Bootstrap 3.3.7, Yoast, Borlabs 3.3.7, CF7) | Strato (A 81.169.145.157, IPv6 `2a01:238:…`), Apache 2.4.68, **PHP 7.4.33** | live, HTTPS ok (Sectigo bis 06.12.2026), http→https 301, non-www→www 301; `/wp-json/wp/v2/users` listet 2 Nutzer, `/readme.html` offen, keine Security-Header |
-| `www.handel-offensiv.de` | statische Site + `cms/admin.php` | Webspace im **IONOS/1&1-Adressraum** (A 217.160.0.88, PTR `*.elastic-ssl.ui-r.com`), DNS-Zone und MX (`smtpin.rzone.de`) bei **Strato** – **welcher Vertrag den Webspace stellt und wer FTP-Zugang hat, ist zu klären** | live seit 11.08.2026, HTTPS ok (Sectigo bis 07.02.2027), http→https 301, eigene 404-Seite aktiv; kein SPF/DMARC/CAA |
+| `www.handel-offensiv.de` | statische Site + `cms/admin.php` | **Strato Hosting Basic, Auftrag 10061391** (geklärt 17.10.2026 im Strato-Panel): Domain-Modus „Umleitung Intern“ auf den Webspace-Ordner `/handel-offensiv`, SSL aktiv. A `@` = **Strato-Standard-IP** `217.160.0.88` (kein eigener Eintrag; PTR `*.elastic-ssl.ui-r.com`, weil Strato zur United-Internet/IONOS-Gruppe gehört – frühere Deutung als Fremdhosting war falsch), AAAA `@` Strato-Standard `2001:8d8:100f:f000::200`, `www` CNAME `handel-offensiv.de`. Nameserver `docks05`/`shades11.rzone.de`. SFTP-Zugänge 0/10, MySQL 0/25, Subdomains 0/500 angelegt. **Shared Hosting: nur Statisches + PHP + MySQL, kein Node.js** | live seit 11.08.2026, HTTPS ok (Sectigo bis 07.02.2027), http→https 301, eigene 404-Seite aktiv. **DNS-Zone (17.10.2026):** MX `5 smtpin.rzone.de` (Strato-Standard, 1 von 3 Postfächern genutzt), **kein SPF-TXT**, `_dmarc` = `v=DMARC1;p=reject;` (Strato-Standard, ohne `sp=` → gilt auch für Subdomains ohne eigenen Eintrag), Autodiscover aktiv, keine eigenen TXT/CNAME/SRV. `/login`, `/akademie`, `/admin` → 404 (erwartet). |
 | `cockpit.handel-offensiv.de` | – | kein DNS-Eintrag | frühere Cockpit-Domain, **nicht existent, nicht mehr vorgesehen** |
 | `campus.aigner-offensiv.de`, `admin.aigner-offensiv.de` | – | kein DNS-Eintrag | ursprünglich gewünscht; **seit 26.09.2026 nicht mehr vorgesehen** – Version 1 läuft unter `www.handel-offensiv.de/login`, `/akademie`, `/admin` (`DEPLOYMENT.md`) |
 | `mail.handel-offensiv.de` | – | kein DNS-Eintrag | geplante Versand-Subdomain für Resend (`EMAIL_DNS_PLAN.md`), Einträge erst nach Bestätigung |
@@ -63,18 +63,18 @@ Strato-Shared-Hosting kann **kein Node.js/Next.js** ausführen – nur statische
 - **Vollständige Sicherung:** `docs/archive/aigner-offensiv-wordpress-2026-09/` (Texte aller 16 Inhalte, Indizes, Medienliste, altes Logo).
 - **Risiko:** PHP 7.4.33 ist seit November 2022 ohne Sicherheitsupdates; WordPress 6.7.9 erhält nur Sicherheits-Backports; Nutzer-Enumeration über die REST-API, `readme.html` offen, keine Security-Header. Die Site ist ein **offenes Sicherheitsrisiko** unter der Hauptdomain – Sofort-Härtung siehe `IMPLEMENTATION_PLAN.md` 4.3 Schritt 1.
 
-### 3.2 www.handel-offensiv.de – neue statische Programm-Website (im Repository: `handel-offensiv-website/`)
+### 3.2 www.handel-offensiv.de – neue statische Programm-Website (im Repository seit 26.09.2026: `handel-offensiv/apps/web/public/`, Strato-spezifisches in `apps/web/strato-legacy/`)
 
 - 7 Seiten (`index`, `login`, `kontakt`, `impressum`, `datenschutz`, `account-loeschen`, `404`), `robots.txt`, `sitemap.xml`, `.htaccess` (eigene 404-Seite), Open-Graph-Bild 1200×630.
 - **Redaktionssystem** `cms/admin.php` (413 Zeilen PHP, kein Framework): Passwort-Hash in `cms/passwort.php`, Session + CSRF, dateibasierte Anmeldebremse, Allowlist-Sanitizer (`span.accent`, `mark`, `strong`, `em`, `br`, sichere `a`), speichert nach `cms/content.json`; `assets/js/content.js` injiziert die Texte clientseitig in `[data-edit]`-Elemente.
-- **Abweichung Repository ↔ Live (geprüft per md5 am 26.09.2026):**
+- **Abweichung Repository ↔ Live (geprüft per md5 am 26.09.2026, erneut per Download und Diff am 17.10.2026 – unverändert: Live = `index.html` 17.294 Bytes, Last-Modified 11.08.2026 18:28, SHA-256 `e2407055002cfdea…`):**
 
 | Datei | Zustand |
 |---|---|
 | `assets/css/style.css`, `assets/js/main.js`, `robots.txt`, `sitemap.xml`, `.htaccess` | identisch |
 | `index.html`, `login.html`, `kontakt.html`, `404.html`, `assets/js/content.js`, `cms/admin.php` | **live noch Stand vor Commit `8225c49`** – die Ausweitung des Redaktionssystems auf 74 Felder (Live: 23 Felder auf der Startseite) und der wurzelabsolute Pfad in `content.js` sind **nicht hochgeladen** |
 
-- **CMS-Zustand live:** Passwort ist gesetzt (Login-Maske erscheint), `content.json` enthält 23 Felder – alle inhaltlich gleich den eingebauten Standardtexten (kein individueller Text des Kunden geht bei einer Migration verloren).
+- **CMS-Zustand live:** Passwort ist gesetzt (Login-Maske erscheint), `content.json` enthält 23 Felder – alle inhaltlich gleich den eingebauten Standardtexten (kein individueller Text des Kunden geht bei einer Migration verloren). **Am 17.10.2026 erneut geprüft:** `content.json` (2.908 Bytes, 23 Schlüssel) per HTTPS gesichert nach `apps/web/strato-legacy/content.json.backup-2026-10-17.json` und Feld für Feld mit den `data-edit`-Elementen in `apps/web/public/*.html` verglichen – **alle 23 Werte identisch**, nichts zu übernehmen. Die Repository-Fassung ist eine Obermenge der Live-Fassung (zusätzliche `data-edit`-Attribute, Navigation auf `/login`).
 
 ### 3.3 Nicht veröffentlicht: `aigner-offensiv/` – überarbeitete Aigner-Offensiv-Site
 

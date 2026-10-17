@@ -40,8 +40,8 @@ Screenshots (Desktop 1440 px, Mobil 390 px, alles über die Shell auf einem Host
 
 ## 4. Offene Punkte und Hinweise
 
-1. **PHP-Mini-CMS entfällt** mit dem Umzug der Website auf Vercel (kein PHP). Vor der DNS-Umstellung: aktuelle `cms/content.json` vom Webspace sichern und Texte in die HTML-Dateien übernehmen. Redaktion später im Cockpit (Phase 5).
-2. **Live-Website heute:** bleibt bis zur bestätigten DNS-Umstellung unverändert auf dem Webspace. Die Repository-Fassung verlinkt bereits `/login`; ein erneuter Upload auf den alten Webspace wäre ohne Rückbau dieses Links nicht sinnvoll (`apps/web/strato-legacy/README.md`).
+1. **PHP-Mini-CMS entfällt** mit dem Umzug der Website auf Vercel (kein PHP). ✔ Erledigt 17.10.2026: `cms/content.json` gesichert (`apps/web/strato-legacy/content.json.backup-2026-10-17.json`), alle 23 Texte sind identisch mit den HTML-Dateien – nichts zu übernehmen. Redaktion später im Cockpit (Phase 5).
+2. **Live-Website heute:** Strato Hosting Basic (Auftrag 10061391), Ordner `/handel-offensiv`, Stand 11.08.2026 (vor Commit `8225c49`); bleibt bis zur bestätigten DNS-Umstellung unverändert. Die Repository-Fassung verlinkt bereits `/login`; ein erneuter Upload auf den alten Webspace wäre ohne Rückbau dieses Links nicht sinnvoll (`apps/web/strato-legacy/README.md`).
 3. **Benennung:** Die Oberfläche heißt weiterhin „HANDEL OFFENSIV CAMPUS", der Pfad `/akademie` und der Absender „Handel Offensiv Akademie" folgen der Zielstruktur. Falls die Oberfläche durchgängig „Akademie" heißen soll: kurze Rückmeldung, dann werden die Texte angepasst (kein Komfortfeature, reine Wortwahl).
 4. **Reply-To-Postfach** (Microsoft 365) wird separat geliefert; bis dahin Vorschlag `info@aigner-offensiv.de`.
 5. Optional, separat zu entscheiden: eigener DMARC-Eintrag für die Hauptdomain `handel-offensiv.de` (heute ohne SPF/DMARC) – nicht Teil dieser Umstellung.
@@ -50,7 +50,9 @@ Screenshots (Desktop 1440 px, Mobil 390 px, alles über die Shell auf einem Host
 
 **A) DNS für E-Mail (Zone `handel-offensiv.de`, Strato):** vier neue Einträge unter `mail.handel-offensiv.de` (DKIM-TXT, MX + SPF-TXT für `send.mail`, DMARC-TXT) mit den Werten aus dem Resend-Dashboard. Auswirkung: keine auf bestehende Mails (andere Hostnamen); bis zur Verifizierung kein Systemversand. Rollback: Einträge löschen.
 
-**B) DNS für die Website (später, nach Staging-Abnahme):** `www` → `CNAME cname.vercel-dns.com`, Apex `@` → `A 76.76.21.21` (Vercel). MX, TXT und alles unter `mail.` unberührt. Auswirkung: Website von Vercel, `/login`, `/akademie`, `/admin` erreichbar, PHP-CMS entfällt. Rollback: A-Eintrag auf `217.160.0.88` (heutiger Webspace, bleibt ≥ 30 Tage bestehen).
+**B) DNS für die Website (später, nach Staging-Abnahme):** im Strato-Panel A `@` von „STRATO Standard IP-Adresse“ auf `76.76.21.21` (Vercel), AAAA `@` (Strato-Standard) entfernen, `www` von `CNAME handel-offensiv.de` auf `CNAME cname.vercel-dns.com`. MX, `_dmarc`, Autodiscover und alles unter `mail.` unberührt. Auswirkung: Website von Vercel, `/login`, `/akademie`, `/admin` erreichbar, PHP-CMS entfällt. Rollback: A/AAAA wieder auf Strato-Standard, `www` wieder `CNAME handel-offensiv.de` (Webspace bleibt ≥ 30 Tage bestehen).
+
+**Hinweis aus der DNS-Zone (17.10.2026):** `_dmarc.handel-offensiv.de` steht bereits auf `p=reject` (Strato-Standard) und gilt ohne `sp=` auch für Subdomains. Deshalb ist der eigene `_dmarc.mail`-Eintrag Pflicht und DKIM muss verifiziert sein, bevor die erste Einladung versendet wird (`EMAIL_DNS_PLAN.md` §1, §5 Schritt 0).
 
 **C) Datenbank:** Migrationen `0001`–`0008` ausschließlich auf das leere Staging-Projekt `handel-offensiv-staging` (eu-central-1), Seed nur 2027. Rollback: Projekt zurücksetzen. Kein Produktionsprojekt.
 

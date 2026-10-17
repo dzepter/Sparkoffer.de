@@ -81,12 +81,12 @@ Supabase Function Secrets (`supabase/functions/README.md`): `RESEND_API_KEY`, `E
 
 ## 4. Produktion: DNS-Umstellung `www.handel-offensiv.de` → Vercel (**nur nach Bestätigung**)
 
-Heute zeigt `www.handel-offensiv.de` per A-Eintrag auf einen Webspace (IONOS-Adressraum, `217.160.0.88`), Zone bei Strato; die Website liegt dort als statische Dateien mit PHP-Mini-CMS. Für Version 1 muss die Domain auf das Vercel-Projekt `ho-web` zeigen.
+Heute (Befund 17.10.2026, Strato-Panel): `handel-offensiv.de` liegt im Paket **Strato Hosting Basic (Auftrag 10061391)**, Domain-Modus „Umleitung Intern“ auf den Webspace-Ordner `/handel-offensiv`, SSL aktiv. DNS: A `@` = **Strato-Standard-IP** (`217.160.0.88`), AAAA `@` = Strato-Standard (`2001:8d8:100f:f000::200`), `www` = `CNAME handel-offensiv.de`. Die Website liegt dort als statische Dateien mit PHP-Mini-CMS. Für Version 1 muss die Domain auf das Vercel-Projekt `ho-web` zeigen.
 
-- **Exakte Änderung (Strato-DNS, Zone `handel-offensiv.de`):** `www` → `CNAME cname.vercel-dns.com`; Apex `@` → `A 76.76.21.21` (Vercel; leitet auf `www` weiter). Vorher die Domain im Vercel-Projekt `ho-web` hinterlegen (Vercel zeigt die exakten Werte an; ggf. TXT-Verifikation `_vercel`).
-- **Nicht angefasst:** MX (`smtpin.rzone.de` bzw. Microsoft 365 – je Domain), bestehende TXT-Einträge, alles unter `mail.` (Resend) und alles der Domain `aigner-offensiv.de`.
+- **Exakte Änderung (Strato-Panel → Domain `handel-offensiv.de` → DNS-Einstellungen):** (1) A `@`: von „STRATO Standard IP-Adresse“ auf eigenen Eintrag `76.76.21.21` (Vercel); (2) AAAA `@`: Strato-Standard **deaktivieren/entfernen** (Vercel liefert keinen IPv6-Apex-Eintrag; bliebe der AAAA stehen, landeten IPv6-Besucher weiter auf dem alten Webspace); (3) `www`: `CNAME handel-offensiv.de` → `CNAME cname.vercel-dns.com`. Vorher die Domain im Vercel-Projekt `ho-web` hinterlegen (Vercel zeigt die exakten Werte an; ggf. TXT-Verifikation `_vercel`). Der Domain-Modus „Umleitung Intern“ wird dadurch wirkungslos und bleibt unangetastet.
+- **Nicht angefasst:** MX (`5 smtpin.rzone.de`), `_dmarc`, Autodiscover, alles unter `mail.` (Resend) und alles der Domain `aigner-offensiv.de` (Microsoft 365).
 - **Auswirkung:** Website kommt von Vercel (gleiche Dateien aus `apps/web/public`), `/login` wird der echte Teilnehmer-Login, `/akademie` und `/admin` werden erreichbar. **Das PHP-Mini-CMS (`cms/admin.php`) entfällt** – vorher `cms/content.json` vom Webspace sichern und die dort gepflegten Texte in die HTML-Dateien übernehmen (`apps/web/strato-legacy/README.md`). Propagation bis 24 h; Vercel stellt das TLS-Zertifikat automatisch aus.
-- **Rollback:** A-Eintrag `www`/Apex auf `217.160.0.88` zurücksetzen (Webspace bleibt mindestens 30 Tage unverändert bestehen); Wirkung nach TTL.
+- **Rollback:** im Strato-Panel A `@` und AAAA `@` wieder auf „STRATO Standard IP-Adresse“, `www` wieder `CNAME handel-offensiv.de`; der Webspace-Ordner `/handel-offensiv` bleibt mindestens 30 Tage unverändert bestehen; Wirkung nach TTL.
 
 Bis zur Bestätigung dieser Änderung bleibt die Website unverändert auf dem Webspace; Staging läuft parallel unter Vercel-Hosts.
 

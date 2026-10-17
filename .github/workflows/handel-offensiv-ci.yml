@@ -1,0 +1,330 @@
+name: Handel Offensiv CI
+
+on:
+  pull_request:
+    paths:
+      - "handel-offensiv/**"
+      - ".github/workflows/handel-offensiv-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "handel-offensiv/**"
+      - ".github/workflows/handel-offensiv-ci.yml"
+
+defaults:
+  run:
+    working-directory: handel-offensiv
+
+concurrency:
+  group: ho-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Typecheck, Lint & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: handel-offensiv/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: handel-offensiv/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Lint (ESLint, verbindlich)
+        run: pnpm lint
+      - name: Unit Tests (domain, validation)
+        run: pnpm --filter "@handel-offensiv/domain" --filter "@handel-offensiv/validation" test
+
+  rls-tests:
+    name: RLS-Regressionstests (PostgreSQL 16)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: handel_offensiv_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/handel_offensiv_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: handel-offensiv/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: handel-offensiv/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Migrationen + Fixtures einspielen, negative RLS-Tests ausführen
+        run: pnpm --filter "@handel-offensiv/db-tests" test
+      - name: Testbericht sichern
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rls-junit
+          path: handel-offensiv/supabase/tests/reports/rls-junit.xml
+          if-no-files-found: ignore
+
+  edge-functions:
+    name: Edge Functions (Deno check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck aller Functions
+        run: |
+          for f in supabase/functions/*/index.ts; do
+            echo "== $f"
+            deno check --config supabase/functions/deno.json "$f"
+          done
+
+  build-admin:
+    name: Build Admin-Cockpit
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: handel-offensiv/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: handel-offensiv/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm build:admin
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder"
+          NEXT_PUBLIC_APP_URL: "http://localhost:3000/admin"
+
+  admin-e2e:
+    name: Admin Playwright Tests
+    runs-on: ubuntu-latest
+    needs: check
+    env:
+      # Platzhalter: Die Smoke-Tests brauchen KEIN Supabase-Backend.
+      NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000/admin"
+      E2E_BASE_URL: "http://localhost:3000"
+      SUPABASE_SERVICE_ROLE_KEY: "placeholder-service-role"
+      RATE_LIMIT_SALT: "placeholder-salt-only-for-ci-smoke-tests"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: handel-offensiv/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: handel-offensiv/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpm --filter @handel-offensiv/admin exec playwright install --with-deps chromium
+      - name: Build
+        run: pnpm build:admin
+      - name: Start Cockpit (Port 3000, im Hintergrund)
+        run: |
+          nohup pnpm --filter @handel-offensiv/admin start > "$RUNNER_TEMP/admin.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/admin.pid"
+      - name: Warten bis der Server antwortet
+        run: npx --yes wait-on@8 --timeout 120000 http-get://localhost:3000/admin/login
+      - name: Run Playwright
+        run: pnpm --filter @handel-offensiv/admin test:e2e
+      - name: Server-Log sichern
+        if: always()
+        run: cat "$RUNNER_TEMP/admin.log" || true
+      - name: Server beenden
+        if: always()
+        run: kill "$(cat "$RUNNER_TEMP/admin.pid")" 2>/dev/null || true
+
+  build-campus:
+    name: Build Campus
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: handel-offensiv/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: handel-offensiv/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm build:campus
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder"
+          NEXT_PUBLIC_APP_URL: "http://localhost:3001/akademie"
+
+  campus-e2e:
+    name: Campus Playwright Smoke-Tests
+    runs-on: ubuntu-latest
+    needs: check
+    env:
+      # Platzhalter: Die Smoke-Tests brauchen KEIN Supabase-Backend
+      # (nur oeffentliche Seiten, Redirects ohne Sitzung, Sicherheits-Header).
+      NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3001/akademie"
+      E2E_BASE_URL: "http://localhost:3001"
+      # Startpruefung (src/instrumentation.ts) verlangt diese Werte in Produktion;
+      # hier nur Platzhalter – kein echtes Backend, kein echter Schluessel.
+      SUPABASE_SERVICE_ROLE_KEY: "placeholder-service-role"
+      RATE_LIMIT_SALT: "placeholder-salt-only-for-ci-smoke-tests"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: handel-offensiv/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: handel-offensiv/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpm --filter @handel-offensiv/campus exec playwright install --with-deps chromium
+      - name: Build
+        run: pnpm build:campus
+      - name: Start Campus (Port 3001, im Hintergrund)
+        run: |
+          nohup pnpm --filter @handel-offensiv/campus start > "$RUNNER_TEMP/campus.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/campus.pid"
+      - name: Warten bis der Server antwortet
+        run: npx --yes wait-on@8 --timeout 120000 http-get://localhost:3001/akademie/login
+      - name: Run Playwright
+        run: pnpm --filter @handel-offensiv/campus test:e2e
+      - name: Server-Log sichern
+        if: always()
+        run: cat "$RUNNER_TEMP/campus.log" || true
+      - name: Server beenden
+        if: always()
+        run: kill "$(cat "$RUNNER_TEMP/campus.pid")" 2>/dev/null || true
+      - name: Playwright-Bericht sichern
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: campus-playwright-report
+          path: handel-offensiv/apps/campus/test-results
+          if-no-files-found: ignore
+
+  build-web:
+    name: Build Website-Shell
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: handel-offensiv/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: handel-offensiv/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm build:web
+
+  integration-e2e:
+    name: Integration Shell + Zonen (eine Domain)
+    runs-on: ubuntu-latest
+    needs: check
+    env:
+      # Platzhalter: KEIN Supabase-Backend, keine echten Schluessel. Geprueft werden
+      # Rewrites (/login, /akademie, /admin), Redirects, Assets, Header und dass
+      # Formulare (Server Actions) ueber die Shell hinweg angenommen werden.
+      NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder"
+      SUPABASE_SERVICE_ROLE_KEY: "placeholder-service-role"
+      RATE_LIMIT_SALT: "placeholder-salt-only-for-ci-smoke-tests"
+      SERVER_ACTIONS_ALLOWED_ORIGINS: "localhost:3100"
+      AKADEMIE_ZONE_URL: "http://localhost:3001"
+      ADMIN_ZONE_URL: "http://localhost:3000"
+      E2E_BASE_URL: "http://localhost:3100"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: handel-offensiv/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: handel-offensiv/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpm --filter @handel-offensiv/web exec playwright install --with-deps chromium
+      - name: Build Akademie (basePath /akademie)
+        run: pnpm build:campus
+        env:
+          NEXT_PUBLIC_APP_URL: "http://localhost:3100/akademie"
+      - name: Build Cockpit (basePath /admin)
+        run: pnpm build:admin
+        env:
+          NEXT_PUBLIC_APP_URL: "http://localhost:3100/admin"
+      - name: Build Website-Shell
+        run: pnpm build:web
+      - name: Drei Server starten (3001 Akademie, 3000 Cockpit, 3100 Shell)
+        run: |
+          nohup pnpm --filter @handel-offensiv/campus start > "$RUNNER_TEMP/campus.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/campus.pid"
+          nohup pnpm --filter @handel-offensiv/admin start > "$RUNNER_TEMP/admin.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/admin.pid"
+          nohup pnpm --filter @handel-offensiv/web start > "$RUNNER_TEMP/web.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/web.pid"
+      - name: Warten bis alle Server antworten
+        run: |
+          npx --yes wait-on@8 --timeout 120000 http-get://localhost:3001/akademie/login
+          npx --yes wait-on@8 --timeout 120000 http-get://localhost:3000/admin/login
+          npx --yes wait-on@8 --timeout 120000 http-get://localhost:3100/
+      - name: Integrationstests (Playwright)
+        run: pnpm --filter @handel-offensiv/web test:e2e
+      - name: Server-Logs sichern
+        if: always()
+        run: |
+          for n in campus admin web; do echo "== $n"; cat "$RUNNER_TEMP/$n.log" || true; done
+      - name: Server beenden
+        if: always()
+        run: |
+          for n in campus admin web; do kill "$(cat "$RUNNER_TEMP/$n.pid")" 2>/dev/null || true; done
+      - name: Playwright-Bericht sichern
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-playwright-report
+          path: handel-offensiv/apps/web/test-results
+          if-no-files-found: ignore

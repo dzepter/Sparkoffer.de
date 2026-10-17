@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Archivo lokal gebuendelt (public/fonts) – KEIN Google-Fonts-CDN (DSGVO).
+ * Absolute URLs in CSS erhalten den basePath (/akademie) NICHT automatisch,
+ * deshalb steht das Praefix hier ausdruecklich (next.config.ts: basePath).
+ * Fehlen die woff2-Dateien (siehe public/fonts/README.md), faellt der Browser
+ * lautlos auf den System-Stack aus dem Tailwind-Preset zurueck.
+ */
+@font-face {
+  font-family: "Archivo";
+  src: url("/akademie/fonts/Archivo-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("/akademie/fonts/Archivo-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("/akademie/fonts/Archivo-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("/akademie/fonts/Archivo-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  html {
+    /* Expliziter Light Mode */
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+
+  ::selection {
+    @apply bg-gold-bright text-navy;
+  }
+
+  :focus-visible {
+    outline: 2px solid #0f2340; /* navy */
+    outline-offset: 2px;
+  }
+
+  /*
+   * Auf Navy-Flaechen (Kopfzeile, untere Leiste, Hero-Bloecke) waere ein
+   * navyfarbener Fokusring unsichtbar (WCAG 2.4.7). Dort: Gold-bright –
+   * innerhalb der Palette (Akzent der aktiven Navigation).
+   */
+  .bg-navy :focus-visible,
+  .bg-navy-deep :focus-visible {
+    outline-color: #d9ae45; /* gold-bright */
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Subtile Spielfeld-/Taktiklinien – ruhig, keine Deko-Ueberladung. */
+  .pitch-lines {
+    background-image:
+      linear-gradient(to right, rgba(15, 35, 64, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 35, 64, 0.04) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .pitch-lines-dark {
+    background-image:
+      linear-gradient(to right, rgba(217, 174, 69, 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(217, 174, 69, 0.07) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  /* Lesbarer Fliesstext aus Markdown/HTML-Bloecken */
+  .prose-campus {
+    @apply text-base leading-7 text-ink;
+  }
+  .prose-campus h1,
+  .prose-campus h2,
+  .prose-campus h3 {
+    @apply mb-2 mt-6 font-extrabold leading-tight text-ink;
+  }
+  .prose-campus h1 { @apply text-2xl; }
+  .prose-campus h2 { @apply text-xl; }
+  .prose-campus h3 { @apply text-lg; }
+  .prose-campus p { @apply my-3; }
+  .prose-campus ul { @apply my-3 list-disc pl-6; }
+  .prose-campus ol { @apply my-3 list-decimal pl-6; }
+  .prose-campus li { @apply my-1; }
+  .prose-campus a { @apply font-bold text-navy underline underline-offset-2; }
+  .prose-campus strong { @apply font-bold; }
+  .prose-campus blockquote { @apply my-4 border-l-[3px] border-gold pl-4 text-ink-soft; }
+}

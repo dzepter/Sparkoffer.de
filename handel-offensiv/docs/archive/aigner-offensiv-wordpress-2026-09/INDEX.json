@@ -1,0 +1,156 @@
+[
+  {
+    "typ": "page",
+    "slug": "vortraege",
+    "url": "https://www.aigner-offensiv.de/vortraege/",
+    "titel": "Vorträge",
+    "datum": "2020-02-14",
+    "woerter": 0,
+    "bilder": []
+  },
+  {
+    "typ": "page",
+    "slug": "learn-to-lead",
+    "url": "https://www.aigner-offensiv.de/learn-to-lead/",
+    "titel": "LEARN-TO-LEAD",
+    "datum": "2020-02-13",
+    "woerter": 0,
+    "bilder": []
+  },
+  {
+    "typ": "page",
+    "slug": "fuhrung-leicht-gemacht",
+    "url": "https://www.aigner-offensiv.de/fuhrung-leicht-gemacht/",
+    "titel": "Ver-Führung leicht gemacht",
+    "datum": "2020-02-13",
+    "woerter": 0,
+    "bilder": []
+  },
+  {
+    "typ": "page",
+    "slug": "potentiale-steuern",
+    "url": "https://www.aigner-offensiv.de/potentiale-steuern/",
+    "titel": "Wachstum ist alternativlos",
+    "datum": "2020-02-13",
+    "woerter": 0,
+    "bilder": []
+  },
+  {
+    "typ": "page",
+    "slug": "generation-y",
+    "url": "https://www.aigner-offensiv.de/generation-y/",
+    "titel": "Generation Y",
+    "datum": "2020-02-13",
+    "woerter": 0,
+    "bilder": []
+  },
+  {
+    "typ": "page",
+    "slug": "kontakt",
+    "url": "https://www.aigner-offensiv.de/kontakt/",
+    "titel": "Kontakt",
+    "datum": "2017-04-18",
+    "woerter": 0,
+    "bilder": []
+  },
+  {
+    "typ": "page",
+    "slug": "blog",
+    "url": "https://www.aigner-offensiv.de/blog/",
+    "titel": "Blog",
+    "datum": "2017-04-15",
+    "woerter": 0,
+    "bilder": []
+  },
+  {
+    "typ": "page",
+    "slug": "datenschutz",
+    "url": "https://www.aigner-offensiv.de/datenschutz/",
+    "titel": "Datenschutz",
+    "datum": "2017-04-13",
+    "woerter": 0,
+    "bilder": []
+  },
+  {
+    "typ": "page",
+    "slug": "impressum",
+    "url": "https://www.aigner-offensiv.de/impressum/",
+    "titel": "Impressum",
+    "datum": "2017-04-13",
+    "woerter": 0,
+    "bilder": []
+  },
+  {
+    "typ": "page",
+    "slug": "uber-uns",
+    "url": "https://www.aigner-offensiv.de/uber-uns/",
+    "titel": "Über Rainer Aigner",
+    "datum": "2017-03-20",
+    "woerter": 0,
+    "bilder": []
+  },
+  {
+    "typ": "page",
+    "slug": "startseite",
+    "url": "https://www.aigner-offensiv.de/",
+    "titel": "Startseite",
+    "datum": "2017-03-20",
+    "woerter": 0,
+    "bilder": []
+  },
+  {
+    "typ": "post",
+    "slug": "abkuerzungen-verhaltensregeln-als-grundlage-fuer-mehr-erfolg-im-beruf",
+    "url": "https://www.aigner-offensiv.de/abkuerzungen-verhaltensregeln-als-grundlage-fuer-mehr-erfolg-im-beruf/",
+    "titel": "Abkürzungen: Verhaltensregeln als Grundlage für mehr Erfolg im Beruf.",
+    "datum": "2020-07-09",
+    "woerter": 1052,
+    "bilder": [
+      "https://www.aigner-offensiv.de/wp-content/uploads/2020/07/erfolg.jpg"
+    ]
+  },
+  {
+    "typ": "post",
+    "slug": "abkuerzungen-ueber-das-fast-perfekte-gespraech-zu-besseren-jobs",
+    "url": "https://www.aigner-offensiv.de/abkuerzungen-ueber-das-fast-perfekte-gespraech-zu-besseren-jobs/",
+    "titel": "Abkürzung, über das fast perfekte Gespräch zu besseren Jobs",
+    "datum": "2020-06-16",
+    "woerter": 1566,
+    "bilder": [
+      "https://www.aigner-offensiv.de/wp-content/uploads/2020/06/meeting.jpg"
+    ]
+  },
+  {
+    "typ": "post",
+    "slug": "abkuerzungen-der-schnellste-weg-nach-oben-geht-ueber-entrepreneurship",
+    "url": "https://www.aigner-offensiv.de/abkuerzungen-der-schnellste-weg-nach-oben-geht-ueber-entrepreneurship/",
+    "titel": "Abkürzungen, der schnellste Weg nach oben, geht über Entrepreneurship",
+    "datum": "2020-05-18",
+    "woerter": 1554,
+    "bilder": [
+      "https://www.aigner-offensiv.de/wp-content/uploads/2020/05/entrepreneurship.jpg"
+    ]
+  },
+  {
+    "typ": "post",
+    "slug": "das-wohlstandsproblem-loesen",
+    "url": "https://www.aigner-offensiv.de/das-wohlstandsproblem-loesen/",
+    "titel": "Das Wohlstandsproblem lösen",
+    "datum": "2020-05-04",
+    "woerter": 885,
+    "bilder": [
+      "https://www.aigner-offensiv.de/wp-content/uploads/2020/05/wohlstand.jpg"
+    ]
+  },
+  {
+    "typ": "post",
+    "slug": "krisensituationen-brauchen-echte-fuehrung-und-keinen-populismus",
+    "url": "https://www.aigner-offensiv.de/krisensituationen-brauchen-echte-fuehrung-und-keinen-populismus/",
+    "titel": "Krisensituationen brauchen echte Führung und keinen Populismus!",
+    "datum": "2020-04-23",
+    "woerter": 531,
+    "bilder": [
+      "https://www.aigner-offensiv.de/wp-content/uploads/2020/04/kristensituation.jpg"
+    ]
+  }
+]

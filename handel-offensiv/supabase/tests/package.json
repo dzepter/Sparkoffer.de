@@ -1,0 +1,19 @@
+{
+  "name": "@handel-offensiv/db-tests",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "RLS-Regressionstests gegen PostgreSQL (Migrationen + Supabase-Shim). Laufen lokal und im CI ohne Supabase-CLI.",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:rls": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/pg": "^8.11.10",
+    "pg": "^8.13.1",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.9"
+  }
+}

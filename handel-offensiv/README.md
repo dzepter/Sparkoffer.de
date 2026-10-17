@@ -1,5 +1,7 @@
 # Handel Offensiv – Der digitale Mannschaftsraum
 
+> **Umgezogen (17.10.2026):** Die Plattform wird im privaten Repository **`dzepter/handel-offensiv-digital`** weiterentwickelt (vollständige Historie übernommen). Dieses Verzeichnis ist eingefroren und dient nur noch als Referenz; Änderungen bitte ausschließlich dort.
+
 Lernplattform für das Präsenzprogramm **HANDEL OFFENSIV – Der Führungsführerschein
 für den Handel** von Aigner Offensiv.
 
